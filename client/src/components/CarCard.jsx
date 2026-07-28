@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
+import { useCompare } from '../context/CompareContext';
 
 const CarCard = ({ car }) => {
   // Handle image URL
@@ -58,8 +59,14 @@ const CarCard = ({ car }) => {
   const targetId = car.id || car._id;
 
   const { token, wishlist, toggleWishlist } = useAuth();
+  const { addToCompare, isInCompare, filledCount, MAX_COMPARE } = useCompare();
   const navigate = useNavigate();
   const isSaved = wishlist.includes(targetId);
+
+  // Only show Compare button for real API listings (have _id)
+  const isRealListing = Boolean(car._id);
+  const alreadyComparing = isRealListing && isInCompare(targetId);
+  const compareFull = filledCount >= MAX_COMPARE && !alreadyComparing;
 
   return (
     <Link 
@@ -89,11 +96,7 @@ const CarCard = ({ car }) => {
           onClick={(e) => {
             e.preventDefault(); // Don't trigger link navigation
             e.stopPropagation();
-            if (!token) {
-              navigate('/login');
-            } else {
-              toggleWishlist(targetId);
-            }
+            toggleWishlist(targetId);
           }}
           className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-surface flex items-center justify-center shadow-md cursor-pointer hover:scale-110 transition-transform duration-200 border border-border/40 focus:outline-none z-10"
         >
@@ -186,17 +189,50 @@ const CarCard = ({ car }) => {
         <div className="border-t border-border my-1.5" />
 
         {/* Footer (Post Date + Details Button) */}
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-11px font-medium text-textSecondary">
+        {/* Footer (Post Date + Actions) */}
+        <div className="flex items-center justify-between mt-2 gap-2">
+          <span className="text-11px font-medium text-textSecondary shrink-0">
             {displayDate}
           </span>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            className="font-bold border-none shadow-sm"
-          >
-            View Details
-          </Button>
+          <div className="flex items-center gap-1.5">
+            {/* Compare pill — only for real listings */}
+            {isRealListing && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToCompare(car);
+                }}
+                disabled={compareFull}
+                title={alreadyComparing ? 'In comparison' : compareFull ? 'Comparison full — remove a car first' : 'Add to comparison'}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all select-none cursor-pointer focus:outline-none ${
+                  alreadyComparing
+                    ? 'bg-primary text-white border-primary shadow-sm'
+                    : compareFull
+                      ? 'bg-muted/40 text-textSecondary/40 border-border/40 cursor-not-allowed'
+                      : 'bg-transparent text-textSecondary border-border/60 hover:border-primary/40 hover:text-primary hover:bg-primary/5'
+                }`}
+              >
+                {alreadyComparing ? (
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                )}
+                <span>{alreadyComparing ? 'Added' : 'Compare'}</span>
+              </button>
+            )}
+            <Button
+              variant="primary"
+              size="sm"
+              className="font-bold border-none shadow-sm shrink-0"
+            >
+              View Details
+            </Button>
+          </div>
         </div>
       </div>
     </Link>

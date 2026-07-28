@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CompareProvider } from './context/CompareContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,9 +14,11 @@ import MyListings from './pages/MyListings';
 import AdminPanel from './pages/AdminPanel';
 import Browse from './pages/Browse';
 import Wishlist from './pages/Wishlist';
+import Compare from './pages/Compare';
 import ComingSoon from './pages/ComingSoon';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -23,11 +26,13 @@ const AppLayout = () => {
 
   return (
     <div className="w-full min-h-screen bg-background flex flex-col">
+      <ScrollToTop />
       {!hideNavFooter && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/compare" element={<Compare />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -57,7 +62,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppLayout />
+        <CompareProvider>
+          <AppLayout />
+        </CompareProvider>
       </Router>
     </AuthProvider>
   );

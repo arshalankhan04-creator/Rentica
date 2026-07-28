@@ -7,7 +7,7 @@ import Badge from '../components/Badge';
 
 const ListingDetail = () => {
   const { id } = useParams();
-  const { user, token, wishlist, toggleWishlist } = useAuth();
+  const { user, token, wishlist, toggleWishlist, showAuthModal } = useAuth();
   const navigate = useNavigate();
   const isSaved = wishlist && wishlist.includes(id);
   
@@ -479,14 +479,18 @@ const ListingDetail = () => {
                   <p className="text-xs font-semibold text-textSecondary m-0 mb-3 leading-normal">
                     Log in or create a Valora account to contact the seller directly.
                   </p>
-                  <Link
-                    to="/login"
-                    className="no-underline block"
+                  <Button 
+                    onClick={() => showAuthModal('login', () => setShowContactForm(true), {
+                      title: 'Contact Seller',
+                      description: 'Log in or sign up to start a direct message thread with the seller.'
+                    })}
+                    variant="primary" 
+                    size="md" 
+                    fullWidth 
+                    className="font-bold"
                   >
-                      <Button variant="primary" size="md" fullWidth className="font-bold">
-                        Login to Contact
-                      </Button>
-                    </Link>
+                    Login to Contact
+                  </Button>
                   </div>
                 ) : isOwnListing ? (
                   <div className="space-y-3">

@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
+import AuthModal from '../components/AuthModal';
 
 const AuthContext = createContext(null);
 
@@ -8,6 +9,12 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
+
+  // Auth Modal States
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+  const [pendingAction, setPendingAction] = useState(null);
+  const [authModalCustomContent, setAuthModalCustomContent] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,8 +61,8 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  const register = async (name, email, password, role) => {
-    const res = await api.post('/auth/register', { name, email, password, role });
+  const register = async (name, email, password, role, phone) => {
+    const res = await api.post('/auth/register', { name, email, password, role, phone });
     const { token: userToken, user: userData } = res.data;
 
     localStorage.setItem('token', userToken);
@@ -80,8 +87,54 @@ export const AuthProvider = ({ children }) => {
     setWishlist([]);
   };
 
+  // Show Auth Modal Trigger
+  const showAuthModal = (mode = 'login', callback = null, customContent = null) => {
+    setAuthModalMode(mode);
+    setAuthModalOpen(true);
+    setPendingAction(() => callback);
+    setAuthModalCustomContent(customContent);
+  };
+
+  // Close Auth Modal Trigger
+  const closeAuthModal = () => {
+    setAuthModalOpen(false);
+    setPendingAction(null);
+    setAuthModalCustomContent(null);
+  };
+
+  // Handle successful auth completion
+  const handleAuthSuccess = (userData) => {
+    setAuthModalOpen(false);
+    if (pendingAction) {
+      // Execute the pending action callback after a tiny timeout to prevent state conflicts
+      setTimeout(() => {
+        pendingAction(userData);
+      }, 100);
+    }
+    setPendingAction(null);
+    setAuthModalCustomContent(null);
+  };
+
   const toggleWishlist = async (listingId) => {
-    if (!token) return;
+    // If user is not authenticated, trigger the global auth modal
+    if (!token) {
+      showAuthModal('login', async () => {
+        const freshToken = localStorage.getItem('token');
+        try {
+          await api.post(`/wishlist/${listingId}`, {}, {
+            headers: { Authorization: `Bearer ${freshToken}` }
+          });
+          setWishlist(prev => [...prev, listingId]);
+        } catch (err) {
+          console.error('Failed to toggle wishlist after auth:', err.message);
+        }
+      }, {
+        title: 'Save to Wishlist',
+        description: 'Log in or sign up to add this vehicle to your wishlist and track price changes.'
+      });
+      return;
+    }
+
     const isSaved = wishlist.includes(listingId);
     try {
       if (isSaved) {
@@ -97,8 +150,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, wishlist, toggleWishlist }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      loading, 
+      login, 
+      register, 
+      logout, 
+      wishlist, 
+      toggleWishlist,
+      showAuthModal,
+      closeAuthModal,
+      authModalCustomContent
+    }}>
       {children}
+      {authModalOpen && (
+        <AuthModal
+          mode={authModalMode}
+          onClose={closeAuthModal}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
     </AuthContext.Provider>
   );
 };

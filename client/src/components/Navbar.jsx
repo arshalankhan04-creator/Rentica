@@ -4,7 +4,7 @@ import Button from './Button';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, showAuthModal } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -45,7 +45,22 @@ const Navbar = () => {
           <Link to="/browse" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
             Buy
           </Link>
-          <Link to="/create-listing" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
+          <Link to="/compare" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
+            Compare
+          </Link>
+          <Link 
+            to="/create-listing" 
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                showAuthModal('login', () => navigate('/create-listing'), {
+                  title: 'Sell Your Car',
+                  description: 'Log in or sign up to register your vehicle and list it on Valora.'
+                });
+              }
+            }}
+            className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm"
+          >
             Sell
           </Link>
           <Link to="/finance" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
