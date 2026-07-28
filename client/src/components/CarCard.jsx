@@ -64,10 +64,10 @@ const CarCard = ({ car }) => {
   return (
     <Link 
       to={`/listings/${targetId}`} 
-      className="bg-white border border-gray-100 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer no-underline text-inherit"
+      className="bg-surface border border-border rounded-card-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer no-underline text-inherit"
     >
       {/* Image / Header Zone */}
-      <div className="w-full h-40 relative overflow-hidden bg-gray-100">
+      <div className="w-full h-40 relative overflow-hidden bg-background">
         {imageUrl ? (
           <img 
             src={imageUrl} 
@@ -76,7 +76,7 @@ const CarCard = ({ car }) => {
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${cardGradient} flex items-center justify-center`}>
-            <span className="text-white/20 font-black text-6xl select-none tracking-widest uppercase">
+            <span className="text-white/20 font-bold text-6xl select-none tracking-widest uppercase">
               {car.brand ? car.brand.substring(0, 3) : 'CAR'}
             </span>
           </div>
@@ -95,10 +95,10 @@ const CarCard = ({ car }) => {
               toggleWishlist(targetId);
             }
           }}
-          className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md cursor-pointer hover:scale-110 transition-transform duration-200 border border-gray-50 focus:outline-none z-10"
+          className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-surface flex items-center justify-center shadow-md cursor-pointer hover:scale-110 transition-transform duration-200 border border-border/40 focus:outline-none z-10"
         >
           <svg 
-            className={`w-5 h-5 transition-colors ${isSaved ? 'text-red-500 fill-current' : 'text-gray-400 hover:text-red-500'}`} 
+            className={`w-5 h-5 transition-colors ${isSaved ? 'text-red-500 fill-current' : 'text-textSecondary hover:text-red-500'}`} 
             viewBox="0 0 24 24" 
             fill={isSaved ? 'currentColor' : 'none'} 
             stroke="currentColor" 
@@ -109,11 +109,11 @@ const CarCard = ({ car }) => {
         </button>
 
         {/* Trust Score Badge (Bottom-Right) */}
-        <div className="absolute bottom-3 right-3 bg-white px-3 py-1.5 rounded-[12px] shadow-lg flex items-center gap-2 border border-slate-50/50 z-10 select-none">
-          <div className="w-7 h-7 rounded-full border-2 border-tealPrimary flex items-center justify-center text-[11px] font-black text-tealPrimary">
+        <div className="absolute bottom-3 right-3 bg-surface px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2 border border-border/30 z-10 select-none">
+          <div className="w-7 h-7 rounded-full border-2 border-primary flex items-center justify-center text-11px font-bold text-primary">
             {displayTrustScore}
           </div>
-          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+          <span className="text-2xs font-bold text-textSecondary uppercase tracking-wider">
             Trust Score
           </span>
         </div>
@@ -122,21 +122,21 @@ const CarCard = ({ car }) => {
       {/* Details Section */}
       <div className="p-4 flex flex-col flex-1 text-left">
         {/* Title */}
-        <h4 className="text-lg font-bold text-textCharcoal m-0 tracking-tight truncate leading-snug">
+        <h4 className="text-card-title m-0 truncate leading-snug">
           {car.year} {car.brand} {car.model}
         </h4>
 
         {/* Price Range */}
         <div className="flex items-baseline gap-1 mt-1.5 select-none">
-          <span className="text-lg font-semibold text-slate-800 leading-none">
+          <span className="text-lg font-semibold text-textPrimary leading-none">
             {priceMinStr}
           </span>
           {priceMaxStr && (
             <>
-              <span className="text-xs font-semibold text-gray-400 mx-0.5">
+              <span className="text-xs font-semibold text-textSecondary mx-0.5">
                 -
               </span>
-              <span className="text-sm font-semibold text-gray-500">
+              <span className="text-sm font-semibold text-textSecondary">
                 {priceMaxStr}
               </span>
             </>
@@ -146,8 +146,8 @@ const CarCard = ({ car }) => {
         {/* 2x2 Specs Grid */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-2.5 mb-3.5">
           {/* Mileage / kmDriven */}
-          <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-500">
-            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-textSecondary">
+            <svg className="w-4 h-4 text-textSecondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V12h6" />
               <circle cx="12" cy="12" r="10" />
             </svg>
@@ -155,8 +155,8 @@ const CarCard = ({ car }) => {
           </div>
 
           {/* Fuel Type */}
-          <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-500">
-            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-textSecondary">
+            <svg className="w-4 h-4 text-textSecondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 18V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1h13a1 1 0 001-1zM14 8h-4m-2 4h8" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11l2.5 2.5a1.5 1.5 0 010 2.12l-1.5 1.5M16 4h4" />
             </svg>
@@ -164,8 +164,8 @@ const CarCard = ({ car }) => {
           </div>
 
           {/* Transmission */}
-          <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-500">
-            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-textSecondary">
+            <svg className="w-4 h-4 text-textSecondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="3" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1  1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
             </svg>
@@ -173,8 +173,8 @@ const CarCard = ({ car }) => {
           </div>
 
           {/* Location */}
-          <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-500">
-            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-textSecondary">
+            <svg className="w-4 h-4 text-textSecondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <circle cx="12" cy="11" r="3" />
             </svg>
@@ -183,16 +183,17 @@ const CarCard = ({ car }) => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-100 my-1.5" />
+        <div className="border-t border-border my-1.5" />
 
         {/* Footer (Post Date + Details Button) */}
         <div className="flex items-center justify-between mt-2">
-          <span className="text-[11px] font-medium text-gray-400">
+          <span className="text-11px font-medium text-textSecondary">
             {displayDate}
           </span>
           <Button 
             variant="primary" 
-            className="px-4 py-1.5 text-xs font-bold text-white bg-tealPrimary hover:bg-tealDark rounded-[8px] transition-colors border-none"
+            size="sm" 
+            className="font-bold border-none shadow-sm"
           >
             View Details
           </Button>

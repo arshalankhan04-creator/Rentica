@@ -196,7 +196,7 @@ const AdminPanel = () => {
                     {listing.seller ? (
                       <div>
                         {listing.seller.name} <br />
-                        <span style={{ fontSize: '0.85em', color: '#666' }}>{listing.seller.email}</span>
+                        <span style={{ fontSize: '0.85em', color: 'var(--color-textSecondary)' }}>{listing.seller.email}</span>
                       </div>
                     ) : (
                       'Unknown Seller'

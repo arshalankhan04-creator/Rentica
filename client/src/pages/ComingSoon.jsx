@@ -16,7 +16,7 @@ const ComingSoon = () => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
         </svg>
       </div>
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-3">
+      <h2 className="text-3xl font-bold text-gray-955 mb-3">
         {formattedTitle} Coming Soon
       </h2>
       <p className="text-gray-500 text-sm mb-8 leading-relaxed">

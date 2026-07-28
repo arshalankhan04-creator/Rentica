@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Button from '../components/Button';
+import Badge from '../components/Badge';
 
 const EditListing = () => {
   const { id } = useParams();
@@ -78,9 +79,9 @@ const EditListing = () => {
   // Protect page: Loading check
   if (authLoading || fetching) {
     return (
-      <div className="w-full bg-bgLight min-h-screen py-16 flex flex-col items-center justify-center font-sans">
-        <div className="w-10 h-10 border-4 border-indigo-100 border-t-tealPrimary rounded-full animate-spin mb-4" />
-        <p className="text-gray-400 text-xs font-bold m-0">Loading details...</p>
+      <div className="w-full bg-background min-h-screen py-16 flex flex-col items-center justify-center font-sans">
+        <div className="w-10 h-10 border-4 border-secondary/10 border-t-secondary rounded-full animate-spin mb-4" />
+        <p className="text-textSecondary text-xs font-bold m-0">Loading details...</p>
       </div>
     );
   }
@@ -97,21 +98,21 @@ const EditListing = () => {
   const isOwnListing = userId && sellerId && sellerId.toString() === userId.toString();
 
   // Access check
-  if (!user || user.role !== 'seller' || !isOwnListing) {
+  if (!user || !isOwnListing) {
     return (
       <div className="w-full bg-bgLight min-h-screen py-16 flex flex-col items-center justify-center font-sans">
-        <div className="max-w-md w-full bg-white border border-gray-100 rounded-[24px] p-8 shadow-sm text-center">
-          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className="max-w-md w-full bg-surface border border-border rounded-card-lg p-8 shadow-sm text-center">
+          <div className="w-16 h-16 rounded-full bg-dangerLight border border-dangerBorder/30 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-danger" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h2 className="text-xl font-extrabold text-gray-950 mb-2">Access Denied</h2>
-          <p className="text-gray-400 text-sm font-medium leading-relaxed mb-6">
+          <h2 className="text-xl font-bold text-textPrimary mb-2">Access Denied</h2>
+          <p className="text-textSecondary text-sm font-medium leading-relaxed mb-6">
             You are not authorized to edit this listing.
           </p>
-          <Link to="/">
-            <Button variant="primary" className="py-2.5 px-6 text-xs font-bold bg-tealPrimary hover:bg-tealDark border-none text-white">
+          <Link to="/" className="no-underline">
+            <Button variant="primary" size="md" className="font-bold">
               Back to Home
             </Button>
           </Link>
@@ -323,15 +324,15 @@ const EditListing = () => {
         {/* Title Block */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-950 m-0 tracking-tight">
+            <h1 className="text-h1 m-0">
               Edit Your Listing
             </h1>
-            <p className="text-sm text-gray-500 font-medium m-0 mt-1.5 select-none leading-relaxed">
+            <p className="text-body text-sm m-0 mt-1.5 select-none leading-relaxed">
               Modify the details and images for your listed vehicle.
             </p>
           </div>
-          <Link to={`/listings/${id}`}>
-            <Button variant="flat" className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-gray-950 flex items-center gap-1">
+          <Link to={`/listings/${id}`} className="no-underline">
+            <Button variant="ghost" size="sm" className="font-bold text-textSecondary hover:text-textPrimary flex items-center gap-1">
               &larr; Cancel and Go Back
             </Button>
           </Link>
@@ -339,12 +340,12 @@ const EditListing = () => {
 
         {/* Global Errors */}
         {validationError && (
-          <div className="w-full py-4 px-6 bg-red-50 border border-red-100 rounded-2xl p-6 mb-6 text-red-750 text-xs font-bold" id="validation-error">
+          <div className="w-full py-4 px-6 bg-dangerLight border border-dangerBorder rounded-2xl p-6 mb-6 text-danger text-xs font-bold" id="validation-error">
             {validationError}
           </div>
         )}
         {error && (
-          <div className="w-full py-4 px-6 bg-red-50 border border-red-100 rounded-2xl p-6 mb-6 text-red-700 text-xs font-bold" id="server-error">
+          <div className="w-full py-4 px-6 bg-dangerLight border border-dangerBorder rounded-2xl p-6 mb-6 text-danger text-xs font-bold" id="server-error">
             {error}
           </div>
         )}
@@ -356,12 +357,12 @@ const EditListing = () => {
             <div className="lg:col-span-8 space-y-6">
               
               {/* Step 1: Vehicle Details */}
-              <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 shadow-sm text-left space-y-6">
-                <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
-                  <div className="w-8 h-8 rounded-full bg-tealPrimary/5 text-tealPrimary flex items-center justify-center font-extrabold text-xs">
+              <div className="bg-surface border border-border rounded-card-lg p-6 md:p-8 shadow-sm text-left space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/40 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/5 text-primary flex items-center justify-center font-bold text-xs">
                     1
                   </div>
-                  <h2 className="text-lg font-extrabold text-gray-950 m-0">
+                  <h2 className="text-card-title m-0">
                     Step 1: Vehicle Details
                   </h2>
                 </div>
@@ -369,7 +370,7 @@ const EditListing = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Brand */}
                   <div>
-                    <label htmlFor="brand" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                    <label htmlFor="brand" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                       Brand *
                     </label>
                     <input
@@ -384,13 +385,13 @@ const EditListing = () => {
                       onBlur={() => {
                         if (!brand.trim()) setErrors(prev => ({ ...prev, brand: 'Brand is required' }));
                       }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary ${
-                        errors.brand ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'
+                      className={`w-full bg-surface border rounded-xl px-4 py-3 text-xs font-medium text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                        errors.brand ? 'border-danger focus:ring-danger/30' : 'border-border'
                       }`}
                       required
                     />
                     {errors.brand && (
-                      <span className="text-[10px] font-bold text-red-500 mt-1.5 block">
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.brand}
                       </span>
                     )}
@@ -398,7 +399,7 @@ const EditListing = () => {
 
                   {/* Model */}
                   <div>
-                    <label htmlFor="model" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                    <label htmlFor="model" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                       Model *
                     </label>
                     <input
@@ -413,13 +414,13 @@ const EditListing = () => {
                       onBlur={() => {
                         if (!model.trim()) setErrors(prev => ({ ...prev, model: 'Model is required' }));
                       }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary ${
-                        errors.model ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'
+                      className={`w-full bg-surface border rounded-xl px-4 py-3 text-xs font-medium text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                        errors.model ? 'border-danger focus:ring-danger/30' : 'border-border'
                       }`}
                       required
                     />
                     {errors.model && (
-                      <span className="text-[10px] font-bold text-red-500 mt-1.5 block">
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.model}
                       </span>
                     )}
@@ -427,7 +428,7 @@ const EditListing = () => {
 
                   {/* Year */}
                   <div>
-                    <label htmlFor="year" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                    <label htmlFor="year" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                       Year *
                     </label>
                     <input
@@ -450,13 +451,13 @@ const EditListing = () => {
                           }
                         }
                       }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary ${
-                        errors.year ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'
+                      className={`w-full bg-surface border rounded-xl px-4 py-3 text-xs font-medium text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                        errors.year ? 'border-danger focus:ring-danger/30' : 'border-border'
                       }`}
                       required
                     />
                     {errors.year && (
-                      <span className="text-[10px] font-bold text-red-500 mt-1.5 block">
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.year}
                       </span>
                     )}
@@ -464,7 +465,7 @@ const EditListing = () => {
 
                   {/* Kilometers Driven */}
                   <div>
-                    <label htmlFor="kmDriven" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                    <label htmlFor="kmDriven" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                       Kilometers Driven *
                     </label>
                     <input
@@ -483,62 +484,76 @@ const EditListing = () => {
                           setErrors(prev => ({ ...prev, kmDriven: 'Kilometers driven cannot be negative' }));
                         }
                       }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary ${
-                        errors.kmDriven ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'
+                      className={`w-full bg-surface border rounded-xl px-4 py-3 text-xs font-medium text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                        errors.kmDriven ? 'border-danger focus:ring-danger/30' : 'border-border'
                       }`}
                       required
                     />
                     {errors.kmDriven && (
-                      <span className="text-[10px] font-bold text-red-500 mt-1.5 block">
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.kmDriven}
                       </span>
                     )}
                   </div>
 
                   {/* Fuel Type */}
-                  <div>
-                    <label htmlFor="fuelType" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                  <div className="flex flex-col gap-1.5 w-full text-left">
+                    <label htmlFor="fuelType" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
                       Fuel Type *
                     </label>
-                    <select
-                      id="fuelType"
-                      value={fuelType}
-                      onChange={(e) => setFuelType(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-tealPrimary cursor-pointer"
-                    >
-                      <option value="Petrol">Petrol</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="Electric">Electric</option>
-                      <option value="CNG">CNG</option>
-                      <option value="Hybrid">Hybrid</option>
-                    </select>
+                    <div className="relative w-full flex items-center">
+                      <select
+                        id="fuelType"
+                        value={fuelType}
+                        onChange={(e) => setFuelType(e.target.value)}
+                        className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-surface text-xs font-semibold text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary appearance-none cursor-pointer hover:border-muted-foreground/30 transition-all shadow-sm"
+                      >
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Electric">Electric</option>
+                        <option value="CNG">CNG</option>
+                        <option value="Hybrid">Hybrid</option>
+                      </select>
+                      <div className="absolute right-3.5 pointer-events-none text-muted-foreground flex items-center">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Transmission */}
-                  <div>
-                    <label htmlFor="transmission" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                  <div className="flex flex-col gap-1.5 w-full text-left">
+                    <label htmlFor="transmission" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
                       Transmission *
                     </label>
-                    <select
-                      id="transmission"
-                      value={transmission}
-                      onChange={(e) => setTransmission(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-tealPrimary cursor-pointer"
-                    >
-                      <option value="Manual">Manual</option>
-                      <option value="Automatic">Automatic</option>
-                    </select>
+                    <div className="relative w-full flex items-center">
+                      <select
+                        id="transmission"
+                        value={transmission}
+                        onChange={(e) => setTransmission(e.target.value)}
+                        className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-surface text-xs font-semibold text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary appearance-none cursor-pointer hover:border-muted-foreground/30 transition-all shadow-sm"
+                      >
+                        <option value="Manual">Manual</option>
+                        <option value="Automatic">Automatic</option>
+                      </select>
+                      <div className="absolute right-3.5 pointer-events-none text-muted-foreground flex items-center">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Step 2: Photos */}
-              <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 shadow-sm text-left space-y-6">
-                <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
-                  <div className="w-8 h-8 rounded-full bg-tealPrimary/5 text-tealPrimary flex items-center justify-center font-extrabold text-xs">
+              <div className="bg-surface border border-border rounded-card-lg p-6 md:p-8 shadow-sm text-left space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/40 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/5 text-primary flex items-center justify-center font-bold text-xs">
                     2
                   </div>
-                  <h2 className="text-lg font-extrabold text-gray-950 m-0">
+                  <h2 className="text-card-title m-0">
                     Step 2: Photos
                   </h2>
                 </div>
@@ -546,7 +561,7 @@ const EditListing = () => {
                 {/* Existing Images Grid */}
                 {listing.images && listing.images.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-[10px] font-extrabold tracking-wider text-gray-400 uppercase select-none">
+                    <p className="text-[10px] font-semibold tracking-wider text-textSecondary uppercase select-none">
                       Uploaded Images ({listing.images.length} / 6)
                     </p>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
@@ -590,9 +605,9 @@ const EditListing = () => {
                       onDragLeave={handleDrag}
                       onDrop={handleDrop}
                       onClick={triggerFileSelect}
-                      className={`w-full border-2 border-dashed rounded-2xl p-8 text-center bg-gray-50/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3 select-none ${
-                        dragActive ? 'border-tealPrimary bg-tealPrimary/5' : 'border-gray-200 hover:border-tealPrimary'
-                      } ${errors.images ? 'border-red-300 bg-red-50/5' : ''}`}
+                      className={`w-full border-2 border-dashed rounded-2xl p-8 text-center bg-muted/30 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3 select-none ${
+                        dragActive ? 'border-secondary bg-secondary/5' : 'border-border hover:border-primary'
+                      } ${errors.images ? 'border-danger bg-dangerLight/10' : ''}`}
                     >
                       <input
                         ref={fileInputRef}
@@ -604,28 +619,30 @@ const EditListing = () => {
                         className="hidden"
                       />
                       
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-400 border border-gray-100">
+                      <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center shadow-sm text-textSecondary border border-border">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-800 m-0">
+                        <p className="text-xs font-bold text-textPrimary m-0">
                           Drag and drop new photos here
                         </p>
-                        <p className="text-[11px] font-semibold text-gray-400 m-0">
+                        <p className="text-[11px] font-semibold text-textSecondary m-0">
                           Add more photos (up to {6 - imageCount} allowed total)
                         </p>
                       </div>
 
-                      <button 
+                      <Button 
                         type="button"
                         onClick={(e) => { e.stopPropagation(); triggerFileSelect(); }}
-                        className="mt-1 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-sm"
+                        variant="outline"
+                        size="sm"
+                        className="mt-1 font-bold shadow-sm"
                       >
                         Browse Files
-                      </button>
+                      </Button>
                     </div>
 
                     {/* Inline Image Errors */}
@@ -638,13 +655,13 @@ const EditListing = () => {
                     {/* Previews Thumbnails Grid for newly selected files */}
                     {newPreviews.length > 0 && (
                       <div className="space-y-3">
-                        <p className="text-[10px] font-extrabold tracking-wider text-gray-400 uppercase select-none">
+                        <p className="text-[10px] font-semibold tracking-wider text-textSecondary uppercase select-none">
                           Newly Selected Images ({newPreviews.length})
                         </p>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-muted/30 border border-border rounded-2xl p-4">
                           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 flex-1">
                             {newPreviews.map((src, index) => (
-                              <div key={index} className="aspect-[4/3] rounded-xl overflow-hidden border border-gray-100 bg-gray-50 relative group shadow-sm">
+                              <div key={index} className="aspect-[4/3] rounded-xl overflow-hidden border border-border bg-surface relative group shadow-sm">
                                 <img
                                   src={src}
                                   alt={`New Preview ${index + 1}`}
@@ -653,44 +670,46 @@ const EditListing = () => {
                               </div>
                             ))}
                           </div>
-                          <button
+                          <Button
                             type="button"
                             onClick={handleUploadImages}
                             disabled={uploadingImages}
-                            className="px-5 py-2.5 bg-tealPrimary hover:bg-tealDark text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-sm disabled:opacity-50 border-none whitespace-nowrap self-end sm:self-center"
+                            variant="primary"
+                            size="sm"
+                            className="font-bold border-none shadow-sm whitespace-nowrap self-end sm:self-center"
                           >
                             {uploadingImages ? 'Uploading...' : 'Upload Selected'}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-2xl text-amber-800 text-xs font-bold">
+                  <div className="p-4 bg-warningLight border border-warningBorder rounded-2xl text-warning text-xs font-bold">
                     You have reached the maximum limit of 6 listing images. Delete existing images above if you want to upload new ones.
                   </div>
                 )}
               </div>
 
               {/* Step 3: Pricing & Review */}
-              <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 shadow-sm text-left space-y-6">
-                <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
-                  <div className="w-8 h-8 rounded-full bg-tealPrimary/5 text-tealPrimary flex items-center justify-center font-extrabold text-xs">
+              <div className="bg-surface border border-border rounded-card-lg p-6 md:p-8 shadow-sm text-left space-y-6">
+                <div className="flex items-center gap-3 border-b border-border/40 pb-4">
+                  <div className="w-8 h-8 rounded-full bg-primary/5 text-primary flex items-center justify-center font-bold text-xs">
                     3
                   </div>
-                  <h2 className="text-lg font-extrabold text-gray-950 m-0">
+                  <h2 className="text-card-title m-0">
                     Step 3: Pricing & Review
                   </h2>
                 </div>
 
                 {/* Price input container in a box */}
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4">
+                <div className="bg-muted/30 border border-border rounded-2xl p-6 space-y-4">
                   <div>
-                    <label htmlFor="price" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                    <label htmlFor="price" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                       Your Asking Price (₹) *
                     </label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-4 text-gray-400 font-extrabold text-base">
+                      <span className="absolute left-4 text-xs font-semibold text-textSecondary select-none">
                         ₹
                       </span>
                       <input
@@ -709,18 +728,18 @@ const EditListing = () => {
                             setErrors(prev => ({ ...prev, price: 'Price must be greater than 0' }));
                           }
                         }}
-                        className={`w-full bg-white border rounded-xl pl-10 pr-4 py-3.5 text-sm font-extrabold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary shadow-sm ${
-                          errors.price ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'
+                        className={`w-full bg-surface border rounded-xl pl-8 pr-4 py-3 text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                          errors.price ? 'border-danger focus:ring-danger/30' : 'border-border'
                         }`}
                         required
                       />
                     </div>
                     {errors.price && (
-                      <span className="text-[10px] font-bold text-red-500 mt-1.5 block">
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.price}
                       </span>
                     )}
-                    <span className="text-[10px] font-semibold text-gray-400 mt-2 block select-none">
+                    <span className="text-[10px] font-semibold text-textSecondary mt-2 block select-none">
                       ℹ Based on current market data, setting a price near the AI estimate increases sale speed by 40%.
                     </span>
                   </div>
@@ -728,7 +747,7 @@ const EditListing = () => {
 
                 {/* Description */}
                 <div>
-                  <label htmlFor="description" className="block text-[10px] font-extrabold tracking-wider text-gray-400 mb-2 uppercase">
+                  <label htmlFor="description" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
                     Description
                   </label>
                   <textarea
@@ -737,19 +756,22 @@ const EditListing = () => {
                     placeholder="Details about vehicle condition, service history, features, and overall ownership history."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-xs font-semibold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-tealPrimary"
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-3.5 text-xs font-semibold text-textSecondary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all"
                   />
                 </div>
 
                 {/* Submit button */}
-                <button 
+                <Button 
                   type="submit" 
                   disabled={savingText} 
                   id="edit-submit"
-                  className="w-full py-4 bg-tealPrimary hover:bg-tealDark text-white text-sm font-extrabold rounded-xl transition-all duration-200 cursor-pointer shadow-md shadow-[#0B655F]/10 hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 border-none"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  className="font-bold gap-2"
                 >
                   {savingText ? 'Saving...' : 'Save Text Details →'}
-                </button>
+                </Button>
               </div>
 
             </div>
@@ -758,58 +780,58 @@ const EditListing = () => {
             <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-6">
               
               {/* AI Valuation Panel */}
-              <div className="bg-white border border-gray-100 rounded-[24px] p-6 shadow-sm text-left space-y-5">
+              <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-5">
                 <div>
-                  <h3 className="text-base font-extrabold text-gray-950 m-0">
+                  <h3 className="text-card-title m-0">
                     Live AI Price Estimate
                   </h3>
-                  <span className="text-[10px] font-extrabold text-gray-400 bg-gray-100 border border-gray-150 px-2 py-0.5 rounded-md inline-block mt-1 select-none">
+                  <span className="text-[10px] font-semibold text-textSecondary bg-muted border border-border px-2 py-0.5 rounded-md inline-block mt-1 select-none">
                     Coming Soon
                   </span>
                 </div>
 
-                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-center">
-                  <p className="text-gray-400 text-xs font-semibold leading-relaxed m-0">
+                <div className="bg-muted/35 border border-border rounded-2xl p-4 text-center">
+                  <p className="text-textSecondary text-xs font-semibold leading-relaxed m-0">
                     AI price estimate will appear here once you add vehicle details.
                   </p>
                 </div>
 
-                <p className="text-[11px] font-medium text-gray-400 leading-normal m-0 select-none">
+                <p className="text-[11px] font-medium text-textSecondary leading-normal m-0 select-none">
                   Estimated based on similar listings, location, age, mileage, and market demand trends.
                 </p>
 
-                <div className="border-t border-gray-100 pt-4 space-y-3">
-                  <p className="text-[10px] font-extrabold tracking-wider text-gray-400 uppercase m-0 mb-1 select-none">
+                <div className="border-t border-border pt-4 space-y-3">
+                  <p className="text-[10px] font-semibold tracking-wider text-textSecondary uppercase m-0 mb-1 select-none">
                     Why this price?
                   </p>
                   
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
+                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
                     <span>Age & Mileage</span>
-                    <span className="text-gray-400 font-extrabold">--</span>
+                    <span className="text-textSecondary/60 font-semibold">--</span>
                   </div>
                   
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
+                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
                     <span>Location Demand</span>
-                    <span className="text-gray-400 font-extrabold">--</span>
+                    <span className="text-textSecondary/60 font-semibold">--</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
+                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
                     <span>Single Owner</span>
-                    <span className="text-gray-400 font-extrabold">--</span>
+                    <span className="text-textSecondary/60 font-semibold">--</span>
                   </div>
                 </div>
 
                 {/* Trust Score circular indicator */}
-                <div className="border-t border-gray-100 pt-4">
-                  <div className="bg-tealPrimary/5 border border-tealPrimary/10 rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full border-2 border-dashed border-gray-300 bg-white flex items-center justify-center font-extrabold text-gray-400 select-none">
+                <div className="border-t border-border pt-4">
+                  <div className="bg-secondary/5 border border-secondary/10 rounded-2xl p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full border-2 border-dashed border-border bg-surface flex items-center justify-center font-bold text-textSecondary select-none">
                       N/A
                     </div>
                     <div className="flex-1 text-left">
-                      <span className="text-xs font-extrabold text-gray-900 block leading-tight">
+                      <span className="text-xs font-bold text-textPrimary block leading-tight">
                         Listing Trust Score
                       </span>
-                      <span className="text-[10px] font-semibold text-gray-400 block mt-0.5 select-none">
+                      <span className="text-[10px] font-semibold text-textSecondary block mt-0.5 select-none">
                         Score: N/A • Not Rated
                       </span>
                     </div>
@@ -818,8 +840,8 @@ const EditListing = () => {
               </div>
 
               {/* Security Shield */}
-              <div className="flex items-center justify-center gap-2 text-gray-400 text-xs font-bold select-none">
-                <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <div className="flex items-center justify-center gap-2 text-textSecondary text-xs font-bold select-none">
+                <svg className="w-4 h-4 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <span>Secure & Encrypted Data</span>

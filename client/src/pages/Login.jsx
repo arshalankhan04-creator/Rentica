@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Button from '../components/Button';
 
 // Local Pupil Component
 const Pupil = ({ 
@@ -484,7 +485,7 @@ const Login = () => {
       </div>
 
       {/* Right Login Column */}
-      <div className="flex items-center justify-center p-8 bg-white h-full overflow-y-auto">
+      <div className="flex items-center justify-center p-8 bg-background h-full overflow-y-auto">
         <div className="w-full max-w-[380px] text-left">
           
           {/* Mobile logo */}
@@ -492,21 +493,21 @@ const Login = () => {
             <Link 
               to="/" 
               className="text-2xl no-underline tracking-wide block"
-              style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textCharcoal)', fontWeight: 500 }}
+              style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
             >
               Valora
             </Link>
           </div>
 
           <div className="mb-8 select-none">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Welcome back!</h1>
-            <p className="text-gray-400 text-sm font-semibold">Please enter your credentials</p>
+            <h1 className="text-3xl font-bold text-textPrimary tracking-tight mb-2">Welcome back!</h1>
+            <p className="text-textSecondary text-sm font-medium">Please enter your credentials</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {validationError && (
               <div 
-                className="p-4 text-xs font-bold text-red-750 bg-red-50 border border-red-100 rounded-2xl shadow-sm" 
+                className="p-4 text-xs font-semibold text-danger bg-dangerLight border border-dangerBorder rounded-2xl shadow-sm" 
                 id="validation-error"
               >
                 {validationError}
@@ -515,7 +516,7 @@ const Login = () => {
             
             {error && (
               <div 
-                className="p-4 text-xs font-bold text-red-700 bg-red-50 border border-red-150 rounded-2xl shadow-sm" 
+                className="p-4 text-xs font-semibold text-danger bg-dangerLight border border-dangerBorder rounded-2xl shadow-sm" 
                 id="server-error"
               >
                 {error}
@@ -523,7 +524,7 @@ const Login = () => {
             )}
 
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Email Address</label>
+              <label htmlFor="email" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">Email Address</label>
               <input
                 id="email"
                 type="email"
@@ -533,12 +534,12 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
-                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-slate-50/50 text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full h-12 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/30 transition-all shadow-sm"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Password</label>
+              <label htmlFor="password" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">Password</label>
               <div className="relative">
                 <input
                   id="password"
@@ -546,12 +547,12 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-gray-200 bg-slate-50/50 text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-surface text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/30 transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-textSecondary hover:text-textPrimary transition-colors focus:outline-none cursor-pointer"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -567,31 +568,34 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between select-none">
-              <label className="flex items-center space-x-2 text-xs font-semibold text-gray-400 cursor-not-allowed opacity-50">
-                <input type="checkbox" disabled className="rounded border-gray-200 text-primary focus:ring-primary pointer-events-none" />
-                <span>Remember for 30 days</span>
-              </label>
-              <span className="text-xs font-bold text-primary hover:underline cursor-not-allowed opacity-60">
+            <div className="flex items-center justify-end select-none">
+              <Link 
+                to="/forgot-password" 
+                state={{ email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '' }}
+                className="text-xs font-bold text-primary hover:underline no-underline"
+              >
                 Forgot password?
-              </span>
+              </Link>
             </div>
 
-            <button 
+            <Button 
               type="submit" 
               disabled={loading}
               id="login-submit"
-              className="w-full h-12 text-sm font-bold text-white bg-primary hover:bg-primaryDark rounded-xl cursor-pointer transition-colors shadow-sm focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="font-bold"
             >
               {loading ? "Signing in..." : "Log in"}
-            </button>
+            </Button>
           </form>
 
           {/* Visibly Disabled Social Login */}
           <div className="mt-4 select-none opacity-50">
             <button 
               disabled
-              className="w-full h-12 bg-slate-50 border border-gray-200 text-gray-400 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-not-allowed pointer-events-none"
+              className="w-full h-12 bg-muted border border-border text-textSecondary font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
               type="button"
             >
               <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -601,9 +605,9 @@ const Login = () => {
             </button>
           </div>
 
-          <div className="text-center text-xs font-semibold text-gray-400 mt-8 select-none">
+          <div className="text-center text-xs font-semibold text-textSecondary mt-8 select-none">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-extrabold hover:underline">
+            <Link to="/register" className="text-primary font-bold hover:underline">
               Sign Up
             </Link>
           </div>

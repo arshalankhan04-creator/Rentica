@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import Select from '../components/Select';
 import CarCard from '../components/CarCard';
 import ClientFeedback from '../components/ui/testimonial';
 import api from '../api/axios';
@@ -163,7 +164,7 @@ const Home = () => {
     if (selectedBrand) params.set('brand', selectedBrand);
     if (selectedModel) params.set('model', selectedModel);
     if (selectedLocation) params.set('location', selectedLocation);
-    
+
     if (priceRange) {
       if (priceRange === '0-20') {
         params.set('minPrice', '0');
@@ -178,7 +179,7 @@ const Home = () => {
         params.set('minPrice', '10000000');
       }
     }
-    
+
     navigate(`/browse?${params.toString()}`);
   };
 
@@ -186,7 +187,7 @@ const Home = () => {
     <div className="w-full bg-bgLight min-h-screen flex flex-col font-sans">
 
       {/* Hero Section Container */}
-      <div className="relative w-full min-h-[500px] bg-white overflow-hidden flex items-center">
+      <div className="relative w-full min-h-[500px] bg-surface overflow-hidden flex items-center">
 
         {/* Diagonal Slanted Indigo Background Split (Clipped Div) */}
         <div
@@ -200,20 +201,20 @@ const Home = () => {
           {/* Left Zone: Headline & Actions (On White background) */}
           <div className="flex-1 text-left space-y-8 max-w-xl">
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight m-0 uppercase" style={{ color: 'var(--color-textCharcoal)' }}>
+              <h1 className="text-display uppercase m-0">
                 FAIR BUYING. <br />
                 <span style={{ color: 'var(--color-primary)' }}>FAIR SELLING.</span>
               </h1>
-              <p className="text-gray-500 text-lg m-0 leading-relaxed max-w-lg">
+              <p className="text-body text-lg m-0 leading-relaxed max-w-lg">
                 Valora is the premium automotive marketplace designed to bring total transparency, trust, and ease to buying or selling your next vehicle.
               </p>
             </div>
 
             <div className="flex flex-row items-center gap-4">
-              <Button onClick={() => navigate('/browse')} variant="primary" pill className="px-8 py-3.5 shadow-lg shadow-indigo-600/20 text-sm font-bold bg-primary">
+              <Button onClick={() => navigate('/browse')} variant="primary" pill size="lg" className="shadow-lg shadow-primary/25 font-bold">
                 Buy a Car
               </Button>
-              <Button onClick={() => navigate('/create-listing')} variant="outline" pill className="px-8 py-3.5 text-sm font-bold border-gray-300 text-textCharcoal">
+              <Button onClick={() => navigate('/create-listing')} variant="outline" pill size="lg" className="font-bold">
                 Sell Yours
               </Button>
             </div>
@@ -232,88 +233,79 @@ const Home = () => {
 
       {/* Floating White Search Card */}
       <div className="relative -mt-10 max-w-4xl mx-auto px-6 w-full z-20">
-        <div className="bg-white text-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
+        <div className="bg-surface text-textPrimary rounded-2xl shadow-xl p-6 md:p-8 border border-border">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
             {/* Brand */}
-            <div className="w-full text-left">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Brand
-              </label>
-              <select 
+            <div className="w-full">
+              <Select
+                label="Brand"
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
-                className="w-full bg-[#F4F4F6] border-none rounded-lg p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary text-gray-700 appearance-none cursor-pointer"
-              >
-                <option value="">Select Brand</option>
-                {availableBrands.map((b) => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-                {!availableBrands.includes('Audi') && <option value="Audi">Audi</option>}
-                {!availableBrands.includes('BMW') && <option value="BMW">BMW</option>}
-                {!availableBrands.includes('Mercedes-Benz') && <option value="Mercedes-Benz">Mercedes-Benz</option>}
-                {!availableBrands.includes('Porsche') && <option value="Porsche">Porsche</option>}
-              </select>
+                placeholder="Any Brand"
+                options={[
+                  ...availableBrands.map((b) => ({ value: b, label: b })),
+                  ...(!availableBrands.includes('Audi') ? [{ value: 'Audi', label: 'Audi' }] : []),
+                  ...(!availableBrands.includes('BMW') ? [{ value: 'BMW', label: 'BMW' }] : []),
+                  ...(!availableBrands.includes('Mercedes-Benz') ? [{ value: 'Mercedes-Benz', label: 'Mercedes-Benz' }] : []),
+                  ...(!availableBrands.includes('Porsche') ? [{ value: 'Porsche', label: 'Porsche' }] : [])
+                ]}
+              />
             </div>
 
             {/* Model */}
-            <div className="w-full text-left">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Model
-              </label>
-              <select 
+            <div className="w-full">
+              <Select
+                label="Model"
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-[#F4F4F6] border-none rounded-lg p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary text-gray-700 appearance-none cursor-pointer"
-              >
-                <option value="">Select Model</option>
-                <option value="Sedan">Sedan</option>
-                <option value="SUV">SUV</option>
-                <option value="Coupe">Coupe</option>
-              </select>
+                placeholder="Any Model"
+                options={[
+                  { value: 'Sedan', label: 'Sedan' },
+                  { value: 'SUV', label: 'SUV' },
+                  { value: 'Coupe', label: 'Coupe' }
+                ]}
+              />
             </div>
 
             {/* Price Range */}
-            <div className="w-full text-left">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Price Range
-              </label>
-              <select 
+            <div className="w-full">
+              <Select
+                label="Price Range"
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full bg-[#F4F4F6] border-none rounded-lg p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary text-gray-700 appearance-none cursor-pointer"
-              >
-                <option value="">Select Price Range</option>
-                <option value="0-20">Under ₹20 Lakhs</option>
-                <option value="20-50">₹20 - ₹50 Lakhs</option>
-                <option value="50-100">₹50 Lakhs - ₹1 Crore</option>
-                <option value="100+">Above ₹1 Crore</option>
-              </select>
+                placeholder="Any Price"
+                options={[
+                  { value: '0-20', label: 'Under ₹20 Lakhs' },
+                  { value: '20-50', label: '₹20 - ₹50 Lakhs' },
+                  { value: '50-100', label: '₹50 Lakhs - ₹1 Crore' },
+                  { value: '100+', label: 'Above ₹1 Crore' }
+                ]}
+              />
             </div>
 
             {/* Location */}
-            <div className="w-full text-left">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Location
-              </label>
-              <select 
+            <div className="w-full">
+              <Select
+                label="Location"
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
-                className="w-full bg-[#F4F4F6] border-none rounded-lg p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary text-gray-700 appearance-none cursor-pointer"
-              >
-                <option value="">Select Location</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Pune">Pune</option>
-              </select>
+                placeholder="Any Location"
+                options={[
+                  { value: 'Mumbai', label: 'Mumbai' },
+                  { value: 'Delhi', label: 'Delhi' },
+                  { value: 'Bangalore', label: 'Bangalore' },
+                  { value: 'Pune', label: 'Pune' }
+                ]}
+              />
             </div>
 
             {/* Search Button */}
             <div className="w-full">
-              <Button 
+              <Button
                 onClick={handleSearch}
-                variant="primary" 
-                className="w-full py-3.5 bg-primary shadow-lg shadow-indigo-600/10 font-bold cursor-pointer hover:bg-primaryDark transition-colors"
+                variant="primary"
+                fullWidth
+                className="shadow-lg shadow-primary/15 font-bold h-12"
               >
                 Search
               </Button>
@@ -337,7 +329,7 @@ const Home = () => {
               fontWeight: '400',
               letterSpacing: '8px',
               color: 'transparent',
-              WebkitTextStroke: '2px #d0d0d0ff'
+              WebkitTextStroke: '2px var(--color-border)'
             }}
           >
             Valora
@@ -346,8 +338,8 @@ const Home = () => {
       </div>
 
       {/* Browse by Category Section */}
-      <div className="max-w-5xl mx-auto px-6 w-full mb-28 text-center mt-28">
-        <h2 className="text-3xl font-extrabold tracking-tight mb-10" style={{ color: 'var(--color-textCharcoal)' }}>
+      <div className="max-w-5xl mx-auto px-6 w-full my-20 text-center">
+        <h2 className="text-section-title mb-10">
           Browse by Category
         </h2>
 
@@ -377,7 +369,7 @@ const Home = () => {
           ].map((cat, idx) => (
             <Link
               key={idx}
-              to="/browse"
+              to={cat.name === 'Electric' ? '/browse?fuelType=Electric' : `/browse?model=${cat.name}`}
               className="group bg-white border border-gray-100 rounded-2xl py-7 px-4 flex flex-col items-center justify-center gap-4 text-center shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300 no-underline"
             >
               <div className="h-14 flex items-center justify-center">
@@ -396,13 +388,13 @@ const Home = () => {
       </div>
 
       {/* Featured Cars Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-28">
+      <div className="max-w-6xl mx-auto px-6 w-full mb-20">
         <div className="flex items-center justify-between mb-8">
           <div className="text-left">
-            <h2 className="text-3xl font-extrabold tracking-tight m-0" style={{ color: 'var(--color-textCharcoal)' }}>
+            <h2 className="text-h2 m-0">
               Featured Premium Listings
             </h2>
-            <p className="text-gray-500 mt-2 m-0 text-sm">
+            <p className="text-body mt-2 m-0">
               Explore our handpicked curation of highly-inspected luxury performance cars.
             </p>
           </div>
@@ -420,21 +412,21 @@ const Home = () => {
       </div>
 
       {/* The Valora Promise Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-28">
-        <div className="bg-[#F4F4F6] rounded-[32px] p-8 md:p-16 text-left relative overflow-hidden border border-gray-200/60 shadow-sm">
+      <div className="max-w-6xl mx-auto px-6 w-full mb-20">
+        <div className="bg-background rounded-card-xl p-8 md:p-16 text-left relative overflow-hidden border border-border/60 shadow-sm">
           {/* Subtle dotted background grid pattern in brand color */}
-          <div className="absolute inset-0 bg-[radial-gradient(#4F46E506_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-60" />
-          
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(79,70,229,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-60" />
+
           <div className="relative z-10">
-            <span className="text-primary text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="text-primary text-label block">
               The Valora Promise
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold mt-4 mb-12 leading-tight max-w-2xl" style={{ color: 'var(--color-textCharcoal)' }}>
+            <h2 className="text-h1 mt-4 mb-12 leading-tight max-w-2xl">
               Four checks. <span className="text-primary">Every car.</span> Before you call.
             </h2>
 
             {/* Promises Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 border border-gray-200/60 rounded-2xl bg-white divide-y md:divide-y-0 md:divide-x divide-gray-200/60 overflow-hidden shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-4 border border-border/60 rounded-2xl bg-surface divide-y md:divide-y-0 md:divide-x divide-border/60 overflow-hidden shadow-sm">
               {[
                 {
                   num: '01',
@@ -459,13 +451,13 @@ const Home = () => {
               ].map((item, idx) => (
                 <div key={idx} className="p-8 flex flex-col justify-between min-h-[220px]">
                   <div>
-                    <span className="text-primary text-xs font-mono font-bold block mb-4">
+                    <span className="text-primary text-small font-mono font-bold block mb-4">
                       {item.num}
                     </span>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    <h3 className="text-card-title mb-3">
                       {item.title}
                     </h3>
-                    <p className="text-gray-500 text-xs md:text-sm leading-relaxed m-0">
+                    <p className="text-body text-xs md:text-sm leading-relaxed m-0">
                       {item.desc}
                     </p>
                   </div>
@@ -478,14 +470,14 @@ const Home = () => {
       </div>
 
       {/* How it Works Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-28 text-left">
-        <span className="text-primary text-xs font-bold uppercase tracking-[0.2em] block mb-3">
+      <div className="max-w-6xl mx-auto px-6 w-full mb-20 text-left">
+        <span className="text-primary text-label block mb-3">
           How It Works
         </span>
-        <h2 className="text-3xl md:text-5xl font-extrabold mt-0 mb-4 leading-tight" style={{ color: 'var(--color-textCharcoal)' }}>
+        <h2 className="text-h1 mt-0 mb-4 leading-tight">
           From search to signature, in <span className="text-primary">three quiet steps.</span>
         </h2>
-        <p className="text-gray-500 text-sm md:text-base max-w-xl leading-relaxed mt-0 mb-12">
+        <p className="text-body text-sm md:text-base max-w-xl leading-relaxed mt-0 mb-12">
           No cold calls, no dealer bidding wars. Just a straight line to the right car.
         </p>
 
@@ -496,76 +488,76 @@ const Home = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
             {/* Step 1 */}
-            <div className="bg-white rounded-2xl border border-gray-200/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-surface rounded-2xl border border-border/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold text-sm text-gray-500 bg-gray-50/80">
+                  <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center font-bold text-sm text-textSecondary bg-background/80">
                     1
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-[#E6F4F2] text-tealPrimary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/5 text-primary flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-lg font-extrabold text-gray-900 mb-2 mt-4">
+                <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
                   Search Verified Listings
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed m-0">
+                <p className="text-textSecondary text-sm leading-relaxed m-0">
                   Filter by brand, budget, year, or location. Every listing is pre-evaluated by Valora's pricing, condition, and fraud verification models.
                 </p>
               </div>
-              <Link to="/browse" className="text-sm font-bold text-tealPrimary hover:underline inline-flex items-center gap-1 mt-6">
+              <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
                 Start searching &rarr;
               </Link>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white rounded-2xl border border-gray-200/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-surface rounded-2xl border border-border/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold text-sm text-gray-500 bg-gray-50/80">
+                  <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center font-bold text-sm text-textSecondary bg-background/80">
                     2
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-[#E6F4F2] text-tealPrimary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/5 text-primary flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-lg font-extrabold text-gray-900 mb-2 mt-4">
+                <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
                   Analyze Trust Metrics
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed m-0">
+                <p className="text-textSecondary text-sm leading-relaxed m-0">
                   Deep-dive into any car's 0–100 Trust Score. Compare the predicted fair price range against the seller's price, and view CNN visual condition logs.
                 </p>
               </div>
-              <Link to="/browse" className="text-sm font-bold text-tealPrimary hover:underline inline-flex items-center gap-1 mt-6">
+              <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
                 Try Compare &rarr;
               </Link>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white rounded-2xl border border-gray-200/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-surface rounded-2xl border border-border/70 p-8 flex flex-col justify-between min-h-[260px] shadow-sm hover:shadow-md transition-shadow duration-300">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold text-sm text-gray-500 bg-gray-50/80">
+                  <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center font-bold text-sm text-textSecondary bg-background/80">
                     3
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-[#E6F4F2] text-tealPrimary flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/5 text-primary flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-lg font-extrabold text-gray-900 mb-2 mt-4">
+                <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
                   Direct Chat & Connect
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed m-0">
+                <p className="text-textSecondary text-sm leading-relaxed m-0">
                   Message verified sellers directly through our secure chat system. Agree on a price, ask questions, or book an inspection with zero middleman markup.
                 </p>
               </div>
-              <Link to="/browse" className="text-sm font-bold text-tealPrimary hover:underline inline-flex items-center gap-1 mt-6">
+              <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
                 Contact sellers &rarr;
               </Link>
             </div>
@@ -576,28 +568,28 @@ const Home = () => {
 
 
       {/* Why Choose Us Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-28 text-left">
-        <div className="bg-white border border-gray-100 rounded-[32px] p-8 md:p-14 shadow-sm">
+      <div className="max-w-6xl mx-auto px-6 w-full mb-20 text-left">
+        <div className="bg-surface border border-border rounded-card-xl p-8 md:p-14 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            
+
             {/* Left Zone: Headline & Paragraph */}
             <div className="lg:col-span-5 space-y-6">
               <div className="space-y-3">
                 {/* Horizontal line decorator above label */}
                 <div className="w-10 h-[3px] bg-primary" />
-                <span className="text-primary text-[11px] font-extrabold uppercase tracking-[0.2em] block">
+                <span className="text-primary text-label block">
                   Features
                 </span>
               </div>
-              <h2 className="text-4xl font-extrabold tracking-tight leading-tight m-0 text-gray-900">
+              <h2 className="text-h2 m-0">
                 Why People <span className="text-primary">Choose Us?</span>
               </h2>
-              <p className="text-gray-500 text-sm leading-relaxed m-0">
+              <p className="text-body text-sm leading-relaxed m-0">
                 Valora removes the guess-work and hidden fees of pre-owned vehicle buying by running every listing through our advanced machine learning and visual verification models.
               </p>
               <div className="pt-2">
                 <Link to="/browse">
-                  <Button variant="primary" className="py-2.5 px-6 font-bold bg-primary hover:bg-primaryDark text-white border-none rounded-xl shadow-sm text-xs">
+                  <Button variant="primary" size="sm" className="font-bold shadow-sm">
                     Explore Listings
                   </Button>
                 </Link>
@@ -607,42 +599,42 @@ const Home = () => {
             {/* Right Zone: Staggered Columns with Dividers */}
             <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative">
               {/* Vertical Divider (Only on md and larger) */}
-              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-100/80 -translate-x-1/2" />
+              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[1px] bg-border/80 -translate-x-1/2" />
 
               {/* Column 1 (Pushed down slightly for staggered hierarchy) */}
               <div className="space-y-8 md:space-y-10 md:pt-10">
                 {/* Feature 1 */}
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full border border-indigo-100 text-primary bg-indigo-50/50 flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-full border border-primary/10 text-primary bg-primary/5 flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-base font-extrabold text-gray-900 m-0">
+                    <h3 className="text-base font-semibold text-textPrimary m-0">
                       Verified Listings
                     </h3>
-                    <p className="text-gray-500 text-xs leading-relaxed m-0">
+                    <p className="text-textSecondary text-xs leading-relaxed m-0">
                       Every vehicle is verified against national registry databases and regional logs before it ever goes public.
                     </p>
                   </div>
                 </div>
 
                 {/* Horizontal Divider 1 */}
-                <div className="h-[1px] bg-gray-100/80 w-full" />
+                <div className="h-[1px] bg-border/80 w-full" />
 
                 {/* Feature 2 */}
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full border border-indigo-100 text-primary bg-indigo-50/50 flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-full border border-primary/10 text-primary bg-primary/5 flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-base font-extrabold text-gray-900 m-0">
+                    <h3 className="text-base font-semibold text-textPrimary m-0">
                       Secure & Direct
                     </h3>
-                    <p className="text-gray-500 text-xs leading-relaxed m-0">
+                    <p className="text-textSecondary text-xs leading-relaxed m-0">
                       Communicate with sellers directly using our integrated real-time chat with no dealer commission or pushy markups.
                     </p>
                   </div>
@@ -653,36 +645,36 @@ const Home = () => {
               <div className="space-y-8 md:space-y-10">
                 {/* Feature 3 */}
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full border border-indigo-100 text-primary bg-indigo-50/50 flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-full border border-primary/10 text-primary bg-primary/5 flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364.364l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-base font-extrabold text-gray-900 m-0">
+                    <h3 className="text-base font-semibold text-textPrimary m-0">
                       AI Trust Score
                     </h3>
-                    <p className="text-gray-500 text-xs leading-relaxed m-0">
+                    <p className="text-textSecondary text-xs leading-relaxed m-0">
                       A mathematical trust score between 0 and 100 generated from response times, inspection history, and fraud probability.
                     </p>
                   </div>
                 </div>
 
                 {/* Horizontal Divider 2 */}
-                <div className="h-[1px] bg-gray-100/80 w-full" />
+                <div className="h-[1px] bg-border/80 w-full" />
 
                 {/* Feature 4 */}
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-full border border-indigo-100 text-primary bg-indigo-50/50 flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-full border border-primary/10 text-primary bg-primary/5 flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
                     </svg>
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-base font-extrabold text-gray-900 m-0">
+                    <h3 className="text-base font-semibold text-textPrimary m-0">
                       Fair Price Insights
                     </h3>
-                    <p className="text-gray-500 text-xs leading-relaxed m-0">
+                    <p className="text-textSecondary text-xs leading-relaxed m-0">
                       Real-time valuation based on local market metrics, mileage, condition, and brand algorithms so you pay exactly what is fair.
                     </p>
                   </div>
@@ -699,33 +691,32 @@ const Home = () => {
       <ClientFeedback />
 
       {/* Sell Your Car CTA Banner Section */}
-      <div className="max-w-5xl mx-auto px-6 w-full mb-28 mt-12">
-        <div className="bg-[#F4F4F6] rounded-[24px] md:rounded-[32px] border border-gray-100 p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-visible shadow-sm">
+      <div className="max-w-5xl mx-auto px-6 w-full my-20">
+        <div className="bg-background rounded-card-xl border border-border p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-visible shadow-sm">
           {/* Left Text */}
           <div className="w-full md:w-[48%] md:max-w-[340px] text-left">
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight m-0 mb-3" style={{ color: 'var(--color-textCharcoal)' }}>
+            <h2 className="text-h2 m-0 mb-3">
               Sell your car in minutes
             </h2>
-            <p className="text-sm m-0 leading-relaxed" style={{ color: '#6B7280' }}>
+            <p className="text-body text-sm m-0 leading-relaxed">
               Reach over 2M buyers instantly. Get the best price for your vehicle.
             </p>
           </div>
 
-          {/* Overlapping Car Image (Center-Right on Desktop) */}
-          <div className="absolute left-[40%] lg:left-[43%] top-1/2 -translate-y-1/2 w-[300px] lg:w-[350px] hidden md:flex items-center justify-center pointer-events-none z-10 overflow-visible">
-            <img
-              src="/cta-car.png"
-              alt="Porsche CTA Car"
-              className="w-full h-auto object-contain transform scale-110 drop-shadow-xl"
-            />
-          </div>
+          {/* Overlapping Car Image (Center-Right on Desktop) - Stronger 3D effect extending top and bottom */}
+          <img
+            src="/cta-car.png"
+            alt="Porsche CTA Car"
+            className="absolute left-[30%] lg:left-[33%] -top-[16px] h-[calc(100%+32px)] w-auto object-contain drop-shadow-2xl pointer-events-none z-10 hidden md:block"
+          />
 
           {/* Right Button */}
           <div className="w-full md:w-auto z-20 flex md:justify-end">
             <Link to="/create-listing" className="w-full md:w-auto">
               <Button
                 variant="dark"
-                className="w-full md:w-auto py-3.5 px-8 font-bold rounded-xl shadow-lg m-0"
+                size="lg"
+                className="w-full md:w-auto font-bold shadow-md m-0"
               >
                 List Your Car
               </Button>

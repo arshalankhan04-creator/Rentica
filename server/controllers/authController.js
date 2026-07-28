@@ -1,5 +1,7 @@
+const crypto = require('crypto');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -19,11 +21,8 @@ const registerUser = async (req, res, next) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Restrict registration roles to 'buyer' or 'seller'. Default is 'buyer'.
-    let finalRole = 'buyer';
-    if (role === 'seller') {
-      finalRole = 'seller';
-    }
+    // All users register as standard 'user'
+    const finalRole = 'user';
 
     // Create user (password hashing is done via Mongoose pre-save hook in User model)
     const user = await User.create({
@@ -107,8 +106,105 @@ const getUserProfile = async (req, res, next) => {
   }
 };
 
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Please provide an email address' });
+    }
+
+    const user = await User.findOne({ email });
+
+    // Security: Always return the exact same success response to prevent email enumeration
+    const genericSuccessResponse = {
+      message: 'If that email is registered, a reset link has been sent.'
+    };
+
+    if (!user) {
+      return res.status(200).json(genericSuccessResponse);
+    }
+
+    // Get reset token
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save();
+
+    // Create reset url (dynamically target the frontend port 5173 instead of backend 5000)
+    const host = req.get('host') || 'localhost:5000';
+    const clientHost = host.replace('5000', '5173');
+    const resetUrl = `${req.protocol}://${clientHost}/reset-password/${resetToken}`;
+
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please open the link below to reset your password:\n\n${resetUrl}\n\nThis link is valid for 10 minutes.\n\nIf you did not request this, please ignore this email.`;
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Valora - Password Reset Request',
+        text: message
+      });
+
+      res.status(200).json(genericSuccessResponse);
+    } catch (err) {
+      console.error('Mail Error: Failed to send reset email:', err.message);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+
+      return res.status(500).json({ message: 'Email could not be sent' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password
+// @route   PUT /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: 'Please provide a new password' });
+    }
+
+    // Hash token from params to match stored hashed token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    // Security: return identical generic message for invalid OR expired token cases
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset link.' });
+    }
+
+    // Set new password (the User model pre-save hook handles hashing)
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
-  getUserProfile
+  getUserProfile,
+  forgotPassword,
+  resetPassword
 };

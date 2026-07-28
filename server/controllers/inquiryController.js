@@ -82,17 +82,15 @@ const createInquiry = async (req, res, next) => {
 const getInquiries = async (req, res, next) => {
   try {
     let query = {};
-    if (req.user.role === 'buyer') {
-      query.buyer = req.user.id;
-    } else if (req.user.role === 'seller') {
-      query.seller = req.user.id;
+    if (req.user.role === 'admin') {
+      // Admin sees all inquiries
     } else {
-      // Fallback/Admin: return where they are either buyer or seller
+      // Standard user sees inquiries where they are buyer or seller
       query.$or = [{ buyer: req.user.id }, { seller: req.user.id }];
     }
 
     const inquiries = await Inquiry.find(query)
-      .populate('listing', 'brand model')
+      .populate('listing', 'brand model price images kmDriven trustScore description predictedPriceMin predictedPriceMax')
       .populate('buyer', 'name')
       .populate('seller', 'name')
       .sort({ updatedAt: -1 });
@@ -116,7 +114,7 @@ const getInquiryById = async (req, res, next) => {
     }
 
     const inquiry = await Inquiry.findById(id)
-      .populate('listing', 'brand model')
+      .populate('listing', 'brand model price images kmDriven trustScore description predictedPriceMin predictedPriceMax')
       .populate('buyer', 'name')
       .populate('seller', 'name')
       .populate('messages.sender', 'name');

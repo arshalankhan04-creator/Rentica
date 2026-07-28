@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Button from '../components/Button';
+import Badge from '../components/Badge';
 
 // Local Pupil Component
 const Pupil = ({ 
@@ -147,7 +149,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('buyer'); // default to buyer
+  const [role, setRole] = useState('user'); // default to user
   const [error, setError] = useState('');
   const [validationError, setValidationError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -486,7 +488,7 @@ const Register = () => {
       </div>
 
       {/* Right Register Column */}
-      <div className="flex items-center justify-center p-8 bg-white h-full overflow-y-auto">
+      <div className="flex items-center justify-center p-8 bg-background h-full overflow-y-auto">
         <div className="w-full max-w-[380px] text-left py-8">
           
           {/* Mobile logo */}
@@ -494,21 +496,21 @@ const Register = () => {
             <Link 
               to="/" 
               className="text-2xl no-underline tracking-wide block"
-              style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textCharcoal)', fontWeight: 500 }}
+              style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
             >
               Valora
             </Link>
           </div>
 
           <div className="mb-6 select-none">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-1.5">Create Account</h1>
-            <p className="text-gray-400 text-xs font-semibold">Join Valora's verified auto marketplace</p>
+            <h1 className="text-3xl font-bold text-textPrimary tracking-tight mb-1.5">Create Account</h1>
+            <p className="text-textSecondary text-xs font-medium">Join Valora's verified auto marketplace</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {validationError && (
               <div 
-                className="p-4 text-xs font-bold text-red-750 bg-red-50 border border-red-100 rounded-2xl shadow-sm" 
+                className="p-4 text-xs font-semibold text-danger bg-dangerLight border border-dangerBorder rounded-2xl shadow-sm animate-fade-in" 
                 id="validation-error"
               >
                 {validationError}
@@ -517,7 +519,7 @@ const Register = () => {
             
             {error && (
               <div 
-                className="p-4 text-xs font-bold text-red-700 bg-red-50 border border-red-150 rounded-2xl shadow-sm" 
+                className="p-4 text-xs font-semibold text-danger bg-dangerLight border border-dangerBorder rounded-2xl shadow-sm animate-fade-in" 
                 id="server-error"
               >
                 {error}
@@ -525,7 +527,7 @@ const Register = () => {
             )}
 
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Full Name</label>
+              <label htmlFor="name" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">Full Name</label>
               <input
                 id="name"
                 type="text"
@@ -535,12 +537,12 @@ const Register = () => {
                 onChange={(e) => setName(e.target.value)}
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
-                className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-slate-50/50 text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full h-11 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/30 transition-all shadow-sm"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Email Address</label>
+              <label htmlFor="email" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">Email Address</label>
               <input
                 id="email"
                 type="email"
@@ -550,12 +552,12 @@ const Register = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
-                className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-slate-50/50 text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full h-11 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/30 transition-all shadow-sm"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Password</label>
+              <label htmlFor="password" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">Password</label>
               <div className="relative">
                 <input
                   id="password"
@@ -563,12 +565,12 @@ const Register = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-slate-50/50 text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full h-11 pl-4 pr-10 rounded-xl border border-border bg-surface text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/30 transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-textSecondary hover:text-textPrimary transition-colors focus:outline-none cursor-pointer"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -584,56 +586,37 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Account Role Selector Cards */}
-            <div className="space-y-1.5 select-none">
-              <span className="text-xs font-extrabold text-gray-450 uppercase tracking-wider">Account Role</span>
-              <div className="grid grid-cols-2 gap-4">
-                <label className={`flex items-center justify-center py-2.5 px-4 border rounded-xl cursor-pointer transition-all font-bold text-xs ${
-                  role === 'buyer'
-                    ? 'border-primary bg-indigo-50/20 text-primary font-black'
-                    : 'border-gray-200 text-gray-500 hover:bg-slate-50'
-                }`}>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="buyer"
-                    checked={role === 'buyer'}
-                    onChange={() => setRole('buyer')}
-                    className="sr-only"
-                  />
-                  Buyer
-                </label>
-                <label className={`flex items-center justify-center py-2.5 px-4 border rounded-xl cursor-pointer transition-all font-bold text-xs ${
-                  role === 'seller'
-                    ? 'border-primary bg-indigo-50/20 text-primary font-black'
-                    : 'border-gray-200 text-gray-500 hover:bg-slate-50'
-                }`}>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="seller"
-                    checked={role === 'seller'}
-                    onChange={() => setRole('seller')}
-                    className="sr-only"
-                  />
-                  Seller
-                </label>
-              </div>
-            </div>
 
-            <button 
+            <Button 
               type="submit" 
               disabled={loading}
               id="register-submit"
-              className="w-full h-12 text-sm font-bold text-white bg-primary hover:bg-primaryDark rounded-xl cursor-pointer transition-colors shadow-sm focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="font-bold"
             >
               {loading ? "Creating account..." : "Register"}
-            </button>
+            </Button>
           </form>
 
-          <div className="text-center text-xs font-semibold text-gray-400 mt-6 select-none">
+          {/* Visibly Disabled Social Login */}
+          <div className="mt-4 select-none opacity-50">
+            <button 
+              disabled
+              className="w-full h-12 bg-muted border border-border text-textSecondary font-semibold text-xs rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
+              type="button"
+            >
+              <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Sign up with Google
+            </button>
+          </div>
+
+          <div className="text-center text-xs font-semibold text-textSecondary mt-6 select-none">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-extrabold hover:underline">
+            <Link to="/login" className="text-primary font-bold hover:underline">
               Log In
             </Link>
           </div>

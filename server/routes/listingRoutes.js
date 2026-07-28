@@ -18,13 +18,13 @@ const { uploadImages } = require('../middleware/upload');
 router.get('/', getListings);
 
 // Protected route for getting own listings (must be defined BEFORE /:id)
-router.get('/mine', protect, restrictTo('seller'), getMyListings);
+router.get('/mine', protect, getMyListings);
 
 // Public route for getting listing by ID
 router.get('/:id', getListingById);
 
-// Protected routes (require login and 'seller' role for creation)
-router.post('/', protect, restrictTo('seller'), uploadImages, createListing);
+// Protected routes (require login for creation)
+router.post('/', protect, uploadImages, createListing);
 
 // Protected routes (require ownership check in controller)
 router.put('/:id', protect, updateListing);
