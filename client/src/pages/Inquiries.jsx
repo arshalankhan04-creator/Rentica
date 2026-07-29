@@ -309,23 +309,23 @@ const Inquiries = () => {
     })
     .sort((a, b) => new Date(b.thread.updatedAt).getTime() - new Date(a.thread.updatedAt).getTime());
 
-  // Render tab pill matching Valora's design tokens and support dark mode
+  // Render tab pill matching Valora's design tokens with compact sizing fitting search bar width
   const renderTabPill = (tabId, label, count, iconSvg) => {
     const isActive = activeTab === tabId;
     return (
       <button
         type="button"
         onClick={() => setActiveTab(tabId)}
-        className={`flex items-center gap-1.5 py-1 px-3.5 rounded-full border text-[11px] font-bold transition-all cursor-pointer select-none focus:outline-none flex-shrink-0 ${
+        className={`flex items-center justify-center gap-1 py-1 px-1.5 rounded-lg border text-[10px] sm:text-[11px] font-bold transition-all cursor-pointer select-none focus:outline-none w-full min-w-0 ${
           isActive
-            ? 'border-primary text-primary bg-primary/5'
+            ? 'border-primary text-primary bg-primary/10 shadow-xs'
             : 'border-border text-textSecondary bg-transparent hover:border-textSecondary/40 hover:text-textPrimary'
         }`}
       >
-        {iconSvg}
-        <span>{label}</span>
-        <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
-          isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-textSecondary'
+        <span className="flex-shrink-0">{iconSvg}</span>
+        <span className="truncate">{label}</span>
+        <span className={`px-1 py-0.2 rounded-full text-[9px] font-bold flex-shrink-0 ${
+          isActive ? 'bg-primary/15 text-primary' : 'bg-muted text-textSecondary'
         }`}>
           {count}
         </span>
@@ -353,16 +353,16 @@ const Inquiries = () => {
   let lastDateStr = null;
 
   return (
-    <div className="w-full bg-bgLight min-h-[calc(100vh-80px)] py-10 flex flex-col font-sans">
-      <div className="max-w-6xl mx-auto px-6 w-full text-left flex-1 flex flex-col">
+    <div className="w-full bg-background min-h-[calc(100vh-65px)] max-w-full overflow-x-hidden sm:py-4 flex flex-col font-sans">
+      <div className="mx-auto w-full max-w-7xl px-2 sm:px-4 flex-1 flex flex-col min-h-0 overflow-hidden">
         
-        {/* Two-Pane Inbox Card Layout */}
-        <div className="bg-surface border border-border rounded-card-lg overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 min-h-[600px] h-[calc(100vh-200px)] max-h-[calc(100vh-200px)] flex-1">
+        {/* Two-Pane Inbox Card Layout with FIXED height */}
+        <div className="bg-surface border-border sm:rounded-2xl sm:border shadow-sm grid grid-cols-1 md:grid-cols-[340px_minmax(0,1fr)] h-[calc(100vh-5.5rem)] sm:h-[calc(100vh-7.5rem)] max-h-[calc(100vh-5.5rem)] sm:max-h-[calc(100vh-7.5rem)] max-w-full overflow-hidden flex-1">
           
-          {/* Left Side: Inbox List Column (4 cols) */}
-          <div className={`md:col-span-4 border-r border-border flex flex-col h-full bg-surface overflow-hidden min-h-0 ${id ? 'hidden md:flex' : 'flex'}`}>
+          {/* Left Side: Conversations Sidebar (340px width on desktop) */}
+          <div className={`border-r border-border flex flex-col h-full max-h-full bg-surface overflow-hidden min-h-0 ${id ? 'hidden md:flex' : 'flex'}`}>
             {/* Header section with title, search and tabs inside the sidebar */}
-            <div className="p-4 border-b border-border flex flex-col gap-3 select-none flex-shrink-0 bg-surface">
+            <div className="p-3 border-b border-border flex flex-col gap-2 select-none flex-shrink-0 bg-surface">
               {/* Title bar with New Button matching reference image */}
               <div className="flex items-center justify-between mb-1 select-none">
                 <h2 className="text-xl font-bold text-textPrimary m-0">
@@ -395,13 +395,13 @@ const Inquiries = () => {
                 />
               </div>
 
-              {/* Filter Tab pills */}
-              <div className="flex gap-1.5 mt-1 overflow-x-auto no-scrollbar py-1">
+              {/* Filter Tab pills: 3-column equal grid fitting within search bar width */}
+              <div className="grid grid-cols-3 gap-1.5 my-0.5 select-none w-full">
                 {renderTabPill(
                   'active',
                   'Active',
                   tabCounts.active,
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.008 1.24l.885 1.77a2.25 2.25 0 002.007 1.24h1.98a2.25 2.25 0 002.007-1.24l.885-1.77a2.25 2.25 0 012.007-1.24h3.86m-18 0h18" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5v6.75A2.25 2.25 0 004.5 22.5h15a2.25 2.25 0 002.25-2.25v-6.75m-18 0A2.25 2.25 0 014.5 11.25h15a2.25 2.25 0 012.25 2.25M9 3.75h6" />
                   </svg>
@@ -410,7 +410,7 @@ const Inquiries = () => {
                   'unread',
                   'Unread',
                   tabCounts.unread,
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" />
                     <circle cx="12" cy="12" r="3" fill="currentColor" />
                   </svg>
@@ -419,7 +419,7 @@ const Inquiries = () => {
                   'archived',
                   'Archived',
                   tabCounts.archived,
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                   </svg>
                 )}
@@ -506,8 +506,8 @@ const Inquiries = () => {
             </div>
           </div>
 
-          {/* Right Side: Conversation Chat Panel (8 cols) - min-h-0 prevents box growth */}
-          <div className={`md:col-span-8 flex flex-col h-full bg-surface overflow-hidden min-h-0 ${id ? 'flex' : 'hidden md:flex'}`}>
+          {/* Right Side: Conversation Chat Panel - Fixed height with flex flex-col min-h-0 max-h-full */}
+          <div className={`flex flex-col h-full max-h-full bg-surface overflow-hidden min-h-0 shrink-0 ${id ? 'flex' : 'hidden md:flex'}`}>
             {activeThreadLoading ? (
               // Active Thread Loading spinner
               <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-background/35 select-none">
@@ -639,10 +639,10 @@ const Inquiries = () => {
                   </span>
                 </div>
 
-                {/* Message Bubble History viewport */}
+                {/* Message Bubble History viewport - Strictly internal scrolling only */}
                 <div 
                   ref={scrollerRef} 
-                  className="flex-1 p-6 overflow-y-auto min-h-0 space-y-4 bg-background/35 flex flex-col scrollbar-thin"
+                  className="flex-1 min-h-0 max-h-full overflow-y-auto p-4 md:p-6 space-y-3 bg-background/35 scrollbar-thin"
                 >
                   {thread.messages && thread.messages.length === 0 ? (
                     <div className="my-auto text-center p-6 text-textSecondary font-semibold text-xs leading-relaxed select-none">
@@ -673,21 +673,21 @@ const Inquiries = () => {
                           )}
 
                           <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} w-full`}>
-                            <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[70%]`}>
+                            <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] md:max-w-[78%]`}>
                               {!isMe && (
-                                <span className="text-[9px] font-bold text-textSecondary mb-1 px-1.5 select-none">
+                                <span className="text-[10px] font-semibold text-textSecondary mb-1 px-1 select-none">
                                   {senderName}
                                 </span>
                               )}
                               <div
-                                className={`px-4 py-2.5 rounded-2xl text-xs font-semibold shadow-sm leading-relaxed whitespace-pre-wrap select-text text-left relative min-w-[60px] ${
+                                className={`px-3.5 py-2.5 rounded-2xl text-xs md:text-sm shadow-sm leading-relaxed whitespace-pre-wrap select-text text-left relative ${
                                   isMe
-                                    ? 'bg-secondary text-white rounded-br-sm'
-                                    : 'bg-surface border border-border text-textPrimary rounded-bl-sm'
+                                    ? 'bg-primary text-white rounded-br-sm font-normal'
+                                    : 'bg-surface border border-border text-textPrimary rounded-bl-sm font-normal'
                                 }`}
                               >
                                 <span>{msg.text}</span>
-                                <div className={`mt-1.5 text-[9px] font-bold select-none ${isMe ? 'text-white/70 text-right' : 'text-textSecondary text-left'}`}>
+                                <div className={`mt-1 text-[10px] font-medium select-none ${isMe ? 'text-white/70 text-right' : 'text-textSecondary text-left'}`}>
                                   {formattedTime}
                                 </div>
                               </div>
@@ -699,8 +699,8 @@ const Inquiries = () => {
                   )}
                 </div>
 
-                {/* Composer Section */}
-                <div className="p-4 bg-surface border-t border-border flex flex-col gap-2 flex-shrink-0">
+                {/* Composer Section matching Lovable message input box */}
+                <div className="p-3 bg-surface border-t border-border flex flex-col gap-2 flex-shrink-0">
                   {replyError && (
                     <span className="text-[10px] font-semibold text-danger px-2 block select-none text-left">
                       {replyError}
@@ -708,7 +708,7 @@ const Inquiries = () => {
                   )}
                   <form
                     onSubmit={handleSendReply}
-                    className="flex items-center gap-3 bg-transparent select-none"
+                    className="flex items-center gap-2 bg-transparent select-none"
                   >
                     <input
                       type="text"
@@ -719,19 +719,22 @@ const Inquiries = () => {
                           setReplyError('');
                         }
                       }}
-                      disabled={replyLoading}
                       placeholder={`Message ${activeOtherPartyName.split(' ')[0]}...`}
-                      className="flex-1 bg-background border border-border rounded-full px-5 py-2.5 text-xs font-semibold text-textPrimary placeholder-textSecondary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-transparent transition-all shadow-sm"
+                      className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-xs md:text-sm font-medium text-textPrimary placeholder:text-textSecondary/60 focus:outline-none focus:border-primary/50 transition-colors shadow-sm"
                     />
-
                     <button
                       type="submit"
                       disabled={replyLoading || !replyText.trim()}
-                      className="w-10 h-10 rounded-full bg-secondary hover:bg-secondaryHover text-white flex items-center justify-center cursor-pointer transition-colors border-none disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 focus:outline-none shadow-md"
+                      className="h-10 w-10 flex-none grid place-items-center rounded-xl bg-primary text-white hover:bg-primaryHover disabled:opacity-40 disabled:cursor-not-allowed transition-colors border-none cursor-pointer focus:outline-none shadow-sm"
+                      aria-label="Send message"
                     >
-                      <svg className="w-4 h-4 transform rotate-45 -translate-x-[1px] translate-y-[0.5px]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
+                      {replyLoading ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
+                        </svg>
+                      )}
                     </button>
                   </form>
                 </div>

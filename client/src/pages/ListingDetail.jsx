@@ -156,7 +156,7 @@ const ListingDetail = () => {
 
   return (
     <div className="w-full bg-bgLight min-h-screen py-12 flex flex-col font-sans">
-      <div className="max-w-6xl mx-auto px-6 w-full text-left">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full text-left">
         
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs font-semibold text-textSecondary/80 mb-6 select-none">

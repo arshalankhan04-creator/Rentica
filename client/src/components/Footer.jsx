@@ -5,7 +5,7 @@ import Button from './Button';
 const Footer = () => {
   return (
     <footer className="w-full bg-surface border-t border-border mt-auto overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 pt-16 pb-8 w-full">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-16 pb-8 w-full">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10 pb-12 border-b border-border/40">
           

@@ -64,7 +64,7 @@ const Wishlist = () => {
 
   return (
     <div className="w-full bg-bgLight min-h-screen py-12 flex flex-col font-sans">
-      <div className="max-w-6xl mx-auto px-6 w-full text-left">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full text-left">
         {/* Header Block */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>

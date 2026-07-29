@@ -278,7 +278,7 @@ const HistorySection = () => {
   if (history.length === 0) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pb-16">
+    <div className="max-w-[1440px] mx-auto px-4 md:px-8 pb-16">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-lg font-bold text-textPrimary m-0">Comparison History</h2>
@@ -417,7 +417,7 @@ const Compare = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Page Header */}
-      <div className="max-w-6xl mx-auto px-6 pt-12 pb-8">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-12 pb-8">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2 select-none">Side-by-Side</p>
@@ -438,7 +438,7 @@ const Compare = () => {
       </div>
 
       {/* Vehicle Selector Row */}
-      <div className="max-w-6xl mx-auto px-6 mb-10">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 mb-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {slots.map((listing, i) =>
             listing ? (
@@ -452,7 +452,7 @@ const Compare = () => {
 
       {/* Comparison Table */}
       {showTable ? (
-        <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 pb-12">
           <div className="border border-border rounded-2xl overflow-hidden shadow-sm">
             {/* Column headers */}
             <div className="grid border-b border-border bg-background" style={{ gridTemplateColumns: '200px repeat(3, 1fr)' }}>
@@ -513,7 +513,7 @@ const Compare = () => {
           </div>
         </div>
       ) : (
-        <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 pb-12">
           <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border/50 rounded-2xl bg-surface/50">
             <div className="w-16 h-16 rounded-full bg-muted/60 border border-border flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-textSecondary/50" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">

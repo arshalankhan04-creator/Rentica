@@ -8,3 +8,7 @@ node_modules/
 # Ignore uploads files but keep .gitkeep
 **/uploads/*
 !**/uploads/.gitkeep
+
+# Reference repo
+lovable-ref/
+

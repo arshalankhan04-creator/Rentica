@@ -141,7 +141,7 @@ const MyListings = () => {
 
   return (
     <div className="w-full bg-background min-h-screen py-12 flex flex-col font-sans">
-      <div className="max-w-6xl mx-auto px-6 w-full text-left space-y-8">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full text-left space-y-8">
         
         {/* Header Block */}
         <div className="flex flex-row items-center justify-between select-none">

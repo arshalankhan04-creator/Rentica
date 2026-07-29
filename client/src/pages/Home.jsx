@@ -196,7 +196,7 @@ const Home = () => {
         />
 
         {/* Content Layer */}
-        <div className="max-w-6xl mx-auto px-6 w-full relative z-10 py-12 md:py-16 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full relative z-10 py-12 md:py-16 flex flex-col md:flex-row items-center justify-between gap-12">
 
           {/* Left Zone: Headline & Actions (On White background) */}
           <div className="flex-1 text-left space-y-8 max-w-xl">
@@ -232,7 +232,7 @@ const Home = () => {
       </div>
 
       {/* Floating White Search Card */}
-      <div className="relative -mt-10 max-w-4xl mx-auto px-6 w-full z-20">
+      <div className="relative -mt-10 max-w-5xl mx-auto px-4 md:px-8 w-full z-20">
         <div className="bg-surface text-textPrimary rounded-2xl shadow-xl p-6 md:p-8 border border-border">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
             {/* Brand */}
@@ -315,7 +315,7 @@ const Home = () => {
       </div>
 
       {/* Promotional Banner Strip Container */}
-      <div className="max-w-6xl mx-auto px-6 w-full z-10 relative -mt-12 md:-mt-14">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full z-10 relative -mt-12 md:-mt-14">
         <div
           className="w-full h-[180px] md:h-[240px] bg-cover bg-center rounded-2xl md:rounded-3xl overflow-hidden flex items-center justify-center relative shadow-lg"
           style={{ backgroundImage: "url('/promo-strip-bg.png')" }}
@@ -338,7 +338,7 @@ const Home = () => {
       </div>
 
       {/* Browse by Category Section */}
-      <div className="max-w-5xl mx-auto px-6 w-full my-20 text-center">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full my-20 text-center">
         <h2 className="text-section-title mb-10">
           Browse by Category
         </h2>
@@ -388,7 +388,7 @@ const Home = () => {
       </div>
 
       {/* Featured Cars Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-20">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full mb-20">
         <div className="flex items-center justify-between mb-8">
           <div className="text-left">
             <h2 className="text-h2 m-0">
@@ -412,7 +412,7 @@ const Home = () => {
       </div>
 
       {/* The Valora Promise Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-20">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full mb-20">
         <div className="bg-background rounded-card-xl p-8 md:p-16 text-left relative overflow-hidden border border-border/60 shadow-sm">
           {/* Subtle dotted background grid pattern in brand color */}
           <div className="absolute inset-0 bg-[radial-gradient(rgba(79,70,229,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-60" />
@@ -470,7 +470,7 @@ const Home = () => {
       </div>
 
       {/* How it Works Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-20 text-left">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full mb-20 text-left">
         <span className="text-primary text-label block mb-3">
           How It Works
         </span>
@@ -568,7 +568,7 @@ const Home = () => {
 
 
       {/* Why Choose Us Section */}
-      <div className="max-w-6xl mx-auto px-6 w-full mb-20 text-left">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full mb-20 text-left">
         <div className="bg-surface border border-border rounded-card-xl p-8 md:p-14 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
@@ -691,7 +691,7 @@ const Home = () => {
       <ClientFeedback />
 
       {/* Sell Your Car CTA Banner Section */}
-      <div className="max-w-5xl mx-auto px-6 w-full my-20">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full my-20">
         <div className="bg-background rounded-card-xl border border-border p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-visible shadow-sm">
           {/* Left Text */}
           <div className="w-full md:w-[48%] md:max-w-[340px] text-left">

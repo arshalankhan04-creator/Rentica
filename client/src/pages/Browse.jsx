@@ -252,7 +252,7 @@ const Browse = () => {
 
   return (
     <div className="w-full bg-background min-h-screen py-12 flex flex-col font-sans">
-      <div className="max-w-6xl mx-auto px-6 w-full text-left">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full text-left">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Side: Filters Column (3 cols) */}

@@ -94,3 +94,5 @@ Do NOT start, stop, or restart it after making frontend changes, unless
 I explicitly ask. Do NOT automatically open, launch, navigate, or
 refresh a browser after a change — I will check results myself in my
 own already-open tab. Just make the edit and stop.
+
+Rules Followed: Future pages and features from Lovable will be adapted natively into our existing MERN stack, component library, architecture, and Tailwind CSS design tokens — without pulling in external libraries or unneeded dependencies.
