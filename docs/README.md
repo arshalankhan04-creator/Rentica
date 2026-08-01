@@ -6,5 +6,5 @@ Welcome to the shared documentation for the Valora project.
 
 - `client/`: React frontend application.
 - `server/`: Node/Express backend server.
-- `ml-service/`: Django machine learning service.
+- `ml-service/`: FastAPI machine learning service.
 - `docs/`: Shared documentation and system architecture details.

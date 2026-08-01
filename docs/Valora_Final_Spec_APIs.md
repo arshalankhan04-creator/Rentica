@@ -69,7 +69,7 @@ This turns a one-dimensional "price calculator" into a genuinely multi-model int
 
 ## 4. Syllabus Topics Covered
 
-**FCSP-2 (Python/Django/ML):**
+**FCSP-2 (Python/FastAPI/ML):**
 - Unit 1 — Pandas, EDA, outlier detection (used in fraud detection + data cleaning)
 - Unit 2 — Seaborn/Plotly/Dash (analytics dashboards, heatmaps)
 - Unit 3 — Feature engineering, train-validation split (all 4 models)
@@ -77,9 +77,9 @@ This turns a one-dimensional "price calculator" into a genuinely multi-model int
 - Unit 5 — kNN/Decision Tree/Random Forest/SVM, confusion matrix (fraud detection)
 - Unit 6 — CNN, transfer learning, pooling/dropout (condition assessment)
 - Unit 7 — Web scraping (BeautifulSoup), REST APIs, JSON handling
-- Unit 8 — Django MVT, Models, ORM, migrations
-- Unit 9 — Django auth, forms, CSRF, user management
-- Unit 10 — DRF serializers/viewsets, JWT auth, Postman testing
+- Unit 8 — Python web APIs, service structure, request/response handling
+- Unit 9 — API validation, CORS, service integration
+- Unit 10 — FastAPI/Pydantic schemas, OpenAPI docs, Postman testing
 
 **FSD-2 (MERN):**
 - Unit 1 — JSON handling across all API responses
@@ -102,15 +102,15 @@ This turns a one-dimensional "price calculator" into a genuinely multi-model int
 |---|---|
 | Frontend | React (Vite) + React Router + Axios + Chart.js |
 | Core Backend | Node.js + Express + MongoDB + Mongoose |
-| ML Backend | Django + Django REST Framework |
+| ML Backend | FastAPI + Pydantic |
 | Regression / Fraud models | scikit-learn |
 | CNN / Transfer Learning | TensorFlow / Keras |
 | Scraping | BeautifulSoup + `requests` |
 | Scheduling | `node-cron` or Python `APScheduler` for periodic market data refresh |
-| Auth | JWT (shared between Node and Django) |
+| Auth | JWT handled by Node; FastAPI is called internally by Node |
 | Optional stretch | Socket.io for real-time chat |
 
-**Architecture:** React frontend → Node/Express (marketplace, users, chat, listings) → calls Django/DRF ML microservice internally for price prediction, fraud score, condition score, and trust score.
+**Architecture:** React frontend → Node/Express (marketplace, users, chat, listings) → calls FastAPI ML microservice internally for price prediction, fraud score, condition score, and trust score.
 
 ---
 
@@ -150,10 +150,10 @@ This turns a one-dimensional "price calculator" into a genuinely multi-model int
 | API | Built with | Purpose |
 |---|---|---|
 | Node/Express REST API | Express routes | Auth (login/register, JWT), listing CRUD, chat/inquiry system, search/filter — everything the React frontend calls |
-| Django REST Framework (DRF) API | DRF serializers/viewsets | Price prediction, fraud risk score, condition score, Trust Score — everything Node calls internally |
-| Internal service-to-service API | Node → Django | When a listing is created/updated, Node sends the car's data to Django's endpoint and receives back the prediction and scores |
+| FastAPI ML API | Pydantic request/response models | Price prediction, fraud risk score, condition score, Trust Score — everything Node calls internally |
+| Internal service-to-service API | Node → FastAPI | When a listing is created/updated, Node sends the car's data to FastAPI's endpoint and receives back the prediction and scores |
 
-This internal API layer is the core technical backbone of the project — it directly demonstrates FCSP-2 Unit 10 (DRF, JWT, API versioning) and FSD-2 Unit 5 (RESTful API design, CORS).
+This internal API layer is the core technical backbone of the project — it directly demonstrates FCSP-2 Unit 10 (FastAPI, Pydantic, OpenAPI docs) and FSD-2 Unit 5 (RESTful API design, CORS).
 
 ### External APIs (optional enhancements)
 
@@ -174,4 +174,4 @@ This internal API layer is the core technical backbone of the project — it dir
 
 ## 10. Elevator Pitch (for quick explanations)
 
-> "Valora is a used-car marketplace where every listing gets checked by four different AI systems before a buyer even sees it: one predicts if the price is fair, one flags likely scams, one looks at the photos to verify the car's actual condition, and one combines all of that into a single Trust Score. It's not just 'AI tells you a price' — it's a full trust layer for used-car buying, built as a real MERN marketplace connected to a Django machine-learning backend."
+> "Valora is a used-car marketplace where every listing gets checked by four different AI systems before a buyer even sees it: one predicts if the price is fair, one flags likely scams, one looks at the photos to verify the car's actual condition, and one combines all of that into a single Trust Score. It's not just 'AI tells you a price' — it's a full trust layer for used-car buying, built as a real MERN marketplace connected to a FastAPI machine-learning backend."

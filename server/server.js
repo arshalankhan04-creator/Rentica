@@ -12,6 +12,7 @@ const listingRoutes = require('./routes/listingRoutes');
 const inquiryRoutes = require('./routes/inquiryRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const mlRoutes = require('./routes/mlRoutes');
 
 // Connect to database
 connectDB();
@@ -31,6 +32,7 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/ml', mlRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

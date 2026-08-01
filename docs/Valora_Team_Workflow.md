@@ -6,7 +6,7 @@ A practical, beginner-friendly workflow for you and your teammate, modeled on ho
 
 ## 1. Role Split
 
-With only two people and a project that has 4 distinct layers (MERN marketplace, Django ML backend, CNN, deployment), the cleanest split is **by system**, not by "frontend person vs backend person" — that avoids constant blocking on each other.
+With only two people and a project that has 4 distinct layers (MERN marketplace, FastAPI ML backend, CNN, deployment), the cleanest split is **by system**, not by "frontend person vs backend person" — that avoids constant blocking on each other.
 
 ### Team Member A — Full Stack (MERN) Lead
 - React frontend (all components, routing, state management)
@@ -15,14 +15,14 @@ With only two people and a project that has 4 distinct layers (MERN marketplace,
 - Deployment of frontend + Node backend (Vercel + Render)
 
 ### Team Member B — ML/Data Lead
-- Django + DRF backend (ML microservice, endpoints)
+- FastAPI backend (ML microservice, endpoints)
 - All 3 ML models: regression (price), classification (fraud), CNN (condition)
 - Data cleaning, EDA, dashboards (Pandas/Seaborn/Plotly/Dash)
 - Web scraping (BeautifulSoup)
-- Deployment of Django backend (Render)
+- Deployment of FastAPI backend (Render)
 
 ### Shared responsibilities (both of you, always)
-- **Integration** — connecting Node ↔ Django APIs (this touches both sides, do it together)
+- **Integration** — connecting Node ↔ FastAPI APIs (this touches both sides, do it together)
 - **Testing** — each person tests their own module, but integration testing is joint
 - **Documentation** — split by section, but both review each other's writing
 - **Report/PPT/viva prep** — both must understand the *entire* system, not just your half, since faculty can ask either of you anything
@@ -36,14 +36,14 @@ With only two people and a project that has 4 distinct layers (MERN marketplace,
 | Layer | Owner | Key Tasks |
 |---|---|---|
 | **Frontend (React)** | Member A | Component structure, routing, forms, Axios integration, UI for Trust Score/price/fraud flag display |
-| **Backend (Node/Express)** | Member A | Auth (JWT), listing CRUD APIs, chat/inquiry system, Multer uploads, calling Django endpoints |
+| **Backend (Node/Express)** | Member A | Auth (JWT), listing CRUD APIs, chat/inquiry system, Multer uploads, calling FastAPI endpoints |
 | **Database (MongoDB)** | Member A | Schema design (User, Listing, Chat), Mongoose validation, aggregation queries for analytics |
-| **AI/ML (Django)** | Member B | Regression model, classification (fraud) model, CNN (condition), DRF serializers/viewsets, JWT validation on Django side |
+| **AI/ML (FastAPI)** | Member B | Regression model, classification (fraud) model, CNN (condition), Pydantic schemas, ML API validation |
 | **Data Analytics** | Member B | EDA, Pandas cleaning, Seaborn/Plotly/Dash dashboards |
 | **Web Scraping** | Member B | BeautifulSoup scraper for market comparison data, scheduled refresh |
-| **Testing** | Both | Member A tests MERN endpoints (Postman), Member B tests Django endpoints (Postman), both test end-to-end flows together |
+| **Testing** | Both | Member A tests MERN endpoints (Postman), Member B tests FastAPI endpoints (Postman), both test end-to-end flows together |
 | **Documentation** | Both | Member A writes frontend/backend setup docs, Member B writes ML model docs, both co-write the final report |
-| **Deployment** | Both | Member A deploys React+Node, Member B deploys Django, both verify the full connected system live together |
+| **Deployment** | Both | Member A deploys React+Node, Member B deploys FastAPI, both verify the full connected system live together |
 
 This split means you can genuinely work in parallel for most of the semester without waiting on each other — you only need to sync up at integration points.
 
@@ -59,7 +59,7 @@ Use **one GitHub repository** with clear folders, not separate repos per person:
 valora/
 ├── client/          (React app - Member A)
 ├── server/          (Node/Express - Member A)
-├── ml-service/      (Django - Member B)
+├── ml-service/      (FastAPI - Member B)
 ├── docs/            (shared documentation)
 └── README.md
 ```
@@ -91,7 +91,7 @@ Since it's just two of you, code review doesn't need to be formal. A quick check
 - Is it reasonably readable (so the other person could maintain it later)?
 
 ### Merge conflict avoidance
-Because your split is by *layer* (React vs Django vs Node), you'll rarely touch the same files — this is the biggest advantage of this role split over splitting by "frontend vs backend of the same app." Conflicts will mostly happen only in shared files like `README.md` or `package.json` — communicate before editing those.
+Because your split is by *layer* (React vs FastAPI vs Node), you'll rarely touch the same files — this is the biggest advantage of this role split over splitting by "frontend vs backend of the same app." Conflicts will mostly happen only in shared files like `README.md` or `package.json` — communicate before editing those.
 
 ---
 
@@ -117,10 +117,10 @@ Break the project into weekly milestones (see suggested timeline below) and add 
 | Week(s) | Member A (MERN) | Member B (ML) | Joint |
 |---|---|---|---|
 | 1–2 | Project setup, DB schema design, basic auth | Dataset collection & EDA | Finalize feature list, Trust Score formula |
-| 3–4 | Listing CRUD, image upload | Train regression model, expose via DRF | — |
-| 5–6 | Chat/inquiry system, dashboards UI | Train fraud classifier | First integration test (Node calls Django) |
+| 3–4 | Listing CRUD, image upload | Train regression model, expose via FastAPI | — |
+| 5–6 | Chat/inquiry system, dashboards UI | Train fraud classifier | First integration test (Node calls FastAPI) |
 | 7–8 | Frontend polish, search/filter | Train CNN condition model | Second integration test |
-| 9–10 | Deployment (frontend + Node) | Deployment (Django) | Full live system test |
+| 9–10 | Deployment (frontend + Node) | Deployment (FastAPI) | Full live system test |
 | 11–12 | Bug fixes, UI polish | Model tuning, dashboard polish | Documentation, report writing |
 | 13+ | — | — | Viva prep, practice explaining both halves |
 
@@ -132,7 +132,7 @@ Build in buffer time — ML model training and debugging integration issues almo
 
 - **Agree on coding conventions early** — naming style, folder structure, indentation — takes 10 minutes to discuss and saves hours of messy merges later.
 - **Write a one-page "contract" of who owns what** — not for bureaucracy, but so there's zero ambiguity later about who was supposed to do what (helps avoid "I thought you were doing that" moments).
-- **Integrate early and often** — don't wait until Week 10 to connect Node and Django for the first time. Do a basic "hello world" connection between them in Week 1–2, even before either side is fully built, so you catch integration issues early instead of at the end.
+- **Integrate early and often** — don't wait until Week 10 to connect Node and FastAPI for the first time. Do a basic "hello world" connection between them in Week 1–2, even before either side is fully built, so you catch integration issues early instead of at the end.
 - **Test on each other's machines** — something that works on your laptop might fail on your teammate's due to environment differences (Node version, missing `.env` variables). Do this check at least twice during the project.
 - **Keep secrets out of Git** — use a `.env` file for API keys/DB connection strings, add it to `.gitignore` immediately in Week 1. Share secrets via a private message, never commit them.
 - **Document as you go, not at the end** — write a short note in your shared doc every time you make a non-obvious decision. Reconstructing "why did we do it this way" in Week 12 is painful.
@@ -141,7 +141,7 @@ Build in buffer time — ML model training and debugging integration issues almo
 
 ## 7. Common Mistakes to Avoid
 
-1. **Splitting work by "you do frontend, I do backend of the same feature"** — this forces constant back-and-forth and blocking. Split by *system* (MERN vs Django) instead, like this guide suggests.
+1. **Splitting work by "you do frontend, I do backend of the same feature"** — this forces constant back-and-forth and blocking. Split by *system* (MERN vs FastAPI) instead, like this guide suggests.
 2. **Both people working on `main` directly** — one bad push can break everything both of you have built. Always use branches + PRs.
 3. **No integration testing until the very end** — the most common cause of last-minute panic in two-service projects. Integrate early, even with placeholder/dummy responses.
 4. **Only one person understanding the whole system** — if only Member B can explain the ML side, faculty will notice immediately in the viva. Both of you must be able to explain every part.
@@ -152,11 +152,11 @@ Build in buffer time — ML model training and debugging integration issues almo
 
 ---
 
-## 8. Node ↔ Django API Contract
+## 8. Node ↔ FastAPI API Contract
 
 To enable Member A (MERN) and Member B (ML) to build their respective halves in parallel, the following JSON request/response shapes must be adhered to for the internal service-to-service communication.
 
-All Django endpoints should reside under `/api/ml/` and require JWT authentication headers.
+All FastAPI endpoints should reside under `/api/ml/`. Node calls these internally; browser-facing calls should go through Express.
 
 ### 1. Visual Condition Assessment (CNN Model)
 * **Endpoint**: `POST /api/ml/assess-condition/`
@@ -265,7 +265,7 @@ All Django endpoints should reside under `/api/ml/` and require JWT authenticati
 - [ ] GitHub repo created with `main`/`dev` branches and `.gitignore` set up (Week 1)
 - [ ] Roles and task board set up (Week 1)
 - [ ] Trust Score formula agreed upon in writing (Week 1–2)
-- [ ] First "hello world" Node ↔ Django connection working (Week 2)
+- [ ] First "hello world" Node ↔ FastAPI connection working (Week 2)
 - [ ] Weekly sync meetings happening consistently
 - [ ] Each person can explain both halves of the system by Week 10
 - [ ] Full integration test completed before final submission

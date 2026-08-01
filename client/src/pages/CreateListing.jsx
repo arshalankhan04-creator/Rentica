@@ -29,6 +29,9 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [aiEstimate, setAiEstimate] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   // Revoke preview URLs on unmount
   useEffect(() => {
@@ -36,6 +39,57 @@ const CreateListing = () => {
       previews.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [previews]);
+
+  useEffect(() => {
+    const hasVehicleDetails = brand.trim() && model.trim() && year && kmDriven !== '' && fuelType && transmission;
+    if (!hasVehicleDetails || !user) {
+      setAiEstimate(null);
+      setAiError('');
+      setAiLoading(false);
+      return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const numericYear = Number(year);
+    const numericKm = Number(kmDriven);
+    if (numericYear < 1900 || numericYear > currentYear + 1 || numericKm < 0) {
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setAiLoading(true);
+      setAiError('');
+      try {
+        const res = await api.post('/ml/predict-price', {
+          brand: brand.trim(),
+          model: model.trim(),
+          year: numericYear,
+          kmDriven: numericKm,
+          fuelType,
+          transmission
+        });
+        setAiEstimate(res.data);
+      } catch (err) {
+        setAiEstimate(null);
+        setAiError(err.response?.data?.message || 'AI estimate unavailable');
+      } finally {
+        setAiLoading(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(timeoutId);
+  }, [brand, model, year, kmDriven, fuelType, transmission, user]);
+
+  const formatPrice = (value) => {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) return '--';
+    return `₹${Number(value).toLocaleString('en-IN')}`;
+  };
+
+  const formatFeatureLabel = (key) => {
+    return key
+      .replaceAll('_', ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
   // Protect route: Allow only logged-in sellers
   if (authLoading) {
@@ -617,9 +671,38 @@ const CreateListing = () => {
                     Live AI Price Estimate
                   </h3>
                   <p className="text-body text-xs mt-1.5 m-0">
-                    AI price estimate will appear here once you add vehicle details.
+                    {aiLoading
+                      ? 'Calculating fair market range...'
+                      : aiEstimate
+                        ? 'Based on your vehicle details.'
+                        : 'AI price estimate will appear here once you add vehicle details.'}
                   </p>
                 </div>
+
+                {aiError && (
+                  <div className="bg-warningLight border border-warningBorder rounded-2xl p-4 text-warning text-xs font-bold">
+                    {aiError}
+                  </div>
+                )}
+
+                {aiEstimate && (
+                  <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4">
+                    <span className="block text-[10px] font-semibold tracking-wider text-textSecondary uppercase mb-2">
+                      Suggested Range
+                    </span>
+                    <div className="text-lg font-bold text-textPrimary leading-tight">
+                      {formatPrice(aiEstimate.predicted_price_min)} - {formatPrice(aiEstimate.predicted_price_max)}
+                    </div>
+                    <div className="flex items-center justify-between mt-3 text-xs font-semibold text-textSecondary">
+                      <span>Predicted value</span>
+                      <span className="text-textPrimary">{formatPrice(aiEstimate.predicted_price)}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 text-xs font-semibold text-textSecondary">
+                      <span>Confidence</span>
+                      <span className="capitalize text-primary">{aiEstimate.confidence_level}</span>
+                    </div>
+                  </div>
+                )}
 
                 <p className="text-[11px] font-medium text-textSecondary leading-normal m-0 select-none">
                   Estimated based on similar listings, location, age, mileage, and market demand trends.
@@ -629,21 +712,30 @@ const CreateListing = () => {
                   <p className="text-[10px] font-semibold tracking-wider text-textSecondary uppercase m-0 mb-1 select-none">
                     Why this price?
                   </p>
-                  
-                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
-                    <span>Age & Mileage</span>
-                    <span className="text-textSecondary/60 font-semibold">--</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
-                    <span>Location Demand</span>
-                    <span className="text-textSecondary/60 font-semibold">--</span>
-                  </div>
 
-                  <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
-                    <span>Single Owner</span>
-                    <span className="text-textSecondary/60 font-semibold">--</span>
-                  </div>
+                  {aiEstimate?.feature_importance
+                    ? Object.entries(aiEstimate.feature_importance).slice(0, 4).map(([feature, weight]) => (
+                      <div key={feature} className="flex items-center justify-between text-xs font-semibold text-textSecondary">
+                        <span>{formatFeatureLabel(feature)}</span>
+                        <span className="text-textSecondary/60 font-semibold">{Math.round(Number(weight) * 100)}%</span>
+                      </div>
+                    ))
+                    : (
+                      <>
+                        <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
+                          <span>Age & Mileage</span>
+                          <span className="text-textSecondary/60 font-semibold">--</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
+                          <span>Location Demand</span>
+                          <span className="text-textSecondary/60 font-semibold">--</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
+                          <span>Vehicle Specs</span>
+                          <span className="text-textSecondary/60 font-semibold">--</span>
+                        </div>
+                      </>
+                    )}
                 </div>
 
                 {/* Trust Score circular indicator */}

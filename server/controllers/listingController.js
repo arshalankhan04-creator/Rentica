@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const Listing = require('../models/Listing');
+const { analyzeListing } = require('../services/mlClient');
 
 // Helper to delete physical files
 const deletePhysicalFiles = (files) => {
@@ -16,6 +17,15 @@ const deletePhysicalFiles = (files) => {
       console.error('Failed to delete physical file:', filePath, e.message);
     }
   });
+};
+
+const getMLFieldsForListing = async (vehicle) => {
+  try {
+    return await analyzeListing(vehicle);
+  } catch (error) {
+    console.warn('ML analysis skipped:', error.message);
+    return {};
+  }
 };
 
 // @desc    Create a new listing
@@ -52,6 +62,16 @@ const createListing = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid transmission type' });
     }
 
+    const mlFields = await getMLFieldsForListing({
+      brand,
+      model,
+      year,
+      kmDriven,
+      fuelType,
+      transmission,
+      price
+    });
+
     const listing = await Listing.create({
       seller: req.user.id,
       brand,
@@ -62,7 +82,8 @@ const createListing = async (req, res, next) => {
       transmission,
       price: Number(price),
       description,
-      images: uploadedFiles // Explicitly ignore any images sent in body JSON
+      images: uploadedFiles, // Explicitly ignore any images sent in body JSON
+      ...mlFields
     });
 
     res.status(201).json(listing);
@@ -207,11 +228,21 @@ const updateListing = async (req, res, next) => {
       status
     } = req.body;
 
+    const shouldRefreshML = [
+      'brand',
+      'model',
+      'year',
+      'kmDriven',
+      'fuelType',
+      'transmission',
+      'price'
+    ].some((field) => req.body[field] !== undefined);
+
     // Update fields if provided
-    if (brand) listing.brand = brand;
-    if (model) listing.model = model;
-    if (year) listing.year = Number(year);
-    if (kmDriven) listing.kmDriven = Number(kmDriven);
+    if (brand !== undefined) listing.brand = brand;
+    if (model !== undefined) listing.model = model;
+    if (year !== undefined) listing.year = Number(year);
+    if (kmDriven !== undefined) listing.kmDriven = Number(kmDriven);
     if (fuelType) {
       if (!['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'].includes(fuelType)) {
         return res.status(400).json({ message: 'Invalid fuel type' });
@@ -231,6 +262,19 @@ const updateListing = async (req, res, next) => {
         return res.status(400).json({ message: 'Invalid status value' });
       }
       listing.status = status;
+    }
+
+    if (shouldRefreshML) {
+      const mlFields = await getMLFieldsForListing({
+        brand: listing.brand,
+        model: listing.model,
+        year: listing.year,
+        kmDriven: listing.kmDriven,
+        fuelType: listing.fuelType,
+        transmission: listing.transmission,
+        price: listing.price
+      });
+      Object.assign(listing, mlFields);
     }
 
     const updatedListing = await listing.save();
