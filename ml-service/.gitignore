@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Training artifacts (regenerate with train_price_model.py)
+catboost_info/
+trained_models/*.pkl
+trained_models/*.png
+
+# Dataset is large — keep locally, do not commit
+datasets/*.csv

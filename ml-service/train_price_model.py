@@ -61,6 +61,8 @@ try:
 except ImportError:  # pragma: no cover - environment without catboost installed
     CATBOOST_AVAILABLE = False
 
+from features import CATEGORICAL_FEATURES, FEATURE_COLUMNS, NUMERIC_FEATURES
+
 
 # ======================================================================================
 # Constants / configuration
@@ -82,9 +84,12 @@ PRICE_UPPER_QUANTILE = 0.99
 
 CURRENT_YEAR = pd.Timestamp.now().year
 
-OUTPUT_DIR_MODELS = Path("trained_models")
-OUTPUT_DIR_REPORTS = Path("reports")
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR_MODELS = BASE_DIR / "trained_models"
+OUTPUT_DIR_REPORTS = BASE_DIR / "reports"
 
+QUANTILE_LOWER = 0.1   # 10th percentile -> ~80% interval with QUANTILE_UPPER
+QUANTILE_UPPER = 0.9 
 
 # ======================================================================================
 # Logging
@@ -118,6 +123,7 @@ def load_data(path: Path) -> pd.DataFrame:
         raise FileNotFoundError(
             f"Could not find '{path}'. Pass the correct location with --data-path."
         )
+
     df = pd.read_csv(path, low_memory=False)
     logger.info("Loaded %d rows x %d columns", df.shape[0], df.shape[1])
     return df
@@ -661,22 +667,8 @@ def remove_price_outliers(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_final_feature_set(work: pd.DataFrame) -> Tuple[List[str], List[str]]:
     """Split the engineered dataframe's columns into numeric vs categorical feature lists."""
-    numeric_features = [
-        "car_age", "km_driven", "engine_cc", "cylinders", "valves_per_cylinder",
-        "power_bhp", "torque_nm", "mileage_kmpl", "length_mm", "width_mm",
-        "height_mm", "wheelbase_mm", "kerb_weight_kg", "seating_capacity", "doors",
-        "gear_count", "turning_radius_m", "top_speed_kmph", "acceleration_sec",
-        "cargo_volume_liters", "alloy_wheel_size_in", "owner_count",
-        "n_top_features", "n_comfort_features", "n_interior_features",
-        "n_exterior_features", "n_safety_features", "total_feature_count", "has_turbo",
-    ]
-    categorical_features = [
-        "brand", "model", "variant", "city", "state", "fuel_type", "transmission_type",
-        "body_type", "seller_type", "listing_type", "color", "drive_type",
-        "steering_type", "front_brake_type", "rear_brake_type", "tyre_type",
-        "fuel_supply_system", "value_configuration",
-    ]
-    return numeric_features, categorical_features
+    _ = work  # columns are fixed; kept for call-site compatibility
+    return NUMERIC_FEATURES, CATEGORICAL_FEATURES
 
 
 # ======================================================================================
@@ -853,16 +845,28 @@ def save_model_artifacts(
 
 
 # ======================================================================================
-# main
+# CLI + main
 # ======================================================================================
 
-
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Train and evaluate Valora used-car price prediction models."
+    )
+    default_data = Path(__file__).resolve().parent / "datasets" / "cars_details_merges.csv"
+    parser.add_argument(
+        "--data-path",
+        type=Path,
+        default=default_data,
+        help="Path to the raw listings CSV export.",
+    )
+    return parser.parse_args()
 
 
 def main() -> None:
+    args = parse_args()
 
     # ---- 1. Load ---------------------------------------------------------------
-    df_raw = pd.read_csv("datasets/cars_details_merges.csv")
+    df_raw = load_data(args.data_path)
 
     # ---- 2. EDA -----------------------------------------------------------------
     run_eda(df_raw, OUTPUT_DIR_REPORTS / "eda_summary.txt")
@@ -881,7 +885,7 @@ def main() -> None:
     work_df = remove_price_outliers(work_df)
 
     numeric_features, categorical_features = build_final_feature_set(work_df)
-    feature_columns = numeric_features + categorical_features
+    feature_columns = FEATURE_COLUMNS
     logger.info("Final feature set: %d numeric + %d categorical = %d total features",
                 len(numeric_features), len(categorical_features), len(feature_columns))
 
@@ -908,6 +912,29 @@ def main() -> None:
 
     # ---- 12/13. Persist model + feature importance ---------------------------------
     save_model_artifacts(best_pipeline, feature_columns, OUTPUT_DIR_MODELS)
+
+
+    if CATBOOST_AVAILABLE:
+        logger.info("Training quantile models for price range estimation...")
+        for label, alpha in [("lower", QUANTILE_LOWER), ("upper", QUANTILE_UPPER)]:
+            q_pipeline = Pipeline(steps=[
+                ("preprocessor", build_preprocessor(numeric_features, categorical_features)),
+                ("model", CatBoostRegressor(
+                    iterations=800, learning_rate=0.05, depth=8,
+                    random_state=RANDOM_STATE, verbose=False,
+                    loss_function=f"Quantile:alpha={alpha}",
+                )),
+            ])
+            q_pipeline.fit(X_train, y_train)
+            with open(OUTPUT_DIR_MODELS / f"price_model_{label}.pkl", "wb") as f:
+                pickle.dump(q_pipeline, f)
+            logger.info("Saved %s-bound quantile model.", label)
+    else:
+        logger.warning(
+            "catboost is not installed — skipping quantile range models. "
+            "Install with: pip install catboost"
+        )
+
     save_feature_importance(
         best_name, best_pipeline, OUTPUT_DIR_MODELS / "feature_importance.png"
     )
