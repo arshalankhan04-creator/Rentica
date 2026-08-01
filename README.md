@@ -1,6 +1,6 @@
 # Valora
 
-Valora is a multi-service web application composed of a React frontend, Node/Express backend, and Django machine learning service.
+Valora is a multi-service web application composed of a React frontend, Node/Express backend, and FastAPI machine learning service.
 
 ## Project Structure
 
