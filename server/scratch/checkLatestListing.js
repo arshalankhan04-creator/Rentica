@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Listing = require('../models/Listing');
 
-mongoose.connect('mongodb://localhost:27017/valora_anti')
+mongoose.connect('mongodb://localhost:27017/valora')
   .then(async () => {
     const listing = await Listing.findOne().sort({ createdAt: -1 });
     console.log('Latest listing:');

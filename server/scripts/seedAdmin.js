@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const seedAdmin = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti';
+    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
     console.log('Connecting to database...');
     await mongoose.connect(mongoUri);
     console.log('MongoDB Connected.');

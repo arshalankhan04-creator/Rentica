@@ -28,7 +28,7 @@ const testEmails = async () => {
   // Setup: Database cleanup and Users/Listings
   try {
     // Connect directly to DB to clean up any user with this email so registration succeeds
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/valora');
     await User.deleteMany({ email: sellerEmail.toLowerCase() });
     await mongoose.connection.close();
     console.log('Database cleaned up for target seller email.');

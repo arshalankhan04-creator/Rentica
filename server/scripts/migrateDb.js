@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const SOURCE_URI = 'mongodb://localhost:27017/valora';
-const TARGET_URI = 'mongodb://localhost:27017/valora_anti';
+const TARGET_URI = 'mongodb://localhost:27017/valora';
 
 const migrateDatabase = async () => {
   try {

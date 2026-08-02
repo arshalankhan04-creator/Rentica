@@ -5,7 +5,7 @@ const User = require('./models/User');
 const Listing = require('./models/Listing');
 const Inquiry = require('./models/Inquiry');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
 
 const seedDatabase = async () => {
   try {
