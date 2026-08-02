@@ -15,6 +15,7 @@ import AdminPanel from './pages/AdminPanel';
 import Browse from './pages/Browse';
 import Wishlist from './pages/Wishlist';
 import Compare from './pages/Compare';
+import About from './pages/About';
 import ComingSoon from './pages/ComingSoon';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -31,6 +32,7 @@ const AppLayout = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/browse" element={<Browse />} />
+        <Route path="/about" element={<About />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/login" element={<Login />} />
@@ -46,7 +48,6 @@ const AppLayout = () => {
         <Route path="/admin" element={<AdminPanel />} />
         
         {/* Stub/Placeholder Routes */}
-        <Route path="/about" element={<ComingSoon />} />
         <Route path="/finance" element={<ComingSoon />} />
         <Route path="/faq" element={<ComingSoon />} />
         <Route path="/privacy" element={<ComingSoon />} />

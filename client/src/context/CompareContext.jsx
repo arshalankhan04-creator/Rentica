@@ -68,14 +68,22 @@ export const CompareProvider = ({ children }) => {
 
   // ── Core methods ─────────────────────────────────────────────────────────────
 
+  const getId = (item) => (item ? (item._id || item.id || '').toString() : '');
+
   const isInCompare = useCallback(
-    (listingId) => slots.some((s) => s && s._id === listingId),
+    (listingId) => {
+      if (!listingId) return false;
+      const targetStr = listingId.toString();
+      return slots.some((s) => s && getId(s) === targetStr);
+    },
     [slots]
   );
 
   const addToCompare = useCallback((listing) => {
+    if (!listing) return 'invalid';
+    const targetId = getId(listing);
     // Already present
-    if (slots.some((s) => s && s._id === listing._id)) {
+    if (slots.some((s) => s && getId(s) === targetId)) {
       showToast({ type: 'already_in', listing });
       return 'already_in';
     }
@@ -95,6 +103,30 @@ export const CompareProvider = ({ children }) => {
     return 'added';
   }, [slots, showToast]);
 
+  const removeFromCompare = useCallback((listingOrId) => {
+    if (!listingOrId) return;
+    const targetStr = typeof listingOrId === 'object' ? getId(listingOrId) : listingOrId.toString();
+    const existingListing = slots.find((s) => s && getId(s) === targetStr);
+
+    setSlots((prev) => prev.map((s) => (s && getId(s) === targetStr ? null : s)));
+
+    const targetListing = (typeof listingOrId === 'object' && listingOrId) ? listingOrId : existingListing;
+    if (targetListing) {
+      showToast({ type: 'removed', listing: targetListing });
+    }
+  }, [slots, showToast]);
+
+  const toggleCompare = useCallback((listing) => {
+    if (!listing) return;
+    const targetId = getId(listing);
+    if (slots.some((s) => s && getId(s) === targetId)) {
+      removeFromCompare(targetId);
+      showToast({ type: 'removed', listing });
+    } else {
+      addToCompare(listing);
+    }
+  }, [slots, addToCompare, removeFromCompare, showToast]);
+
   // Set a specific positional slot (used by Compare page search popover)
   const setSlot = useCallback((index, listing) => {
     setSlots((prev) => {
@@ -102,10 +134,6 @@ export const CompareProvider = ({ children }) => {
       next[index] = listing;
       return next;
     });
-  }, []);
-
-  const removeFromCompare = useCallback((listingId) => {
-    setSlots((prev) => prev.map((s) => (s && s._id === listingId ? null : s)));
   }, []);
 
   const removeSlot = useCallback((index) => {
@@ -152,6 +180,7 @@ export const CompareProvider = ({ children }) => {
       toast,
       filledCount,
       addToCompare,
+      toggleCompare,
       setSlot,
       removeFromCompare,
       removeSlot,

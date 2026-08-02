@@ -30,21 +30,24 @@ const Navbar = () => {
       } catch (_) {}
       const lastViewed = rawViewed ? JSON.parse(rawViewed) : {};
 
-      let totalUnread = 0;
+      let unreadThreadsCount = 0;
       threads.forEach((t) => {
         const lastViewedTime = lastViewed[t._id];
-        (t.messages || []).forEach((m) => {
+        const hasUnreadMessage = (t.messages || []).some((m) => {
           const senderId = m.sender?._id || m.sender;
           if (senderId && senderId.toString() !== currentUserId.toString()) {
             const msgTime = m.sentAt || m.createdAt;
-            if (!lastViewedTime || new Date(msgTime) > new Date(lastViewedTime)) {
-              totalUnread += 1;
-            }
+            return !lastViewedTime || new Date(msgTime) > new Date(lastViewedTime);
           }
+          return false;
         });
+
+        if (hasUnreadMessage) {
+          unreadThreadsCount += 1;
+        }
       });
 
-      setUnreadCount(totalUnread);
+      setUnreadCount(unreadThreadsCount);
     } catch (_) {
       // Fail silently for unread count indicator
     }
@@ -85,19 +88,21 @@ const Navbar = () => {
   const initials = user ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '';
 
   return (
-    <nav className="w-full bg-surface border-b border-border py-4 px-4 md:px-8 z-30 relative">
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between">
+    <nav className="w-full bg-surface border-b border-border py-4 z-30 relative">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Left Side: Logo */}
-        <Link 
-          to="/" 
-          className="text-2xl no-underline tracking-wide"
-          style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
-        >
-          Valora
-        </Link>
+        <div className="flex-1 flex items-center justify-start">
+          <Link 
+            to="/" 
+            className="text-2xl no-underline tracking-wide"
+            style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
+          >
+            Valora
+          </Link>
+        </div>
 
-        {/* Center: Nav links */}
-        <div className="hidden md:flex items-center gap-8">
+        {/* Center: Nav links (Visually & Mathematically Centered) */}
+        <div className="hidden md:flex flex-1 items-center justify-center gap-8">
           <Link to="/browse" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
             Buy
           </Link>
@@ -119,16 +124,13 @@ const Navbar = () => {
           >
             Sell
           </Link>
-          <Link to="/finance" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
-            Finance
-          </Link>
           <Link to="/about" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
             About
           </Link>
         </div>
 
         {/* Right Side: Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex-1 flex items-center justify-end gap-3">
           {/* Chat / Messages Icon Button */}
           <button
             onClick={(e) => {

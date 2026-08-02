@@ -170,7 +170,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(user.role === 'admin' ? '/admin' : '/');
     }
   }, [user, navigate]);
 
@@ -281,8 +281,9 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const resData = await login(email.trim(), password.trim());
+      const loggedUser = resData?.user;
+      navigate(loggedUser?.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       console.error('Login error details:', err);
       const serverMessage = err.response?.data?.message || 'Login failed. Please try again.';

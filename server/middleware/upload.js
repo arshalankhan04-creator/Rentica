@@ -42,7 +42,7 @@ const upload = multer({
 });
 
 const uploadImages = (req, res, next) => {
-  const uploadMultiple = upload.array('images', 6);
+  const uploadMultiple = upload.array('images', 15);
 
   uploadMultiple(req, res, function (err) {
     if (err) {
@@ -61,7 +61,7 @@ const uploadImages = (req, res, next) => {
 
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-          return res.status(400).json({ message: 'Upload failed. Max of 6 images allowed per listing' });
+          return res.status(400).json({ message: 'Upload failed. Max of 15 images allowed per listing' });
         }
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(400).json({ message: 'Upload failed. File size too large. Max limit is 5MB per image' });

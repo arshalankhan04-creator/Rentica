@@ -23,6 +23,8 @@ API Contract in Valora_Team_Workflow.md section 8 exactly.
 - kmDriven: Number, required
 - fuelType: String, enum ['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'], required
 - transmission: String, enum ['Manual', 'Automatic'], required
+- bodyType: String, enum ['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Wagon'], required
+- location: String, required
 - price: Number, required
 - description: String, optional
 - images: [String] (file paths)

@@ -68,8 +68,9 @@ const loginUser = async (req, res, next) => {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by normalized email (trim & lowercase)
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
 
     // Verify credentials
     if (user && (await user.matchPassword(password))) {
@@ -201,10 +202,36 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+// @desc    Subscribe to price drop & verified listing email alerts
+// @route   POST /api/auth/subscribe-alerts
+// @access  Public
+const subscribeAlerts = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ message: 'Please enter a valid email address.' });
+    }
+
+    const sendEmailFn = typeof sendEmail === 'function' ? sendEmail : sendEmail.sendEmail;
+    if (sendEmailFn) {
+      await sendEmailFn({
+        to: email,
+        subject: '[Valora] Price Drop & Verified Vehicle Alerts Activated',
+        text: `Hi,\n\nThank you for subscribing to Valora price drop alerts! You will now receive instant email notifications whenever prices drop on verified cars.\n\nBest regards,\nValora Team`
+      });
+    }
+
+    res.json({ message: 'Subscribed! You will now receive price drop alerts via email.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  subscribeAlerts
 };

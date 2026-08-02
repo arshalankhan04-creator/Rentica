@@ -145,13 +145,13 @@ const Home = () => {
       try {
         const res = await api.get('/listings');
         if (res.data && res.data.length > 0) {
-          setFeaturedListings(res.data.slice(0, 6));
+          setFeaturedListings(res.data.slice(0, 4));
         } else {
-          setFeaturedListings(FEATURED_CARS);
+          setFeaturedListings(FEATURED_CARS.slice(0, 4));
         }
       } catch (err) {
         console.error('Error fetching live listings, falling back to static:', err);
-        setFeaturedListings(FEATURED_CARS);
+        setFeaturedListings(FEATURED_CARS.slice(0, 4));
       } finally {
         setLoadingListings(false);
       }
@@ -404,7 +404,7 @@ const Home = () => {
         </div>
 
         {/* Cars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {featuredListings.map((car) => (
             <CarCard key={car.id || car._id} car={car} />
           ))}

@@ -1,106 +1,122 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Button from './Button';
+import api from '../api/axios';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setIsError(true);
+      setMessage('Please enter a valid email address.');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+    setIsError(false);
+
+    try {
+      const res = await api.post('/auth/subscribe-alerts', { email });
+      setMessage(res.data?.message || 'Subscribed to price drop alerts!');
+      setEmail('');
+    } catch (err) {
+      console.error('Subscription error:', err);
+      setIsError(true);
+      setMessage(err.response?.data?.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="w-full bg-surface border-t border-border mt-auto overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-16 pb-8 w-full">
-        {/* Top Section */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10 pb-12 border-b border-border/40">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 pb-8 w-full">
+        {/* Top 3-Column Footer Links Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 pb-12 border-b border-border/40 text-left">
           
-          {/* Links Columns Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 md:gap-16 text-left">
-            {/* Quick Links */}
-            <div className="flex flex-col">
-              <span className="text-11px font-semibold uppercase tracking-wider text-textSecondary mb-4">
-                Quick Links
-              </span>
-              <ul className="list-none p-0 m-0 space-y-3">
-                <li>
-                  <Link to="/browse" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    Browse Cars
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/create-listing" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    Sell Your Car
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/about" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    About Valora
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div className="flex flex-col">
-              <span className="text-11px font-semibold uppercase tracking-wider text-textSecondary mb-4">
-                Support
-              </span>
-              <ul className="list-none p-0 m-0 space-y-3">
-                <li>
-                  <Link to="/faq" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/privacy" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-sm font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                    Contact Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Say Hello! */}
-            <div className="flex flex-col col-span-2 sm:col-span-1">
-              <span className="text-11px font-semibold uppercase tracking-wider text-textSecondary mb-4">
-                Say Hello!
-              </span>
-              <div className="flex items-center gap-3">
-                {/* Globe Icon */}
-                <Link to="/about" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-textSecondary hover:text-primary hover:bg-primary/5 hover:border-primary/10 transition-all duration-200">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
+          {/* Column 1 (3 cols): MARKETPLACE */}
+          <div className="md:col-span-3 flex flex-col">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-textSecondary mb-4 select-none">
+              Marketplace
+            </span>
+            <ul className="list-none p-0 m-0 space-y-3">
+              <li>
+                <Link to="/browse" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
+                  Browse Cars
                 </Link>
-                {/* Email Icon */}
-                <Link to="/contact" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-textSecondary hover:text-primary hover:bg-primary/5 hover:border-primary/10 transition-all duration-200">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
+              </li>
+              <li>
+                <Link to="/create-listing" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
+                  Sell Your Car
                 </Link>
-                {/* Phone Icon */}
-                <Link to="/contact" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-textSecondary hover:text-primary hover:bg-primary/5 hover:border-primary/10 transition-all duration-200">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
+              </li>
+              <li>
+                <Link to="/compare" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
+                  Compare Vehicles
                 </Link>
-              </div>
-            </div>
+              </li>
+              <li>
+                <span className="text-xs font-semibold text-textSecondary/50 cursor-not-allowed flex items-center gap-1.5 select-none">
+                  Great Deals
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-background border border-border/60 text-textSecondary uppercase">Coming Soon</span>
+                </span>
+              </li>
+            </ul>
           </div>
 
-          {/* Right Outlined Contact Button */}
-          <div className="flex md:justify-end">
-            <Link to="/contact">
-              <Button 
-                variant="outline" 
-                pill={true} 
-                className="font-bold shadow-sm"
-              >
-                Contact Us
-              </Button>
-            </Link>
+          {/* Column 2 (4 cols): TRUST & INTELLIGENCE */}
+          <div className="md:col-span-4 flex flex-col">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-textSecondary mb-4 select-none">
+              Trust & Intelligence
+            </span>
+            <ul className="list-none p-0 m-0 space-y-3">
+              <li>
+                <Link to="/about" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
+                  About Valora AI
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3 (5 cols): STAY CONNECTED (Price Drop Alerts) */}
+          <div className="md:col-span-5 flex flex-col">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-textSecondary mb-4 select-none">
+              Stay Connected
+            </span>
+            <p className="text-xs font-medium text-textSecondary leading-relaxed m-0 mb-3">
+              Get price drop alerts and newly verified vehicle listings via email.
+            </p>
+
+            <form onSubmit={handleSubscribe} className="flex items-center gap-2 max-w-md">
+              <div className="flex items-center w-full bg-background border border-border/80 rounded-full p-1 shadow-inner focus-within:border-primary transition-all">
+                <input
+                  type="email"
+                  placeholder="Enter your email..."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-transparent text-xs text-textPrimary placeholder:text-textSecondary/60 px-4 py-1.5 focus:outline-none border-none"
+                  disabled={loading}
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-full transition-all cursor-pointer shadow-xs shrink-0 border-none disabled:opacity-50"
+                >
+                  {loading ? '...' : 'Join'}
+                </button>
+              </div>
+            </form>
+
+            {message && (
+              <p className={`text-[11px] font-bold mt-2.5 m-0 text-left ${isError ? 'text-danger' : 'text-emerald-500'}`}>
+                {isError ? '⚠️ ' : '✓ '}{message}
+              </p>
+            )}
           </div>
         </div>
 

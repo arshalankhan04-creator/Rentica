@@ -23,12 +23,20 @@ const ICONS = {
       </svg>
     </div>
   ),
+  removed: (
+    <div className="w-8 h-8 rounded-full bg-danger/15 border border-danger/30 flex items-center justify-center shrink-0">
+      <svg className="w-4 h-4 text-danger" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </div>
+  ),
 };
 
 const MESSAGES = {
   added:      (name) => ({ title: 'Added to comparison', sub: name }),
   full:       ()     => ({ title: 'Comparison is full (3/3)', sub: 'Remove a car first to add another.' }),
   already_in: (name) => ({ title: 'Already in comparison', sub: name }),
+  removed:    (name) => ({ title: 'Removed from comparison', sub: name }),
 };
 
 const CompareToast = ({ toast, onDismiss }) => {
@@ -59,10 +67,10 @@ const CompareToast = ({ toast, onDismiss }) => {
     >
       <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
         {/* Progress bar */}
-        {isAdded && (
-          <div className="h-0.5 bg-primary/10">
+        {(isAdded || type === 'removed') && (
+          <div className={`h-0.5 ${type === 'removed' ? 'bg-danger/10' : 'bg-primary/10'}`}>
             <div
-              className="h-full bg-primary origin-left"
+              className={`h-full origin-left ${type === 'removed' ? 'bg-danger' : 'bg-primary'}`}
               style={{ animation: 'shrink-bar 3.5s linear forwards' }}
             />
           </div>

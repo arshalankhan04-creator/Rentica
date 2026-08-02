@@ -165,14 +165,15 @@ const Browse = () => {
         });
       }
 
-      // 5. City Filter
+      // 5. City / Location Filter
       if (selectedLocations.length > 0) {
         filtered = filtered.filter(item => {
+          const itemLoc = (item.location || item.city || item.description || '').toLowerCase();
           const locMatches = selectedLocations.some(l => 
-            l !== 'Other' && item.description && item.description.toLowerCase().includes(l.toLowerCase())
+            l !== 'Other' && itemLoc.includes(l.toLowerCase())
           );
           const customLocMatch = selectedLocations.includes('Other') && customCityText &&
-            item.description && item.description.toLowerCase().includes(customCityText.toLowerCase());
+            itemLoc.includes(customCityText.toLowerCase());
           return locMatches || customLocMatch;
         });
       }
@@ -227,6 +228,16 @@ const Browse = () => {
       setSelectedList([...selectedList, item]);
     }
   };
+
+  // Active filter check for dynamic header state
+  const hasActiveFilters = Boolean(
+    selectedBrands.length > 0 || customBrandText ||
+    selectedModels.length > 0 || customModelText ||
+    selectedFuels.length > 0 ||
+    selectedTransmissions.length > 0 ||
+    selectedLocations.length > 0 || customCityText ||
+    minPrice || maxPrice || minYear || maxYear
+  );
 
   // Pagination Math
   const totalPages = Math.ceil(listings.length / listingsPerPage);
@@ -387,7 +398,7 @@ const Browse = () => {
                   Body Type
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {['SUV', 'Sedan', 'Hatchback', 'Coupe', 'MUV', 'Convertible', 'Other'].map((body) => {
+                  {['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Wagon', 'Other'].map((body) => {
                     const isSelected = selectedModels.includes(body);
                     return (
                       <button
@@ -528,10 +539,10 @@ const Browse = () => {
             <div className="bg-surface border border-border rounded-card-lg p-4 flex flex-row items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
                 <h2 className="text-card-title m-0">
-                  Search Results
+                  {hasActiveFilters ? 'Search Results' : 'All Vehicles'}
                 </h2>
                 <Badge variant="primary" className="py-1">
-                  {listings.length} Matches
+                  {hasActiveFilters ? `${listings.length} Matches` : `Total ${listings.length}`}
                 </Badge>
               </div>
 

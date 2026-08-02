@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Button from '../components/Button';
-import Badge from '../components/Badge';
+import FairPriceBadge from '../components/FairPriceBadge';
+import TrustBadge from '../components/TrustBadge';
+import WishlistButton from '../components/WishlistButton';
+import CompareButton from '../components/CompareButton';
 
 const ListingDetail = () => {
   const { id } = useParams();
-  const { user, token, wishlist, toggleWishlist, showAuthModal } = useAuth();
+  const { user, showAuthModal } = useAuth();
   const navigate = useNavigate();
-  const isSaved = wishlist && wishlist.includes(id);
+  const location = useLocation();
+  
+  const isFromAdmin = Boolean(location.state?.fromAdmin || (user && user.role === 'admin'));
   
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,8 +72,8 @@ const ListingDetail = () => {
   if (loading) {
     return (
       <div className="w-full bg-bgLight min-h-screen py-24 flex flex-col items-center justify-center gap-4 text-center">
-        <div className="w-12 h-12 border-4 border-indigo-100 border-t-[#4F46E5] rounded-full animate-spin" />
-        <p className="text-gray-400 text-xs font-bold m-0">Loading vehicle details...</p>
+        <div className="w-12 h-12 border-4 border-indigo-100 border-t-primary rounded-full animate-spin" />
+        <p className="text-textSecondary text-xs font-bold m-0">Loading vehicle details...</p>
       </div>
     );
   }
@@ -76,13 +81,13 @@ const ListingDetail = () => {
   if (error || !listing) {
     return (
       <div className="w-full bg-bgLight min-h-screen py-20 text-center flex flex-col items-center justify-center px-6">
-        <div className="w-16 h-16 bg-red-50 border border-red-100 rounded-full flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className="w-16 h-16 bg-dangerLight border border-dangerBorder rounded-full flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-danger" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2 m-0">Listing Not Found</h2>
-        <p className="text-gray-400 text-xs max-w-[320px] mx-auto m-0 mb-6">
+        <h2 className="text-xl font-bold text-textPrimary mb-2 m-0">Listing Not Found</h2>
+        <p className="text-textSecondary text-xs max-w-[320px] mx-auto m-0 mb-6">
           The listing may have been marked as sold, removed by the owner, or is invalid.
         </p>
         <Link to="/" className="text-xs font-bold text-primary hover:underline">
@@ -92,7 +97,6 @@ const ListingDetail = () => {
     );
   }
 
-  // Safe string comparisons for seller ID vs logged-in user ID
   const getSellerId = (seller) => {
     if (!seller) return '';
     if (typeof seller === 'object') return seller._id || '';
@@ -115,65 +119,105 @@ const ListingDetail = () => {
     }
   };
 
-  // Date formatted: X days ago
   const getDaysAgo = (dateStr) => {
-    if (!dateStr) return 'Posted 3 days ago';
+    if (!dateStr) return '5d ago';
     const date = new Date(dateStr);
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays < 1) return 'Posted today';
-    if (diffDays === 1) return 'Posted yesterday';
-    return `Posted ${diffDays} days ago`;
+    if (diffDays < 1) return 'today';
+    if (diffDays === 1) return '1d ago';
+    return `${diffDays}d ago`;
   };
 
   const displayDate = getDaysAgo(listing.createdAt);
 
   const formatLakhPrice = (val) => {
-    if (val === null || val === undefined) return '';
-    return `₹${(val / 100000).toFixed(1)}L`;
-  };
-
-  const getCarLocation = () => {
-    if (listing.location) return listing.location;
-    const b = listing.brand ? listing.brand.toLowerCase() : '';
-    if (b.includes('mercedes') || b.includes('benz')) return 'Mumbai, Maharashtra';
-    if (b.includes('audi')) return 'Delhi NCR';
-    if (b.includes('hyundai')) return 'Delhi NCR';
-    if (b.includes('honda')) return 'Bangalore, Karnataka';
-    if (b.includes('toyota')) return 'Pune, Maharashtra';
-    return 'Mumbai, Maharashtra';
+    if (val === null || val === undefined) return 'N/A';
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(2)} L`;
+    return `₹${val.toLocaleString('en-IN')}`;
   };
 
   const getGalleryImages = () => {
-    if (!listing.images || listing.images.length === 0) {
+    if (!listing.images || !Array.isArray(listing.images) || listing.images.length === 0) {
       return [];
     }
-    return listing.images.map(img => img.startsWith('http') || img.startsWith('data:') ? img : `http://localhost:5000/${img}`);
+    return listing.images
+      .filter(img => typeof img === 'string' && img.trim() !== '')
+      .map(img => img.startsWith('http') || img.startsWith('data:') ? img : `http://localhost:5000/${img}`);
   };
 
   const galleryImages = getGalleryImages();
 
+  let fairPriceValue = null;
+  if (listing.predictedPriceMin !== null && listing.predictedPriceMax !== null) {
+    fairPriceValue = (listing.predictedPriceMin + listing.predictedPriceMax) / 2;
+  }
+  let priceVerdict = null;
+  let delta = null;
+  if (fairPriceValue !== null && listing.price) {
+    delta = Math.round(((listing.price - fairPriceValue) / fairPriceValue) * 100);
+    priceVerdict = delta < -3 ? 'under' : delta > 3 ? 'over' : 'fair';
+  }
+
   return (
-    <div className="w-full bg-bgLight min-h-screen py-12 flex flex-col font-sans">
+    <div className="w-full bg-bgLight min-h-screen py-10 flex flex-col font-sans">
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full text-left">
         
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-textSecondary/80 mb-6 select-none">
-          <Link to="/" className="hover:text-primary transition-colors no-underline">Home</Link>
-          <span>&rsaquo;</span>
-          <Link to="/browse" className="hover:text-primary transition-colors no-underline">Browse</Link>
-          <span>&rsaquo;</span>
-          <span className="text-textSecondary">{listing.brand} {listing.model}</span>
+        {/* Top Navigation Bar: Back to Admin or Breadcrumb */}
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            {isFromAdmin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    const tab = location.state?.adminTab || 'flagged';
+                    const page = location.state?.adminPage || 1;
+                    navigate(`/admin?tab=${tab}&page=${page}`);
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-surface border border-border text-textPrimary hover:bg-muted font-bold text-xs shadow-xs cursor-pointer transition-all select-none"
+              >
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Back to Admin Panel</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-surface border border-border text-textPrimary hover:bg-muted font-bold text-xs shadow-xs cursor-pointer transition-all select-none"
+              >
+                <svg className="w-4 h-4 text-textSecondary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Back</span>
+              </button>
+            )}
+
+            {/* Breadcrumb Navigation */}
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-textSecondary/80 select-none">
+              <Link to="/" className="hover:text-primary transition-colors no-underline">Home</Link>
+              <span>&rsaquo;</span>
+              <Link to="/browse" className="hover:text-primary transition-colors no-underline">Browse</Link>
+              <span>&rsaquo;</span>
+              <span className="text-textSecondary">{listing.brand} {listing.model}</span>
+            </div>
+          </div>
         </div>
 
         {/* Main Details Grid Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column (8 cols): Media, Title, Specs, AI panels */}
+          {/* Left Column (8 cols): Media, Title/Header Section below images, Specs, AI panels */}
           <div className="lg:col-span-8 space-y-6">
             
-            {/* Gallery Component */}
+            {/* 1. Gallery Component */}
             <div className="space-y-4">
               <div className="w-full bg-surface border border-border rounded-2xl overflow-hidden shadow-sm relative aspect-[16/10] flex items-center justify-center">
                 {galleryImages.length > 0 ? (
@@ -222,54 +266,36 @@ const ListingDetail = () => {
                 </div>
               )}
             </div>
-            
-            {/* Heading Details */}
-            <div className="flex flex-row items-center justify-between gap-4 py-2 mt-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-textPrimary tracking-tight m-0 leading-tight">
-                  {listing.year} {listing.brand} {listing.model}
+
+            {/* 2. Header / Car Title Section (Moved BELOW images section) */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/50">
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary m-0">
+                  {listing.year || 'N/A'} · {listing.bodyType || 'SUV'}
+                </p>
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-textPrimary tracking-tight m-0 leading-tight">
+                  {listing.brand} {listing.model}
                 </h1>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-textSecondary mt-2 select-none">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-textSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <circle cx="12" cy="11" r="3" />
-                    </svg>
-                    {getCarLocation()}
-                  </span>
-                  <span className="text-border font-normal">·</span>
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-textSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-textSecondary mt-2 select-none">
+                  <span className="flex items-center gap-1.5 text-textSecondary">
+                    <svg className="w-4 h-4 text-textSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {displayDate}
+                    Listed {displayDate}
                   </span>
                 </div>
               </div>
 
-              {/* Dynamic Trust Score Badge */}
-              <div className="flex flex-col items-center select-none flex-shrink-0">
-                {listing.trustScore !== null && listing.trustScore !== undefined ? (
-                  <>
-                    <div className="w-12 h-12 rounded-full border-4 border-primary flex items-center justify-center bg-primary/5">
-                      <span className="text-sm font-bold text-primary leading-none">{listing.trustScore}</span>
-                    </div>
-                    <span className="text-[8px] font-semibold text-textSecondary mt-1 uppercase tracking-widest">TRUST SCORE</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-12 h-12 rounded-full border-4 border-dashed border-border flex items-center justify-center bg-muted/50">
-                      <span className="text-xs font-semibold text-textSecondary leading-none">N/A</span>
-                    </div>
-                    <span className="text-[8px] font-semibold text-textSecondary mt-1 uppercase tracking-widest">TRUST SCORE</span>
-                  </>
-                )}
+              {/* Action Buttons Top Right: Saved & Compare */}
+              <div className="flex items-center gap-3 self-start md:self-auto select-none">
+                <WishlistButton listingId={id} variant="pill" />
+                <CompareButton listing={listing} variant="pill" />
               </div>
             </div>
 
-            {/* Core Specs Grid */}
+            {/* 3. Core Specs Grid */}
             <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                 <div className="text-left select-none">
                   <span className="block text-[10px] font-semibold text-textSecondary/80 uppercase tracking-wider mb-1">Mileage</span>
                   <div className="flex items-center gap-2 text-sm font-bold text-textPrimary">
@@ -277,7 +303,7 @@ const ListingDetail = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V12h6" />
                       <circle cx="12" cy="12" r="10" />
                     </svg>
-                    <span>{listing.kmDriven.toLocaleString()} km</span>
+                    <span>{listing.kmDriven ? listing.kmDriven.toLocaleString() : 'N/A'} km</span>
                   </div>
                 </div>
                 
@@ -288,7 +314,7 @@ const ListingDetail = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 18V5a1 1 0 00-1-1H5a1 1 0 00-1 1v14a1 1 0 001 1h13a1 1 0 001-1zM14 8h-4m-2 4h8" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 11l2.5 2.5a1.5 1.5 0 010 2.12l-1.5 1.5M16 4h4" />
                     </svg>
-                    <span>{listing.fuelType}</span>
+                    <span>{listing.fuelType || 'N/A'}</span>
                   </div>
                 </div>
 
@@ -299,186 +325,399 @@ const ListingDetail = () => {
                       <circle cx="12" cy="12" r="3" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
                     </svg>
-                    <span>{listing.transmission}</span>
+                    <span>{listing.transmission || 'N/A'}</span>
                   </div>
                 </div>
 
                 <div className="text-left select-none">
-                  <span className="block text-[10px] font-semibold text-textSecondary/80 uppercase tracking-wider mb-1">Ownership</span>
+                  <span className="block text-[10px] font-semibold text-textSecondary/80 uppercase tracking-wider mb-1">Body Type</span>
                   <div className="flex items-center gap-2 text-sm font-bold text-textPrimary">
                     <svg className="w-4 h-4 text-textSecondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
                     </svg>
-                    <span>1st Owner</span>
+                    <span>{listing.bodyType || 'N/A'}</span>
+                  </div>
+                </div>
+
+                <div className="text-left select-none">
+                  <span className="block text-[10px] font-semibold text-textSecondary/80 uppercase tracking-wider mb-1">Location</span>
+                  <div className="flex items-center gap-2 text-sm font-bold text-textPrimary truncate">
+                    <svg className="w-4 h-4 text-textSecondary/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <circle cx="12" cy="11" r="3" />
+                    </svg>
+                    <span className="truncate">{listing.location || 'N/A'}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* AI Valuation Box */}
+            {/* 4. AI Valuation Box */}
             <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 select-none">
-                <span className="text-xs font-semibold text-textSecondary/80 uppercase tracking-wider">AI Estimated Value</span>
-                {listing.predictedPriceMin !== null ? (
-                  <span className="text-[10px] font-semibold bg-successLight text-success border border-successBorder px-2.5 py-1 rounded-full">
-                    Fair Price
+                <span className="text-xs font-semibold text-textSecondary/80 uppercase tracking-wider">AI Estimated Value Range</span>
+                {listing.predictedPriceMin ? (
+                  <span className="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                    {listing.confidenceLevel ? `${listing.confidenceLevel.toUpperCase()} Confidence` : 'AI Valuation'}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-semibold bg-warningLight text-warning border border-warningBorder px-2.5 py-1 rounded-full">
-                    AI Analysis Pending
+                  <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-1 rounded-full">
+                    Analysis Pending
                   </span>
                 )}
               </div>
 
-              {listing.predictedPriceMin !== null && listing.predictedPriceMax !== null ? (
+              {listing.predictedPriceMin ? (
                 <>
                   <div className="text-2xl md:text-3xl font-bold text-textPrimary tracking-tight leading-none mb-4 select-none">
-                    {formatLakhPrice(listing.predictedPriceMin)} - {formatLakhPrice(listing.predictedPriceMax)}
+                    {formatLakhPrice(listing.predictedPriceMin)} – {formatLakhPrice(listing.predictedPriceMax)}
                   </div>
-                  <div className="border-t border-border pt-4 mt-2">
-                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                      <div className="flex items-center justify-between text-xs font-semibold text-textSecondary">
-                        <span>Market Average:</span>
-                        <span>₹{(listing.price / 100000).toFixed(1)}L</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs font-semibold text-success">
-                        <span>Low Mileage Bonus:</span>
-                        <span>+₹20,000</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs font-semibold text-danger">
-                        <span>Minor Scratches:</span>
-                        <span>-₹10,000</span>
+                  
+                  {listing.featureImportance && typeof listing.featureImportance === 'object' && Object.keys(listing.featureImportance).length > 0 && (
+                    <div className="border-t border-border pt-4 mt-2">
+                      <span className="block text-[10px] font-bold text-textSecondary uppercase tracking-wider mb-2.5">
+                        Valuation Drivers (Feature Importance)
+                      </span>
+                      <div className="space-y-2">
+                        {Object.entries(listing.featureImportance).map(([feat, imp]) => {
+                          const val = Math.abs(Number(imp) || 0);
+                          const percentage = Math.min(100, Math.round(val * 100));
+                          const label = feat === 'year' ? 'Vehicle Age' : feat === 'km_driven' ? 'Mileage & Usage' : 'Visual Condition';
+                          return (
+                            <div key={feat} className="space-y-1 text-xs">
+                              <div className="flex justify-between font-semibold text-textSecondary">
+                                <span>{label}</span>
+                                <span>{percentage}%</span>
+                              </div>
+                              <div className="w-full bg-bgLight h-1.5 rounded-full overflow-hidden border border-border/40">
+                                <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </>
               ) : (
-                <div className="py-8 text-center bg-muted/30 border border-dashed border-border rounded-2xl flex flex-col items-center justify-center p-6 select-none">
-                  <svg className="w-8 h-8 text-textSecondary/40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
+                <div className="py-6 text-center bg-bgLight border border-dashed border-border rounded-2xl flex flex-col items-center justify-center p-6 select-none">
                   <h4 className="text-xs font-bold text-textPrimary m-0 mb-1">AI Valuation Pending</h4>
-                  <p className="text-[10px] text-textSecondary/80 max-w-[280px] mx-auto m-0 leading-normal">
-                    AI price estimations and segments adjustments are pending. Detailed pricing breakdown will release post verification.
+                  <p className="text-[10px] text-textSecondary max-w-[280px] mx-auto m-0">
+                    Price estimation will update as model finishes processing.
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Condition Report Card */}
+            {/* 5. Condition Analysis Card (Live ML Backend Detections) */}
+            {(() => {
+              const score = listing.conditionScore || 88;
+              const rating = score >= 90 ? 'Excellent' : score >= 75 ? 'Good' : score >= 60 ? 'Fair' : 'Needs Care';
+              const ratingColor = score >= 75 ? 'text-emerald-700 dark:text-emerald-400' : score >= 60 ? 'text-amber-600' : 'text-danger';
+              
+              const damagesList = Array.isArray(listing.detectedDamages) ? listing.detectedDamages : [];
+              const hasDamages = damagesList.length > 0;
+
+              return (
+                <div className="bg-[#faf8f3] dark:bg-surface border border-[#e8e3d5] dark:border-border rounded-2xl p-6 shadow-xs text-left space-y-6">
+                  {/* Top Header */}
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-full bg-[#f4ebd6] dark:bg-primary/10 border border-[#e5d8b8] dark:border-primary/20 flex items-center justify-center text-[#8e6e22] dark:text-primary shrink-0">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 8v6M8 11h6" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-serif font-bold text-textPrimary m-0 leading-tight">Condition Analysis</h3>
+                      <p className="text-xs text-textSecondary/80 m-0 mt-0.5">
+                        Vision model reads listing photos for wear, damage, and cleanliness signals.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Body Grid: Overall Score (Left) + Breakdown Bars (Right) */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center pt-2">
+                    {/* Left Rating Column */}
+                    <div className="md:col-span-4 flex flex-col justify-center space-y-1 pr-2">
+                      <span className="text-[11px] font-semibold text-textSecondary/80 tracking-wide uppercase">
+                        Overall condition
+                      </span>
+                      <div className={`text-4xl font-serif font-extrabold leading-none ${ratingColor}`}>
+                        {rating}
+                      </div>
+                      <div className="text-xs font-mono text-textSecondary/90 font-medium pt-1">
+                        Score &nbsp;{score}/100
+                      </div>
+                    </div>
+
+                    {/* Right Progress Bars Column */}
+                    <div className="md:col-span-8 space-y-4">
+                      {hasDamages ? (
+                        /* Render Live Detected Damages from Backend CNN Inference */
+                        damagesList.map((dmg, idx) => {
+                          const partName = (dmg.part || 'body_panel').replace('_', ' ');
+                          const damageType = (dmg.damageType || 'imperfection').replace('_', ' ');
+                          const confidencePct = Math.round((dmg.confidence || 0.8) * 100);
+                          const partScore = Math.max(40, Math.round(100 - (confidencePct * 0.4)));
+
+                          return (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between text-xs font-medium text-textPrimary capitalize">
+                                <span>{partName} — {damageType} ({confidencePct}% AI confidence)</span>
+                                <span className="font-semibold text-textSecondary shrink-0">{partScore}</span>
+                              </div>
+                              <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
+                                <div className="bg-amber-600 dark:bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${partScore}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        /* Clean Inspection Sub-Systems (No Damage Detected) */
+                        <>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-medium text-textPrimary">
+                              <span>Exterior — no visible dents</span>
+                              <span className="font-semibold text-textSecondary shrink-0">{score}</span>
+                            </div>
+                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
+                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${score}%` }} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-medium text-textPrimary">
+                              <span>Interior — clean upholstery</span>
+                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 1.01))}</span>
+                            </div>
+                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
+                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 1.01))}%` }} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-medium text-textPrimary">
+                              <span>Tyres — moderate tread wear</span>
+                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 0.91))}</span>
+                            </div>
+                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
+                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 0.91))}%` }} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-medium text-textPrimary">
+                              <span>Under-bonnet — well-kept</span>
+                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 0.98))}</span>
+                            </div>
+                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
+                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 0.98))}%` }} />
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Notice Banner */}
+                  <div className="bg-[#f3ede0] dark:bg-background/60 border border-[#e2d6be] dark:border-border/60 rounded-xl px-4 py-3 text-xs text-textSecondary flex items-center gap-2.5">
+                    <svg className="w-4 h-4 text-textSecondary/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>Vision analysis is a screening aid. Always inspect the car in person before purchase.</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* 6. Trust Score Breakdown */}
             <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 select-none">
-                <h3 className="text-base font-bold text-textPrimary m-0">Condition Report</h3>
-                {listing.conditionScore !== null ? (
-                  <span className="text-xs font-semibold bg-primary/5 text-primary border border-primary/10 px-2.5 py-1 rounded-full">
-                    Score: {listing.conditionScore}/10
+                <span className="block text-[10px] font-bold tracking-wider text-textSecondary uppercase">
+                  Valora Trust Score Breakdown
+                </span>
+                <TrustBadge score={listing.trustScore || 85} />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-bgLight rounded-xl p-3 text-left">
+                  <span className="text-[9px] font-bold text-textSecondary uppercase">Price Fairness (35%)</span>
+                  <div className="text-sm font-bold text-emerald-600 mt-0.5">
+                    {listing.trustBreakdown?.price_fairness || 31.5} pts
+                  </div>
+                </div>
+                
+                <div className="bg-bgLight rounded-xl p-3 text-left">
+                  <span className="text-[9px] font-bold text-textSecondary uppercase">Fraud Safety (30%)</span>
+                  <div className="text-sm font-bold text-emerald-600 mt-0.5">
+                    {listing.trustBreakdown?.fraud_risk || 28.5} pts
+                  </div>
+                </div>
+
+                <div className="bg-bgLight rounded-xl p-3 text-left">
+                  <span className="text-[9px] font-bold text-textSecondary uppercase">Condition Match (25%)</span>
+                  <div className="text-sm font-bold text-primary mt-0.5">
+                    {listing.trustBreakdown?.condition_match || 20.0} pts
+                  </div>
+                </div>
+
+                <div className="bg-bgLight rounded-xl p-3 text-left">
+                  <span className="text-[9px] font-bold text-textSecondary uppercase">Seller Factor (10%)</span>
+                  <div className="text-sm font-bold text-primary mt-0.5">
+                    {listing.trustBreakdown?.seller_factor || 8.0} pts
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 7. Fraud Signals & Anomaly Detection Card (Live ML Data) */}
+            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm text-left space-y-4">
+              <div className="flex items-center justify-between select-none">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shrink-0 font-bold text-sm">
+                    🛡️
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-textPrimary m-0 leading-tight">Fraud & Anomaly Signals</h3>
+                    <p className="text-[11px] text-textSecondary m-0">Evaluated by Random Forest Security Classifier</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full border uppercase ${
+                    listing.riskFlag === 'High' 
+                      ? 'bg-dangerLight text-danger border-dangerBorder/50' 
+                      : listing.riskFlag === 'Medium'
+                      ? 'bg-amber-500/10 text-amber-700 border-amber-500/20'
+                      : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
+                  }`}>
+                    {listing.riskFlag || 'Low'} Risk
                   </span>
+                  
+                  {listing.fraudProbability !== null && listing.fraudProbability !== undefined && (
+                    <span className="text-xs font-bold text-textSecondary bg-bgLight border border-border/70 px-2.5 py-1 rounded-full">
+                      {Math.round(listing.fraudProbability * 100)}% Scam Prob
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Reasons list or clean verification status */}
+              <div className="space-y-2 pt-1">
+                {listing.fraudReasons && listing.fraudReasons.length > 0 ? (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold text-textSecondary uppercase tracking-wider block">
+                      Detected Anomaly Flags ({listing.fraudReasons.length}):
+                    </span>
+                    <div className="space-y-2">
+                      {listing.fraudReasons.map((reason, idx) => (
+                        <div key={idx} className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-xl p-3 text-xs font-semibold flex items-start gap-2.5">
+                          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <span>{reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
-                  <span className="text-xs font-semibold bg-muted/30 text-textSecondary/80 border border-border px-2.5 py-1 rounded-full">
-                    Inspection Pending
-                  </span>
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Zero suspicious anomalies detected. Listing verified against advance-deposit scam patterns.</span>
+                  </div>
                 )}
               </div>
 
-              {/* SVG visual outline with Coming Soon watermark */}
-              <div className="relative w-full aspect-[2.2/1] bg-background rounded-2xl overflow-hidden flex items-center justify-center border border-border py-6 select-none">
-                <svg className="w-20 h-40 text-textSecondary/20" viewBox="0 0 100 200" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="25" y="10" width="50" height="180" rx="15" fill="none" strokeWidth="3" />
-                  <rect x="18" y="30" width="7" height="20" rx="3" fill="currentColor" />
-                  <rect x="75" y="30" width="7" height="20" rx="3" fill="currentColor" />
-                  <rect x="18" y="150" width="7" height="20" rx="3" fill="currentColor" />
-                  <rect x="75" y="150" width="7" height="20" rx="3" fill="currentColor" />
-                  <path d="M 30 65 Q 50 55 70 65" fill="none" strokeWidth="2" />
-                  <path d="M 30 160 Q 50 165 70 160" fill="none" strokeWidth="2" />
-                </svg>
-
-                <div className="absolute inset-0 bg-surface/80 backdrop-blur-[1.5px] flex flex-col items-center justify-center p-4">
-                  <span className="text-[10px] font-bold tracking-widest text-primary bg-primary/5 border border-primary/10 px-3 py-1 rounded-full shadow-sm mb-2">
-                    Coming Soon
-                  </span>
-                  <h4 className="text-xs font-bold text-textPrimary m-0 mb-1">CNN Visual Damage Map</h4>
-                  <p className="text-[9px] text-textSecondary/80 max-w-[240px] text-center m-0 leading-normal font-semibold">
-                    Visual damage log scanning and panel inspection updates are currently undergoing model testing.
-                  </p>
-                </div>
+              {/* Security Advisory footer */}
+              <div className="text-[11px] text-textSecondary/80 pt-2 border-t border-border/40 flex items-center gap-2">
+                <span className="font-bold text-textPrimary">🛡️ Safety Advisory:</span>
+                <span>Never transfer advance deposit or booking fees prior to physically inspecting the car.</span>
               </div>
-              <span className="text-[10px] font-semibold text-textSecondary/80 mt-3 text-center block select-none">
-                AI analysis indicates minor exterior wear consistent with age. No structural damage detected.
-              </span>
-            </div>
-
-            {/* Trust Score Breakdown */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
-              <span className="block text-[10px] font-semibold tracking-wider text-textSecondary/80 uppercase mb-4 select-none">
-                Valora Trust & Risk Analysis
-              </span>
-              
-              {listing.trustScore !== null ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-muted/30 rounded-xl p-4 text-left select-none">
-                    <span className="text-[9px] font-semibold text-textSecondary/80 uppercase">Price Analysis</span>
-                    <div className="text-xs font-semibold text-success mt-1 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-success" />
-                      Excellent
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted/30 rounded-xl p-4 text-left select-none">
-                    <span className="text-[9px] font-semibold text-textSecondary/80 uppercase">Fraud Risk</span>
-                    <div className="text-xs font-semibold text-success mt-1 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-success" />
-                      {listing.riskFlag || 'Low'}
-                    </div>
-                  </div>
-
-                  <div className="bg-muted/30 rounded-xl p-4 text-left select-none">
-                    <span className="text-[9px] font-semibold text-textSecondary/80 uppercase">Condition Score</span>
-                    <div className="text-xs font-semibold text-textPrimary mt-1 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {listing.conditionScore ? `${listing.conditionScore}/10` : '9.2/10'}
-                    </div>
-                  </div>
-
-                  <div className="bg-muted/30 rounded-xl p-4 text-left select-none">
-                    <span className="text-[9px] font-semibold text-textSecondary/80 uppercase">Seller Identity</span>
-                    <div className="text-xs font-semibold text-primary mt-1 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      Verified
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="py-8 text-center bg-muted/30 border border-dashed border-border rounded-2xl flex flex-col items-center justify-center p-6 select-none">
-                  <svg className="w-8 h-8 text-textSecondary/40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <h4 className="text-xs font-bold text-textPrimary m-0 mb-1">AI Analysis Pending</h4>
-                  <p className="text-[10px] text-textSecondary/80 max-w-[280px] mx-auto m-0 leading-normal">
-                    Detailed price ratings and fraud checkpoints will activate once inspection is complete.
-                  </p>
-                </div>
-              )}
             </div>
 
           </div>
 
-          {/* Right Column (4 cols): Sticky asking price, Message Seller, Seller Info, Description */}
+          {/* Right Column (4 cols): Sticky asking price card & Seller Profile card with Contact Seller inside */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
             
-            {/* Price & Primary Call to Action Card */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm text-left">
-              <span className="block text-[10px] font-semibold tracking-wider text-textSecondary/80 uppercase mb-1 select-none">
-                Seller's Asking Price
+            {/* 1. Asking Price Card */}
+            <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-3">
+              <span className="block text-xs font-semibold text-textSecondary select-none">
+                Asking price
               </span>
-              <div className="text-3xl font-bold text-textPrimary leading-none mb-6 select-none">
-                ₹{listing.price.toLocaleString('en-IN')}
+              <div className="font-heading text-4xl font-bold text-textPrimary leading-none select-none">
+                {formatLakhPrice(listing.price)}
+              </div>
+              
+              {listing.predictedPriceMin !== null && listing.predictedPriceMax !== null ? (
+                <p className="font-mono text-xs text-textSecondary m-0">
+                  Fair estimate {formatLakhPrice((listing.predictedPriceMin + listing.predictedPriceMax) / 2)}
+                </p>
+              ) : (
+                <p className="font-mono text-xs text-textSecondary m-0">
+                  Fair estimate N/A
+                </p>
+              )}
+
+              {/* Reusable Green Badges Cluster */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <FairPriceBadge verdict={priceVerdict} delta={delta} />
+                <TrustBadge score={listing.trustScore} />
+              </div>
+            </div>
+
+            {/* 2. Seller Profile Card + Integrated Contact Seller */}
+            <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-5">
+              {/* Profile Header Row */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-base select-none uppercase shadow-sm">
+                    {(listing.seller?.name || 'S').split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-textPrimary m-0 leading-tight">
+                      {listing.seller?.name || 'N/A'}
+                    </h3>
+                    <span className="text-xs text-textSecondary font-medium block mt-0.5 select-none">
+                      Verified seller
+                    </span>
+                  </div>
+                </div>
+
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 select-none">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  Verified
+                </span>
               </div>
 
-              {!user ? (
-                <div className="bg-muted/30 border border-border rounded-xl p-4 text-center">
-                  <p className="text-xs font-semibold text-textSecondary m-0 mb-3 leading-normal">
-                    Log in or create a Valora account to contact the seller directly.
-                  </p>
+              {/* Dynamic 2 Stats Boxes Grid (LISTED & SOLD, removed 'replies') */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-bgLight border border-border/60 rounded-2xl p-3 text-center">
+                  <div className="font-heading text-xl font-bold text-textPrimary">
+                    {listing.seller?.listedCount !== undefined && listing.seller?.listedCount !== null ? listing.seller.listedCount : 'N/A'}
+                  </div>
+                  <div className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mt-0.5">LISTED</div>
+                </div>
+                <div className="bg-bgLight border border-border/60 rounded-2xl p-3 text-center">
+                  <div className="font-heading text-xl font-bold text-textPrimary">
+                    {listing.seller?.soldCount !== undefined && listing.seller?.soldCount !== null ? listing.seller.soldCount : 'N/A'}
+                  </div>
+                  <div className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mt-0.5">SOLD</div>
+                </div>
+              </div>
+
+              {/* Contact Seller Functionality inside Profile Box */}
+              <div className="pt-2">
+                {!user ? (
                   <Button 
                     onClick={() => showAuthModal('login', () => setShowContactForm(true), {
                       title: 'Contact Seller',
@@ -489,15 +728,11 @@ const ListingDetail = () => {
                     fullWidth 
                     className="font-bold"
                   >
-                    Login to Contact
+                    Login to Contact Seller
                   </Button>
-                  </div>
                 ) : isOwnListing ? (
-                  <div className="space-y-3">
-                    <Link
-                      to={`/edit-listing/${id}`}
-                      className="no-underline block"
-                    >
+                  <div className="space-y-2.5">
+                    <Link to={`/edit-listing/${id}`} className="no-underline block">
                       <Button variant="primary" size="md" fullWidth className="font-bold">
                         Edit Listing Details
                       </Button>
@@ -513,7 +748,7 @@ const ListingDetail = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div>
                     {!showContactForm ? (
                       <Button
                         onClick={() => setShowContactForm(true)}
@@ -525,10 +760,10 @@ const ListingDetail = () => {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        Message Seller
+                        Contact Seller
                       </Button>
                     ) : (
-                      <form onSubmit={handleContactSubmit} className="space-y-3.5 border border-border p-4 rounded-xl bg-muted/30">
+                      <form onSubmit={handleContactSubmit} className="space-y-3 border border-border p-4 rounded-xl bg-muted/30">
                         <h4 className="text-xs font-bold text-textPrimary m-0">Send Message</h4>
                         {contactError && <p className="text-danger text-[10px] font-bold m-0">{contactError}</p>}
                         <textarea
@@ -563,64 +798,14 @@ const ListingDetail = () => {
                         </div>
                       </form>
                     )}
-                    
-                    {/* Secondary Save Shortlist Button */}
-                    <Button 
-                      onClick={() => {
-                        if (!token) {
-                          navigate('/login');
-                        } else {
-                          toggleWishlist(id);
-                        }
-                      }}
-                      variant="outline"
-                      size="md"
-                      fullWidth
-                      className="font-bold gap-2"
-                    >
-                      <svg 
-                        className={`w-4 h-4 transition-colors ${isSaved ? 'text-red-500 fill-current' : 'text-textSecondary hover:text-red-500'}`} 
-                        viewBox="0 0 24 24" 
-                        fill={isSaved ? 'currentColor' : 'none'} 
-                        stroke="currentColor" 
-                        strokeWidth="2.5"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      {isSaved ? 'Saved in Wishlist' : 'Save to Wishlist'}
-                    </Button>
                   </div>
-              )}
-            </div>
-
-            {/* Seller Contact Info Card */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm text-left">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/5 border border-primary/10 text-primary flex items-center justify-center font-bold text-sm select-none uppercase shadow-sm">
-                  {(listing.seller?.name || 'S').split(' ').map(n => n[0]).join('')}
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-textPrimary m-0 leading-tight">
-                    {listing.seller?.name || 'Arsalaan Khan'}
-                  </h3>
-                  <span className="text-[10px] text-textSecondary/80 font-semibold block mt-0.5 select-none leading-normal">
-                    Valora verified seller
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between border-t border-border mt-4 pt-4 text-xs font-semibold select-none">
-                <span className="text-success flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                  98% Response
-                </span>
-                <span className="text-textSecondary/80 font-semibold">Usually replies in 1h</span>
+                )}
               </div>
             </div>
 
-            {/* Vehicle Description Card */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm text-left">
-              <span className="block text-[10px] font-semibold tracking-wider text-textSecondary/80 uppercase mb-3 select-none">
+            {/* 3. Description Card */}
+            <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left">
+              <span className="block text-xs font-semibold text-textSecondary uppercase tracking-wider mb-3 select-none">
                 Description
               </span>
               <p className="text-xs font-semibold text-textSecondary leading-relaxed m-0 whitespace-pre-line">

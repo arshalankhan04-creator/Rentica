@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const Listing = require('../models/Listing');
+const { sendUnderReviewEmail } = require('../utils/sendEmail');
 
 // Helper to delete physical files
 const deletePhysicalFiles = (files) => {
@@ -31,12 +32,14 @@ const createListing = async (req, res, next) => {
       kmDriven,
       fuelType,
       transmission,
+      bodyType,
+      location,
       price,
       description
     } = req.body;
 
     // Validate required fields
-    if (!brand || !model || !year || !kmDriven || !fuelType || !transmission || price === undefined) {
+    if (!brand || !model || !year || !kmDriven || !fuelType || !transmission || !bodyType || !location || price === undefined) {
       deletePhysicalFiles(uploadedFiles);
       return res.status(400).json({ message: 'Please provide all required fields' });
     }
@@ -52,18 +55,37 @@ const createListing = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid transmission type' });
     }
 
+    if (!['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Wagon'].includes(bodyType)) {
+      deletePhysicalFiles(uploadedFiles);
+      return res.status(400).json({ message: 'Invalid body type' });
+    }
+
+    const numYear = Number(year);
+    const numKm = Number(kmDriven);
+    const numPrice = Number(price);
+
+    const initialStatus = 'pending_review';
+
     const listing = await Listing.create({
       seller: req.user.id,
       brand,
       model,
-      year: Number(year),
-      kmDriven: Number(kmDriven),
+      year: numYear,
+      kmDriven: numKm,
       fuelType,
       transmission,
-      price: Number(price),
+      bodyType,
+      location,
+      price: numPrice,
       description,
-      images: uploadedFiles // Explicitly ignore any images sent in body JSON
+      images: uploadedFiles,
+      status: initialStatus
     });
+
+    // Trigger email notification if listing is sent to Awaiting Review queue
+    if (initialStatus === 'pending_review' && req.user && req.user.email) {
+      sendUnderReviewEmail(req.user.email, req.user.name, `${brand} ${model}`, []);
+    }
 
     res.status(201).json(listing);
   } catch (error) {
@@ -82,6 +104,12 @@ const getListings = async (req, res, next) => {
     // Filtering
     if (req.query.brand) {
       queryObj.brand = { $regex: req.query.brand, $options: 'i' };
+    }
+    if (req.query.bodyType) {
+      queryObj.bodyType = { $regex: req.query.bodyType, $options: 'i' };
+    }
+    if (req.query.location) {
+      queryObj.location = { $regex: req.query.location, $options: 'i' };
     }
     if (req.query.minYear || req.query.maxYear) {
       queryObj.year = {};
@@ -116,6 +144,14 @@ const getListings = async (req, res, next) => {
       if (req.query.maxPrice) {
         queryObj.price.$lte = Number(req.query.maxPrice);
       }
+    }
+
+    // Trust Score and Risk Flag filtering
+    if (req.query.minTrustScore) {
+      queryObj.trustScore = { $gte: Number(req.query.minTrustScore) };
+    }
+    if (req.query.riskFlag) {
+      queryObj.riskFlag = req.query.riskFlag;
     }
 
     // By default, public GET listings should show active listings
@@ -166,7 +202,18 @@ const getListingById = async (req, res, next) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    res.json(listing);
+    const listingObj = listing.toObject();
+    if (listingObj.seller && listingObj.seller._id) {
+      const sellerId = listingObj.seller._id;
+      const [listedCount, soldCount] = await Promise.all([
+        Listing.countDocuments({ seller: sellerId }),
+        Listing.countDocuments({ seller: sellerId, status: 'sold' })
+      ]);
+      listingObj.seller.listedCount = listedCount;
+      listingObj.seller.soldCount = soldCount;
+    }
+
+    res.json(listingObj);
   } catch (error) {
     next(error);
   }
@@ -202,6 +249,8 @@ const updateListing = async (req, res, next) => {
       kmDriven,
       fuelType,
       transmission,
+      bodyType,
+      location,
       price,
       description,
       status
@@ -224,6 +273,13 @@ const updateListing = async (req, res, next) => {
       }
       listing.transmission = transmission;
     }
+    if (bodyType) {
+      if (!['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Wagon'].includes(bodyType)) {
+        return res.status(400).json({ message: 'Invalid body type' });
+      }
+      listing.bodyType = bodyType;
+    }
+    if (location) listing.location = location;
     if (price !== undefined) listing.price = Number(price);
     if (description !== undefined) listing.description = description;
     if (status) {
@@ -316,9 +372,9 @@ const addListingImages = async (req, res, next) => {
     }
 
     // Enforce limits
-    if (listing.images.length + uploadedFiles.length > 6) {
+    if (listing.images.length + uploadedFiles.length > 15) {
       deletePhysicalFiles(uploadedFiles);
-      return res.status(400).json({ message: 'Upload failed. Max of 6 images allowed per listing' });
+      return res.status(400).json({ message: 'Upload failed. Max of 15 images allowed per listing' });
     }
 
     listing.images.push(...uploadedFiles);

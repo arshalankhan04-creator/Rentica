@@ -32,6 +32,15 @@ const ListingSchema = new mongoose.Schema({
     enum: ['Manual', 'Automatic'],
     required: [true, 'Please select a transmission type']
   },
+  bodyType: {
+    type: String,
+    enum: ['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Wagon'],
+    required: [true, 'Please select a body type']
+  },
+  location: {
+    type: String,
+    required: [true, 'Please add a location']
+  },
   price: {
     type: Number,
     required: [true, 'Please add a price']
@@ -81,6 +90,9 @@ const ListingSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  fraudReasons: [{
+    type: String
+  }],
   trustScore: {
     type: Number,
     default: null
@@ -93,10 +105,19 @@ const ListingSchema = new mongoose.Schema({
     status: {
       type: String,
       enum: ['active', 'pending_review', 'sold', 'rejected'],
-      default: 'active'
+      default: 'pending_review'
     },
     rejectionReason: {
       type: String,
+      default: null
+    },
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    reviewedAt: {
+      type: Date,
       default: null
     }
   }, {

@@ -22,6 +22,8 @@ const EditListing = () => {
   const [kmDriven, setKmDriven] = useState('');
   const [fuelType, setFuelType] = useState('Petrol');
   const [transmission, setTransmission] = useState('Manual');
+  const [bodyType, setBodyType] = useState('SUV');
+  const [location, setLocation] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
 
@@ -55,6 +57,8 @@ const EditListing = () => {
       setKmDriven(data.kmDriven);
       setFuelType(data.fuelType);
       setTransmission(data.transmission);
+      setBodyType(data.bodyType || 'SUV');
+      setLocation(data.location || '');
       setPrice(data.price);
       setDescription(data.description || '');
     } catch (err) {
@@ -153,6 +157,8 @@ const EditListing = () => {
     const tempErrors = {};
     if (!brand.trim()) tempErrors.brand = 'Brand is required';
     if (!model.trim()) tempErrors.model = 'Model is required';
+    if (!bodyType.trim()) tempErrors.bodyType = 'Body Type is required';
+    if (!location.trim()) tempErrors.location = 'Location is required';
     
     if (!year) {
       tempErrors.year = 'Year is required';
@@ -302,6 +308,8 @@ const EditListing = () => {
         kmDriven: Number(kmDriven),
         fuelType,
         transmission,
+        bodyType: bodyType.trim(),
+        location: location.trim(),
         price: Number(price),
         description: description.trim()
       });
@@ -422,6 +430,63 @@ const EditListing = () => {
                     {errors.model && (
                       <span className="text-[10px] font-bold text-danger mt-1.5 block">
                         {errors.model}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body Type */}
+                  <div className="flex flex-col gap-1.5 w-full text-left">
+                    <label htmlFor="bodyType" className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
+                      Body Type *
+                    </label>
+                    <div className="relative w-full flex items-center">
+                      <select
+                        id="bodyType"
+                        value={bodyType}
+                        onChange={(e) => setBodyType(e.target.value)}
+                        className="w-full h-12 pl-4 pr-10 rounded-xl border border-border bg-surface text-xs font-semibold text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary appearance-none cursor-pointer hover:border-muted-foreground/30 transition-all shadow-sm"
+                        required
+                      >
+                        <option value="SUV">SUV</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="Coupe">Coupe</option>
+                        <option value="Convertible">Convertible</option>
+                        <option value="Wagon">Wagon</option>
+                      </select>
+                      <div className="absolute right-3.5 pointer-events-none text-muted-foreground flex items-center">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <label htmlFor="location" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
+                      Location (City, State) *
+                    </label>
+                    <input
+                      id="location"
+                      type="text"
+                      placeholder="e.g. Mumbai, Maharashtra"
+                      value={location}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        if (errors.location) setErrors(prev => ({ ...prev, location: '' }));
+                      }}
+                      onBlur={() => {
+                        if (!location.trim()) setErrors(prev => ({ ...prev, location: 'Location is required' }));
+                      }}
+                      className={`w-full bg-surface border rounded-xl px-4 py-3 text-xs font-medium text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
+                        errors.location ? 'border-danger focus:ring-danger/30' : 'border-border'
+                      }`}
+                      required
+                    />
+                    {errors.location && (
+                      <span className="text-[10px] font-bold text-danger mt-1.5 block">
+                        {errors.location}
                       </span>
                     )}
                   </div>

@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Listing = require('../models/Listing');
 const { addWishlistItem, removeWishlistItem, getWishlist } = require('../controllers/wishlistController');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti';
 
 const mockResponse = () => {
   const res = {};

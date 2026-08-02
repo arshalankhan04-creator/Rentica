@@ -4,179 +4,350 @@ const path = require('path');
 const User = require('../models/User');
 const Listing = require('../models/Listing');
 
+
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const seedListings = async () => {
+const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
+    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti';
     console.log('Connecting to MongoDB...');
     await mongoose.connect(mongoUri);
     console.log('MongoDB Connected.');
 
-    // 1. Create or Find Seller User
-    const sellerEmail = 'seller@valora.com';
-    let seller = await User.findOne({ email: sellerEmail });
+    // 1. Clear Existing Data Completely
+    console.log('Clearing all existing users and listings...');
+    await Listing.deleteMany({});
+    await User.deleteMany({});
+    console.log('Existing database records wiped clean.');
 
-    if (!seller) {
-      console.log(`Creating mock seller account "${sellerEmail}"...`);
-      seller = new User({
-        name: 'Arsalaan Khan (Seller)',
-        email: sellerEmail,
-        password: 'password123', // Will be auto-hashed by pre-save hook
-        role: 'seller',
+    // 2. Seed Users with password "123"
+    console.log('Creating seeded user accounts (Password: 123)...');
+    
+    const usersData = [
+      {
+        name: 'Arsalaan Khan',
+        email: 'seller@valora.com',
+        password: '123',
+        role: 'user',
         phone: '+919876543210',
         responseRate: 98,
         pastDealsCount: 14
-      });
-      await seller.save();
-      console.log('Seller account created successfully.');
-    } else {
-      console.log('Existing seller account found.');
+      },
+      {
+        name: 'Rahul Sharma',
+        email: 'rahul.sharma@valora.com',
+        password: '123',
+        role: 'user',
+        phone: '+919811223344',
+        responseRate: 92,
+        pastDealsCount: 8
+      },
+      {
+        name: 'Priya Patel',
+        email: 'priya.patel@valora.com',
+        password: '123',
+        role: 'user',
+        phone: '+919822334455',
+        responseRate: 95,
+        pastDealsCount: 11
+      },
+      {
+        name: 'Vikramaditya Singh',
+        email: 'vikram.singh@valora.com',
+        password: '123',
+        role: 'user',
+        phone: '+919833445566',
+        responseRate: 89,
+        pastDealsCount: 5
+      },
+      {
+        name: 'Ananya Iyer',
+        email: 'ananya.iyer@valora.com',
+        password: '123',
+        role: 'user',
+        phone: '+919844556677',
+        responseRate: 96,
+        pastDealsCount: 18
+      },
+      {
+        name: 'Valora Admin',
+        email: 'admin@valora.com',
+        password: '123',
+        role: 'admin',
+        phone: '+919999999999',
+        responseRate: 100,
+        pastDealsCount: 50
+      }
+    ];
+
+    const createdUsers = {};
+    for (const uData of usersData) {
+      const u = new User(uData);
+      await u.save();
+      createdUsers[uData.email] = u;
+      console.log(`Created user: ${uData.name} (${uData.email}) [Role: ${uData.role}]`);
     }
 
-    // 2. Clear Existing Listings
-    console.log('Clearing existing listings...');
-    await Listing.deleteMany({});
-    console.log('Listings cleared.');
-
-    // 3. Define Seed Data
-    const listingsData = [
+    // 3. Define Comprehensive Edge-Case Listings Data
+    // Uses real dataset images from data1 (healthy_car_X.jpg and damaged_car_X.jpg)
+    const rawListings = [
       {
-        seller: seller._id,
+        sellerEmail: 'seller@valora.com',
         brand: 'Mercedes-Benz',
         model: 'E-Class E200',
         year: 2021,
         kmDriven: 18500,
         fuelType: 'Petrol',
         transmission: 'Automatic',
+        bodyType: 'Sedan',
+        location: 'Mumbai, Maharashtra',
         price: 4800000,
         description: 'Single-owner Mercedes E-Class. Kept in pristine condition, serviced regularly at authorised dealership. Original paint, zero accidents, full insurance cover.',
-        images: ['https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 9.2,
-        trustScore: 94,
-        riskFlag: 'Low',
-        fraudProbability: 0.02,
-        predictedPriceMin: 4700000,
-        predictedPriceMax: 4950000,
-        confidenceLevel: 'High',
-        featureImportance: { mileage: 0.1, age: 0.05, condition: 0.8 },
+        images: ['uploads/healthy_car_1.jpg', 'uploads/healthy_car_2.jpg'],
         status: 'active'
       },
       {
-        seller: seller._id,
-        brand: 'Audi',
-        model: 'A4 35 TDI',
-        year: 2019,
-        kmDriven: 52000,
-        fuelType: 'Diesel',
-        transmission: 'Automatic',
-        price: 3200000,
-        description: 'Audi A4 in pristine white. Mechanically sound and well-kept but listed slightly above regional market value.',
-        images: ['https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 7.5,
-        trustScore: 61, // Lower score due to pricing variance
-        riskFlag: 'Low',
-        fraudProbability: 0.05,
-        predictedPriceMin: 2400000,
-        predictedPriceMax: 2750000,
-        confidenceLevel: 'High',
-        featureImportance: { mileage: 0.3, age: 0.4, condition: 0.2 },
-        status: 'active'
-      },
-      {
-        seller: seller._id,
+        sellerEmail: 'rahul.sharma@valora.com',
         brand: 'Hyundai',
         model: 'i20 Asta',
         year: 2020,
         kmDriven: 34000,
         fuelType: 'Petrol',
         transmission: 'Manual',
+        bodyType: 'Hatchback',
+        location: 'Bengaluru, Karnataka',
         price: 650000,
-        description: 'Hyundai i20. Mechanically perfect. Scanned by CNN condition model: minor scratches detected on the front bumper and left rear door, priced accordingly.',
-        images: ['https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 5.8,
-        trustScore: 78,
-        riskFlag: 'Low',
-        fraudProbability: 0.03,
-        predictedPriceMin: 620000,
-        predictedPriceMax: 680000,
-        confidenceLevel: 'Medium',
-        detectedDamages: [
-          { part: 'bumper_front', damageType: 'scratch', confidence: 0.91 },
-          { part: 'door_rear_left', damageType: 'dent', confidence: 0.85 }
-        ],
-        featureImportance: { condition: 0.6, mileage: 0.2, age: 0.2 },
+        description: 'Hyundai i20. Mechanically sound. Scanned by CNN condition model: minor front bumper scratches and door paint wear detected from dataset photos.',
+        images: ['uploads/damaged_car_1.jpg', 'uploads/damaged_car_2.jpg'],
         status: 'active'
       },
       {
-        seller: seller._id,
+        sellerEmail: 'priya.patel@valora.com',
+        brand: 'Audi',
+        model: 'A4 35 TDI',
+        year: 2019,
+        kmDriven: 52000,
+        fuelType: 'Diesel',
+        transmission: 'Automatic',
+        bodyType: 'Sedan',
+        location: 'Delhi, NCR',
+        price: 3200000,
+        description: 'Audi A4 in pristine white. Mechanically sound and well-kept but listed slightly above regional market value.',
+        images: ['uploads/healthy_car_3.jpg', 'uploads/healthy_car_4.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'vikram.singh@valora.com',
         brand: 'BMW',
         model: '3 Series 320d',
         year: 2018,
         kmDriven: 85000,
         fuelType: 'Diesel',
         transmission: 'Automatic',
+        bodyType: 'Sedan',
+        location: 'Pune, Maharashtra',
         price: 2100000,
-        description: 'BMW 3 Series. High mileage highway cruiser. Priced slightly low for an urgent sale.',
-        images: ['https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 6.8,
-        trustScore: 74,
-        riskFlag: 'Medium',
-        fraudProbability: 0.38,
-        predictedPriceMin: 2200000,
-        predictedPriceMax: 2450000,
-        confidenceLevel: 'Medium',
-        featureImportance: { mileage: 0.5, age: 0.3, condition: 0.2 },
+        description: 'BMW 3 Series. High mileage highway cruiser. Priced 18% below market average for an urgent sale.',
+        images: ['uploads/healthy_car_5.jpg', 'uploads/healthy_car_6.jpg'],
         status: 'active'
       },
       {
-        seller: seller._id,
+        sellerEmail: 'ananya.iyer@valora.com',
         brand: 'Toyota',
         model: 'Fortuner 4x4',
         year: 2022,
         kmDriven: 21000,
         fuelType: 'Diesel',
         transmission: 'Automatic',
+        bodyType: 'SUV',
+        location: 'Hyderabad, Telangana',
         price: 3900000,
         description: 'Immaculate Fortuner 4x4 Automatic. Leather seats, off-road package, complete service logs available.',
-        images: ['https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 9.5,
-        trustScore: 96,
-        riskFlag: 'Low',
-        fraudProbability: 0.01,
-        predictedPriceMin: 3800000,
-        predictedPriceMax: 4100000,
-        confidenceLevel: 'High',
-        featureImportance: { mileage: 0.2, age: 0.1, condition: 0.7 },
+        images: ['uploads/healthy_car_7.jpg', 'uploads/healthy_car_8.jpg'],
         status: 'active'
       },
       {
-        seller: seller._id,
+        sellerEmail: 'rahul.sharma@valora.com',
         brand: 'Honda',
         model: 'City V',
         year: 2022,
         kmDriven: 4500,
         fuelType: 'Petrol',
         transmission: 'Manual',
-        price: 400000, // Highly underpriced scam warning
+        bodyType: 'Sedan',
+        location: 'Ahmedabad, Gujarat',
+        price: 400000, // Suspicious underpriced scam prompt
         description: 'Brand new Honda City. Single owner. Relocating abroad, urgent sale. Pay a 10% advance deposit to secure deal.',
-        images: ['https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=600&q=80'],
-        conditionScore: 9.8,
-        trustScore: 18, // Severe warning trust score
-        riskFlag: 'High', // Flagged for review
-        fraudProbability: 0.94,
-        predictedPriceMin: 1150000,
-        predictedPriceMax: 1300000,
-        confidenceLevel: 'High',
-        featureImportance: { price: 0.9, mileage: 0.05, age: 0.05 },
-        status: 'pending_review' // Blocked from public view
+        images: ['uploads/damaged_car_3.jpg'],
+        status: 'pending_review' // Auto-flagged high risk
+      },
+      {
+        sellerEmail: 'priya.patel@valora.com',
+        brand: 'Maruti Suzuki',
+        model: 'Swift ZXi',
+        year: 2023,
+        kmDriven: 12000,
+        fuelType: 'Petrol',
+        transmission: 'Manual',
+        bodyType: 'Hatchback',
+        location: 'Chandigarh, Punjab',
+        price: 720000,
+        description: 'Near-new Maruti Swift in pristine mint condition. Extended warranty active, touch screen infotainment, zero scratch body.',
+        images: ['uploads/healthy_car_9.jpg', 'uploads/healthy_car_10.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'vikram.singh@valora.com',
+        brand: 'Mahindra',
+        model: 'Thar CRDe 4x4',
+        year: 2017,
+        kmDriven: 68000,
+        fuelType: 'Diesel',
+        transmission: 'Manual',
+        bodyType: 'SUV',
+        location: 'Jaipur, Rajasthan',
+        price: 850000,
+        description: 'Off-road Mahindra Thar. Scanned by CNN model: surface scratches and trail scuffs on side fender panel.',
+        images: ['uploads/damaged_car_4.jpg', 'uploads/damaged_car_5.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'ananya.iyer@valora.com',
+        brand: 'Kia',
+        model: 'Seltos GTX Plus',
+        year: 2021,
+        kmDriven: 29000,
+        fuelType: 'Petrol',
+        transmission: 'Automatic',
+        bodyType: 'SUV',
+        location: 'Chennai, Tamil Nadu',
+        price: 1580000,
+        description: 'Top end Kia Seltos GTX Plus with Bose sound system, ventilated seats, and 360 camera.',
+        images: ['uploads/healthy_car_1.jpg', 'uploads/healthy_car_3.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'seller@valora.com',
+        brand: 'Toyota',
+        model: 'Innova Crysta 2.4 Z',
+        year: 2016,
+        kmDriven: 165000,
+        fuelType: 'Diesel',
+        transmission: 'Manual',
+        bodyType: 'SUV',
+        location: 'Kochi, Kerala',
+        price: 1450000,
+        description: 'High mileage long distance Innova Crysta. Engine re-conditioned, immaculate mechanical condition, minor body wear.',
+        images: ['uploads/healthy_car_5.jpg', 'uploads/healthy_car_7.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'rahul.sharma@valora.com',
+        brand: 'Tata',
+        model: 'Nexon EV Max',
+        year: 2023,
+        kmDriven: 8200,
+        fuelType: 'Electric',
+        transmission: 'Automatic',
+        bodyType: 'SUV',
+        location: 'Noida, Uttar Pradesh',
+        price: 1620000,
+        description: 'Tata Nexon EV Max with fast charger included. Single owner, pristine battery health, full service record.',
+        images: ['uploads/healthy_car_2.jpg', 'uploads/healthy_car_4.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'vikram.singh@valora.com',
+        brand: 'Ford',
+        model: 'Mustang GT 5.0 V8',
+        year: 2019,
+        kmDriven: 14000,
+        fuelType: 'Petrol',
+        transmission: 'Automatic',
+        bodyType: 'Coupe',
+        location: 'Mumbai, Maharashtra',
+        price: 6200000,
+        description: 'Iconic Ford Mustang 5.0L V8 Coupe. Borla exhaust, enthusiast owned, listed at collector price premium.',
+        images: ['uploads/healthy_car_6.jpg', 'uploads/healthy_car_8.jpg'],
+        status: 'active'
+      },
+      {
+        sellerEmail: 'priya.patel@valora.com',
+        brand: 'Volkswagen',
+        model: 'Polo GT TSI',
+        year: 2020,
+        kmDriven: 41000,
+        fuelType: 'Petrol',
+        transmission: 'Automatic',
+        bodyType: 'Hatchback',
+        location: 'Kolkata, West Bengal',
+        price: 820000,
+        description: 'Volkswagen Polo GT TSI. Moderation rejected due to unverified registration credentials.',
+        images: ['uploads/damaged_car_6.jpg'],
+        status: 'rejected',
+        rejectionReason: 'Invalid vehicle registration document provided during moderation review.'
+      },
+      {
+        sellerEmail: 'ananya.iyer@valora.com',
+        brand: 'Hyundai',
+        model: 'Creta SX(O)',
+        year: 2021,
+        kmDriven: 31000,
+        fuelType: 'Diesel',
+        transmission: 'Automatic',
+        bodyType: 'SUV',
+        location: 'Surat, Gujarat',
+        price: 1390000,
+        description: 'Panoramic sunroof Hyundai Creta. Deal finalized and sold.',
+        images: ['uploads/healthy_car_10.jpg'],
+        status: 'sold'
       }
     ];
 
-    console.log('Seeding listings...');
-    await Listing.insertMany(listingsData);
-    console.log('Listings seeded successfully.');
+    console.log('\nSeeding listings...');
+    const populatedListings = [];
+
+    for (const item of rawListings) {
+      const seller = createdUsers[item.sellerEmail];
+
+      populatedListings.push({
+        seller: seller._id,
+        brand: item.brand,
+        model: item.model,
+        year: item.year,
+        kmDriven: item.kmDriven,
+        fuelType: item.fuelType,
+        transmission: item.transmission,
+        bodyType: item.bodyType,
+        location: item.location,
+        price: item.price,
+        description: item.description,
+        images: item.images,
+        conditionScore: 85,
+        detectedDamages: [],
+        predictedPriceMin: Math.round(item.price * 0.92),
+        predictedPriceMax: Math.round(item.price * 1.08),
+        predictedPriceMedian: item.price,
+        confidenceLevel: 'High',
+        featureImportance: { year: 0.40, km_driven: -0.25, condition_score: 0.35 },
+        riskFlag: (item.status === 'pending_review' ? 'High' : 'Low'),
+        fraudProbability: (item.status === 'pending_review' ? 0.94 : 0.03),
+        fraudReasons: [],
+        trustScore: (item.status === 'pending_review' ? 18 : 88),
+        trustBreakdown: { price_fairness: 32.0, fraud_risk: 28.5, condition_match: 20.0, seller_factor: 7.5 },
+        status: item.status,
+        rejectionReason: item.rejectionReason || null
+      });
+    }
+
+    await Listing.insertMany(populatedListings);
+    console.log('\n============================================================');
+    console.log('Database seeded successfully from scratch!');
+    console.log(`Seeded Users: ${Object.keys(createdUsers).length} (Password for all: "123")`);
+    console.log(`Seeded Listings: ${populatedListings.length} (Covering active, damaged, scam, rejected, and sold edge cases)`);
+    console.log('Images attached from data1 dataset: healthy_car_X.jpg & damaged_car_X.jpg');
+    console.log('============================================================\n');
 
     await mongoose.connection.close();
     console.log('Database connection closed.');
@@ -190,4 +361,4 @@ const seedListings = async () => {
   }
 };
 
-seedListings();
+seedDatabase();
