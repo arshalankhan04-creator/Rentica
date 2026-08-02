@@ -1,7 +1,7 @@
 # Valora — Mongoose Schema Reference
 
 These field shapes are the source of truth for models/User.js, models/Listing.js,
-and models/Inquiry.js. The ML-related fields on Listing must match the Node ↔ Django
+and models/Inquiry.js. The ML-related fields on Listing must match the Node ↔ FastAPI
 API Contract in Valora_Team_Workflow.md section 8 exactly.
 
 ## User
@@ -29,7 +29,7 @@ API Contract in Valora_Team_Workflow.md section 8 exactly.
 - description: String, optional
 - images: [String] (file paths)
 
-ML fields — populated later by Django via Node, default null/empty until integration:
+ML fields — populated later by FastAPI via Node, default null/empty until integration:
 - conditionScore: Number, default null
 - detectedDamages: [{ part: String, damageType: String, confidence: Number }]
 - predictedPriceMin: Number, default null

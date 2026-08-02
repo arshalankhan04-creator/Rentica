@@ -256,11 +256,21 @@ const updateListing = async (req, res, next) => {
       status
     } = req.body;
 
+    const shouldRefreshML = [
+      'brand',
+      'model',
+      'year',
+      'kmDriven',
+      'fuelType',
+      'transmission',
+      'price'
+    ].some((field) => req.body[field] !== undefined);
+
     // Update fields if provided
-    if (brand) listing.brand = brand;
-    if (model) listing.model = model;
-    if (year) listing.year = Number(year);
-    if (kmDriven) listing.kmDriven = Number(kmDriven);
+    if (brand !== undefined) listing.brand = brand;
+    if (model !== undefined) listing.model = model;
+    if (year !== undefined) listing.year = Number(year);
+    if (kmDriven !== undefined) listing.kmDriven = Number(kmDriven);
     if (fuelType) {
       if (!['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'].includes(fuelType)) {
         return res.status(400).json({ message: 'Invalid fuel type' });
@@ -287,6 +297,19 @@ const updateListing = async (req, res, next) => {
         return res.status(400).json({ message: 'Invalid status value' });
       }
       listing.status = status;
+    }
+
+    if (shouldRefreshML) {
+      const mlFields = await getMLFieldsForListing({
+        brand: listing.brand,
+        model: listing.model,
+        year: listing.year,
+        kmDriven: listing.kmDriven,
+        fuelType: listing.fuelType,
+        transmission: listing.transmission,
+        price: listing.price
+      });
+      Object.assign(listing, mlFields);
     }
 
     const updatedListing = await listing.save();

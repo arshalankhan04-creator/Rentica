@@ -1,6 +1,6 @@
 # Valora
 
-Valora is a multi-service web application composed of a React frontend, Node/Express backend, and Django machine learning service.
+Valora is a multi-service web application composed of a React frontend, Node/Express backend, and FastAPI machine learning service.
 
 ## Project Structure
 
@@ -8,7 +8,7 @@ Valora is a multi-service web application composed of a React frontend, Node/Exp
 valora/
 ├── client/          # React client application (Frontend)
 ├── server/          # Node/Express backend server
-├── ml-service/      # Django machine learning service
+├── ml-service/      # FastAPI machine learning service
 ├── docs/            # Shared documentation and design patterns
 └── README.md        # This file
 ```
@@ -22,7 +22,7 @@ A React-based user interface.
 A Node/Express API server that handles business logic, authentication, and database integration.
 
 ### 3. ML Service (`ml-service/`)
-A Django-based machine learning service that handles predictions, model training, and analytical queries.
+A FastAPI-based machine learning service that handles predictions, model training, and analytical queries.
 
 Dataset:
 Download the Cardekho Used Car Dataset from Kaggle.
