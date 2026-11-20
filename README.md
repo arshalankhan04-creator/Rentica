@@ -1,5 +1,7 @@
 # Rentica — Car Rental Marketplace
 
+**Live:** [rentica.vercel.app](https://rentica.vercel.app) &nbsp;|&nbsp; **API:** [rentica-server.onrender.com](https://rentica-server.onrender.com)
+
 Rentica is a full-stack car rental marketplace built with React, Node/Express, and MongoDB. It connects car owners with renters, providing a seamless booking experience with daily pricing, availability management, and direct owner-renter communication.
 
 ## Project Structure
