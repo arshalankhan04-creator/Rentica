@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const User = require('../models/User');
 const Listing = require('../models/Listing');
 const { addWishlistItem, removeWishlistItem, getWishlist } = require('../controllers/wishlistController');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/rentica';
 
 const mockResponse = () => {
   const res = {};
@@ -28,14 +28,14 @@ const runDirectTests = async () => {
   // Create clean slate users & listing
   const seller = await User.create({
     name: 'Seller User',
-    email: `seller_${Date.now()}@valora.com`,
+    email: `seller_${Date.now()}@rentica.com`,
     password: 'password123',
     role: 'seller'
   });
 
   const buyer = await User.create({
     name: 'Buyer User',
-    email: `buyer_${Date.now()}@valora.com`,
+    email: `buyer_${Date.now()}@rentica.com`,
     password: 'password123',
     role: 'buyer'
   });
@@ -181,8 +181,8 @@ const runHttpTests = async () => {
   const wishlistUrl = 'http://127.0.0.1:5000/api/wishlist';
   const listingsUrl = 'http://127.0.0.1:5000/api/listings';
 
-  const sellerEmail = `seller_w_${Date.now()}@valora.com`;
-  const buyerEmail = `buyer_w_${Date.now()}@valora.com`;
+  const sellerEmail = `seller_w_${Date.now()}@rentica.com`;
+  const buyerEmail = `buyer_w_${Date.now()}@rentica.com`;
   const password = 'securepassword123';
 
   let sellerToken = '';
@@ -425,3 +425,4 @@ const runAll = async () => {
 };
 
 runAll();
+

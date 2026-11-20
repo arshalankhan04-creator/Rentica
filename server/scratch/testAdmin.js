@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const Listing = require('../models/Listing');
@@ -10,8 +10,8 @@ const testAdmin = async () => {
   const listingsUrl = 'http://localhost:5000/api/listings';
   const adminUrl = 'http://localhost:5000/api/admin';
 
-  const sellerEmail = `seller_admin_${Date.now()}@valora.com`;
-  const buyerEmail = `buyer_admin_${Date.now()}@valora.com`;
+  const sellerEmail = `seller_admin_${Date.now()}@rentica.com`;
+  const buyerEmail = `buyer_admin_${Date.now()}@rentica.com`;
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD;
   const password = 'securepassword123';
@@ -71,7 +71,7 @@ const testAdmin = async () => {
     listing3Id = await createListing('Honda', 'Civic', 1200000);
 
     // Modify status/riskFlag directly via Mongoose for setup
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/valora_anti');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/rentica_anti');
     
     // Listing 1: pending_review
     await Listing.findByIdAndUpdate(listing1Id, { status: 'pending_review' });
@@ -289,7 +289,7 @@ const testAdmin = async () => {
 
   // Cleanup testing listings
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/valora');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/rentica');
     await Listing.findByIdAndDelete(listing1Id);
     await Listing.findByIdAndDelete(listing2Id);
     await Listing.findByIdAndDelete(listing3Id);
@@ -301,3 +301,4 @@ const testAdmin = async () => {
 };
 
 testAdmin();
+

@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 
-const SOURCE_URI = 'mongodb://localhost:27017/valora';
-const TARGET_URI = 'mongodb://localhost:27017/valora';
+const SOURCE_URI = 'mongodb://localhost:27017/rentica';
+const TARGET_URI = 'mongodb://localhost:27017/rentica';
 
 const migrateDatabase = async () => {
   try {
@@ -40,7 +40,7 @@ const migrateDatabase = async () => {
       }
     }
 
-    console.log('\nMigration complete! The database valora_anti is now populated and ready in MongoDB.');
+    console.log('\nMigration complete! The database rentica is now populated and ready in MongoDB.');
     await sourceConn.close();
     await targetConn.close();
     process.exit(0);
@@ -51,3 +51,4 @@ const migrateDatabase = async () => {
 };
 
 migrateDatabase();
+

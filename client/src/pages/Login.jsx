@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -304,7 +304,7 @@ const Login = () => {
             className="text-2xl no-underline tracking-wide block"
             style={{ fontFamily: 'Anoxic, sans-serif', color: '#FFFFFF', fontWeight: 500 }}
           >
-            Valora
+            Rentica
           </Link>
         </div>
 
@@ -496,7 +496,7 @@ const Login = () => {
               className="text-2xl no-underline tracking-wide block"
               style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
             >
-              Valora
+              Rentica
             </Link>
           </div>
 
@@ -621,3 +621,4 @@ const Login = () => {
 };
 
 export default Login;
+

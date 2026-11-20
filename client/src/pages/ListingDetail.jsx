@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Button from '../components/Button';
 import FairPriceBadge from '../components/FairPriceBadge';
-import TrustBadge from '../components/TrustBadge';
 import WishlistButton from '../components/WishlistButton';
 import CompareButton from '../components/CompareButton';
 
@@ -37,12 +36,14 @@ const ListingDetail = () => {
 
     setContactLoading(true);
     try {
-      const res = await api.post('/inquiries', {
+      const res = await api.post('/bookings', {
         listingId: id,
-        text: messageText.trim()
+        message: messageText.trim(),
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 86400000).toISOString()
       });
       const threadId = res.data._id;
-      navigate(`/inquiries/${threadId}`);
+      navigate(`/bookings/${threadId}`);
     } catch (err) {
       console.error('Contact seller error:', err);
       setContactError(err.response?.data?.message || 'Failed to send message.');
@@ -97,13 +98,13 @@ const ListingDetail = () => {
     );
   }
 
-  const getSellerId = (seller) => {
-    if (!seller) return '';
-    if (typeof seller === 'object') return seller._id || '';
-    return seller;
+  const getSellerId = (owner) => {
+    if (!owner) return '';
+    if (typeof owner === 'object') return owner._id || '';
+    return owner;
   };
 
-  const sellerId = getSellerId(listing.seller);
+  const sellerId = getSellerId(listing.owner);
   const userId = user ? (user._id || user.id || '') : '';
   const isOwnListing = userId && sellerId && sellerId.toString() === userId.toString();
 
@@ -132,13 +133,6 @@ const ListingDetail = () => {
 
   const displayDate = getDaysAgo(listing.createdAt);
 
-  const formatLakhPrice = (val) => {
-    if (val === null || val === undefined) return 'N/A';
-    if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
-    if (val >= 100000) return `₹${(val / 100000).toFixed(2)} L`;
-    return `₹${val.toLocaleString('en-IN')}`;
-  };
-
   const getGalleryImages = () => {
     if (!listing.images || !Array.isArray(listing.images) || listing.images.length === 0) {
       return [];
@@ -149,17 +143,6 @@ const ListingDetail = () => {
   };
 
   const galleryImages = getGalleryImages();
-
-  let fairPriceValue = null;
-  if (listing.predictedPriceMin !== null && listing.predictedPriceMax !== null) {
-    fairPriceValue = (listing.predictedPriceMin + listing.predictedPriceMax) / 2;
-  }
-  let priceVerdict = null;
-  let delta = null;
-  if (fairPriceValue !== null && listing.price) {
-    delta = Math.round(((listing.price - fairPriceValue) / fairPriceValue) * 100);
-    priceVerdict = delta < -3 ? 'under' : delta > 3 ? 'over' : 'fair';
-  }
 
   return (
     <div className="w-full bg-bgLight min-h-screen py-10 flex flex-col font-sans">
@@ -353,340 +336,73 @@ const ListingDetail = () => {
               </div>
             </div>
 
-            {/* 4. AI Valuation Box */}
+            {/* 4. Rental Info Box */}
             <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4 select-none">
-                <span className="text-xs font-semibold text-textSecondary/80 uppercase tracking-wider">AI Estimated Value Range</span>
-                {listing.predictedPriceMin ? (
-                  <span className="text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                    {listing.confidenceLevel ? `${listing.confidenceLevel.toUpperCase()} Confidence` : 'AI Valuation'}
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-1 rounded-full">
-                    Analysis Pending
-                  </span>
-                )}
+                <span className="text-xs font-semibold text-textSecondary/80 uppercase tracking-wider">Rental Details</span>
               </div>
-
-              {listing.predictedPriceMin ? (
-                <>
-                  <div className="text-2xl md:text-3xl font-bold text-textPrimary tracking-tight leading-none mb-4 select-none">
-                    {formatLakhPrice(listing.predictedPriceMin)} – {formatLakhPrice(listing.predictedPriceMax)}
-                  </div>
-                  
-                  {listing.featureImportance && typeof listing.featureImportance === 'object' && Object.keys(listing.featureImportance).length > 0 && (
-                    <div className="border-t border-border pt-4 mt-2">
-                      <span className="block text-[10px] font-bold text-textSecondary uppercase tracking-wider mb-2.5">
-                        Valuation Drivers (Feature Importance)
-                      </span>
-                      <div className="space-y-2">
-                        {Object.entries(listing.featureImportance).map(([feat, imp]) => {
-                          const val = Math.abs(Number(imp) || 0);
-                          const percentage = Math.min(100, Math.round(val * 100));
-                          const label = feat === 'year' ? 'Vehicle Age' : feat === 'km_driven' ? 'Mileage & Usage' : 'Visual Condition';
-                          return (
-                            <div key={feat} className="space-y-1 text-xs">
-                              <div className="flex justify-between font-semibold text-textSecondary">
-                                <span>{label}</span>
-                                <span>{percentage}%</span>
-                              </div>
-                              <div className="w-full bg-bgLight h-1.5 rounded-full overflow-hidden border border-border/40">
-                                <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="py-6 text-center bg-bgLight border border-dashed border-border rounded-2xl flex flex-col items-center justify-center p-6 select-none">
-                  <h4 className="text-xs font-bold text-textPrimary m-0 mb-1">AI Valuation Pending</h4>
-                  <p className="text-[10px] text-textSecondary max-w-[280px] mx-auto m-0">
-                    Price estimation will update as model finishes processing.
-                  </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="block text-[10px] font-bold text-textSecondary uppercase tracking-wider mb-1">Price/Day</span>
+                  <span className="text-xl font-bold text-primary">${listing.pricePerDay || 'N/A'}</span>
                 </div>
-              )}
-            </div>
-
-            {/* 5. Condition Analysis Card (Live ML Backend Detections) */}
-            {(() => {
-              const score = listing.conditionScore || 88;
-              const rating = score >= 90 ? 'Excellent' : score >= 75 ? 'Good' : score >= 60 ? 'Fair' : 'Needs Care';
-              const ratingColor = score >= 75 ? 'text-emerald-700 dark:text-emerald-400' : score >= 60 ? 'text-amber-600' : 'text-danger';
-              
-              const damagesList = Array.isArray(listing.detectedDamages) ? listing.detectedDamages : [];
-              const hasDamages = damagesList.length > 0;
-
-              return (
-                <div className="bg-[#faf8f3] dark:bg-surface border border-[#e8e3d5] dark:border-border rounded-2xl p-6 shadow-xs text-left space-y-6">
-                  {/* Top Header */}
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-10 h-10 rounded-full bg-[#f4ebd6] dark:bg-primary/10 border border-[#e5d8b8] dark:border-primary/20 flex items-center justify-center text-[#8e6e22] dark:text-primary shrink-0">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 8v6M8 11h6" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-serif font-bold text-textPrimary m-0 leading-tight">Condition Analysis</h3>
-                      <p className="text-xs text-textSecondary/80 m-0 mt-0.5">
-                        Vision model reads listing photos for wear, damage, and cleanliness signals.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Body Grid: Overall Score (Left) + Breakdown Bars (Right) */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center pt-2">
-                    {/* Left Rating Column */}
-                    <div className="md:col-span-4 flex flex-col justify-center space-y-1 pr-2">
-                      <span className="text-[11px] font-semibold text-textSecondary/80 tracking-wide uppercase">
-                        Overall condition
-                      </span>
-                      <div className={`text-4xl font-serif font-extrabold leading-none ${ratingColor}`}>
-                        {rating}
-                      </div>
-                      <div className="text-xs font-mono text-textSecondary/90 font-medium pt-1">
-                        Score &nbsp;{score}/100
-                      </div>
-                    </div>
-
-                    {/* Right Progress Bars Column */}
-                    <div className="md:col-span-8 space-y-4">
-                      {hasDamages ? (
-                        /* Render Live Detected Damages from Backend CNN Inference */
-                        damagesList.map((dmg, idx) => {
-                          const partName = (dmg.part || 'body_panel').replace('_', ' ');
-                          const damageType = (dmg.damageType || 'imperfection').replace('_', ' ');
-                          const confidencePct = Math.round((dmg.confidence || 0.8) * 100);
-                          const partScore = Math.max(40, Math.round(100 - (confidencePct * 0.4)));
-
-                          return (
-                            <div key={idx} className="space-y-1">
-                              <div className="flex justify-between text-xs font-medium text-textPrimary capitalize">
-                                <span>{partName} — {damageType} ({confidencePct}% AI confidence)</span>
-                                <span className="font-semibold text-textSecondary shrink-0">{partScore}</span>
-                              </div>
-                              <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
-                                <div className="bg-amber-600 dark:bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${partScore}%` }} />
-                              </div>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        /* Clean Inspection Sub-Systems (No Damage Detected) */
-                        <>
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs font-medium text-textPrimary">
-                              <span>Exterior — no visible dents</span>
-                              <span className="font-semibold text-textSecondary shrink-0">{score}</span>
-                            </div>
-                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
-                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${score}%` }} />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs font-medium text-textPrimary">
-                              <span>Interior — clean upholstery</span>
-                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 1.01))}</span>
-                            </div>
-                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
-                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 1.01))}%` }} />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs font-medium text-textPrimary">
-                              <span>Tyres — moderate tread wear</span>
-                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 0.91))}</span>
-                            </div>
-                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
-                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 0.91))}%` }} />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs font-medium text-textPrimary">
-                              <span>Under-bonnet — well-kept</span>
-                              <span className="font-semibold text-textSecondary shrink-0">{Math.min(99, Math.round(score * 0.98))}</span>
-                            </div>
-                            <div className="w-full bg-[#e2dccf] dark:bg-bgLight h-2 rounded-full overflow-hidden">
-                              <div className="bg-[#0b5c37] dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(99, Math.round(score * 0.98))}%` }} />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bottom Notice Banner */}
-                  <div className="bg-[#f3ede0] dark:bg-background/60 border border-[#e2d6be] dark:border-border/60 rounded-xl px-4 py-3 text-xs text-textSecondary flex items-center gap-2.5">
-                    <svg className="w-4 h-4 text-textSecondary/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                    <span>Vision analysis is a screening aid. Always inspect the car in person before purchase.</span>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* 6. Trust Score Breakdown */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4 select-none">
-                <span className="block text-[10px] font-bold tracking-wider text-textSecondary uppercase">
-                  Valora Trust Score Breakdown
-                </span>
-                <TrustBadge score={listing.trustScore || 85} />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-bgLight rounded-xl p-3 text-left">
-                  <span className="text-[9px] font-bold text-textSecondary uppercase">Price Fairness (35%)</span>
-                  <div className="text-sm font-bold text-emerald-600 mt-0.5">
-                    {listing.trustBreakdown?.price_fairness || 31.5} pts
-                  </div>
-                </div>
-                
-                <div className="bg-bgLight rounded-xl p-3 text-left">
-                  <span className="text-[9px] font-bold text-textSecondary uppercase">Fraud Safety (30%)</span>
-                  <div className="text-sm font-bold text-emerald-600 mt-0.5">
-                    {listing.trustBreakdown?.fraud_risk || 28.5} pts
-                  </div>
-                </div>
-
-                <div className="bg-bgLight rounded-xl p-3 text-left">
-                  <span className="text-[9px] font-bold text-textSecondary uppercase">Condition Match (25%)</span>
-                  <div className="text-sm font-bold text-primary mt-0.5">
-                    {listing.trustBreakdown?.condition_match || 20.0} pts
-                  </div>
-                </div>
-
-                <div className="bg-bgLight rounded-xl p-3 text-left">
-                  <span className="text-[9px] font-bold text-textSecondary uppercase">Seller Factor (10%)</span>
-                  <div className="text-sm font-bold text-primary mt-0.5">
-                    {listing.trustBreakdown?.seller_factor || 8.0} pts
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 7. Fraud Signals & Anomaly Detection Card (Live ML Data) */}
-            <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm text-left space-y-4">
-              <div className="flex items-center justify-between select-none">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shrink-0 font-bold text-sm">
-                    🛡️
-                  </div>
+                {listing.availableFrom && (
                   <div>
-                    <h3 className="text-base font-bold text-textPrimary m-0 leading-tight">Fraud & Anomaly Signals</h3>
-                    <p className="text-[11px] text-textSecondary m-0">Evaluated by Random Forest Security Classifier</p>
+                    <span className="block text-[10px] font-bold text-textSecondary uppercase tracking-wider mb-1">Available From</span>
+                    <span className="text-sm font-semibold text-textPrimary">{new Date(listing.availableFrom).toLocaleDateString()}</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full border uppercase ${
-                    listing.riskFlag === 'High' 
-                      ? 'bg-dangerLight text-danger border-dangerBorder/50' 
-                      : listing.riskFlag === 'Medium'
-                      ? 'bg-amber-500/10 text-amber-700 border-amber-500/20'
-                      : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
-                  }`}>
-                    {listing.riskFlag || 'Low'} Risk
-                  </span>
-                  
-                  {listing.fraudProbability !== null && listing.fraudProbability !== undefined && (
-                    <span className="text-xs font-bold text-textSecondary bg-bgLight border border-border/70 px-2.5 py-1 rounded-full">
-                      {Math.round(listing.fraudProbability * 100)}% Scam Prob
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Reasons list or clean verification status */}
-              <div className="space-y-2 pt-1">
-                {listing.fraudReasons && listing.fraudReasons.length > 0 ? (
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-textSecondary uppercase tracking-wider block">
-                      Detected Anomaly Flags ({listing.fraudReasons.length}):
-                    </span>
-                    <div className="space-y-2">
-                      {listing.fraudReasons.map((reason, idx) => (
-                        <div key={idx} className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-xl p-3 text-xs font-semibold flex items-start gap-2.5">
-                          <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                          <span>{reason}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
-                    <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Zero suspicious anomalies detected. Listing verified against advance-deposit scam patterns.</span>
+                )}
+                {listing.availableTo && (
+                  <div>
+                    <span className="block text-[10px] font-bold text-textSecondary uppercase tracking-wider mb-1">Available To</span>
+                    <span className="text-sm font-semibold text-textPrimary">{new Date(listing.availableTo).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>
-
-              {/* Security Advisory footer */}
-              <div className="text-[11px] text-textSecondary/80 pt-2 border-t border-border/40 flex items-center gap-2">
-                <span className="font-bold text-textPrimary">🛡️ Safety Advisory:</span>
-                <span>Never transfer advance deposit or booking fees prior to physically inspecting the car.</span>
-              </div>
             </div>
+
+            {/* 6. Vehicle Description */}
+            {listing.description && (
+              <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
+                <h3 className="text-base font-bold text-textPrimary mb-3">About this rental</h3>
+                <p className="text-textSecondary text-sm leading-relaxed m-0">{listing.description}</p>
+              </div>
+            )}
 
           </div>
 
-          {/* Right Column (4 cols): Sticky asking price card & Seller Profile card with Contact Seller inside */}
+          {/* Right Column (4 cols): Sticky price card & Owner Profile card with Contact/Book inside */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
             
-            {/* 1. Asking Price Card */}
+            {/* 1. Price Per Day Card */}
             <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-3">
               <span className="block text-xs font-semibold text-textSecondary select-none">
-                Asking price
+                Price/day
               </span>
               <div className="font-heading text-4xl font-bold text-textPrimary leading-none select-none">
-                {formatLakhPrice(listing.price)}
+                ${listing.pricePerDay || 'N/A'}/day
               </div>
-              
-              {listing.predictedPriceMin !== null && listing.predictedPriceMax !== null ? (
-                <p className="font-mono text-xs text-textSecondary m-0">
-                  Fair estimate {formatLakhPrice((listing.predictedPriceMin + listing.predictedPriceMax) / 2)}
-                </p>
-              ) : (
-                <p className="font-mono text-xs text-textSecondary m-0">
-                  Fair estimate N/A
-                </p>
-              )}
 
-              {/* Reusable Green Badges Cluster */}
+              {/* Badge */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <FairPriceBadge verdict={priceVerdict} delta={delta} />
-                <TrustBadge score={listing.trustScore} />
+                <FairPriceBadge pricePerDay={listing.pricePerDay} />
               </div>
             </div>
 
-            {/* 2. Seller Profile Card + Integrated Contact Seller */}
+            {/* 2. Owner Profile Card + Integrated Book/Contact */}
             <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-5">
               {/* Profile Header Row */}
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-base select-none uppercase shadow-sm">
-                    {(listing.seller?.name || 'S').split(' ').map(n => n[0]).join('')}
+                    {(listing.owner?.name || 'O').split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-textPrimary m-0 leading-tight">
-                      {listing.seller?.name || 'N/A'}
+                      {listing.owner?.name || 'N/A'}
                     </h3>
                     <span className="text-xs text-textSecondary font-medium block mt-0.5 select-none">
-                      Verified seller
+                      Verified owner
                     </span>
                   </div>
                 </div>
@@ -699,36 +415,36 @@ const ListingDetail = () => {
                 </span>
               </div>
 
-              {/* Dynamic 2 Stats Boxes Grid (LISTED & SOLD, removed 'replies') */}
+              {/* Dynamic 2 Stats Boxes Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-bgLight border border-border/60 rounded-2xl p-3 text-center">
                   <div className="font-heading text-xl font-bold text-textPrimary">
-                    {listing.seller?.listedCount !== undefined && listing.seller?.listedCount !== null ? listing.seller.listedCount : 'N/A'}
+                    {listing.owner?.listedCount !== undefined && listing.owner?.listedCount !== null ? listing.owner.listedCount : 'N/A'}
                   </div>
                   <div className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mt-0.5">LISTED</div>
                 </div>
                 <div className="bg-bgLight border border-border/60 rounded-2xl p-3 text-center">
                   <div className="font-heading text-xl font-bold text-textPrimary">
-                    {listing.seller?.soldCount !== undefined && listing.seller?.soldCount !== null ? listing.seller.soldCount : 'N/A'}
+                    {listing.owner?.rentedCount !== undefined && listing.owner?.rentedCount !== null ? listing.owner.rentedCount : 'N/A'}
                   </div>
-                  <div className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mt-0.5">SOLD</div>
+                  <div className="text-[10px] font-semibold text-textSecondary uppercase tracking-wider mt-0.5">RENTED</div>
                 </div>
               </div>
 
-              {/* Contact Seller Functionality inside Profile Box */}
+              {/* Contact/Book Functionality inside Profile Box */}
               <div className="pt-2">
                 {!user ? (
                   <Button 
                     onClick={() => showAuthModal('login', () => setShowContactForm(true), {
-                      title: 'Contact Seller',
-                      description: 'Log in or sign up to start a direct message thread with the seller.'
+                      title: 'Book this Car',
+                      description: 'Log in or sign up to send a booking request to the owner.'
                     })}
                     variant="primary" 
                     size="md" 
                     fullWidth 
                     className="font-bold"
                   >
-                    Login to Contact Seller
+                    Login to Book
                   </Button>
                 ) : isOwnListing ? (
                   <div className="space-y-2.5">
@@ -760,7 +476,7 @@ const ListingDetail = () => {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        Contact Seller
+                        Book Now
                       </Button>
                     ) : (
                       <form onSubmit={handleContactSubmit} className="space-y-3 border border-border p-4 rounded-xl bg-muted/30">

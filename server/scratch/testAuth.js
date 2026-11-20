@@ -1,6 +1,6 @@
-const testAuth = async () => {
+﻿const testAuth = async () => {
     const baseUrl = 'http://localhost:5000/api/auth';
-    const email = `test_${Date.now()}@valora.com`;
+    const email = `test_${Date.now()}@rentica.com`;
     const password = 'securepassword123';
     let token = '';
 
@@ -127,7 +127,7 @@ const testAuth = async () => {
     // 8. Register user with role 'admin'
     console.log('\n[TEST 8] Registering user with explicit admin role...');
     try {
-        const adminEmail = `admin_${Date.now()}@valora.com`;
+        const adminEmail = `admin_${Date.now()}@rentica.com`;
         const res = await fetch(`${baseUrl}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -156,7 +156,7 @@ const testAuth = async () => {
         const res = await fetch(`${baseUrl}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: `unregistered_${Date.now()}@valora.com`, password })
+            body: JSON.stringify({ email: `unregistered_${Date.now()}@rentica.com`, password })
         });
         const data = await res.json();
         console.log(`Status: ${res.status}, Message:`, data.message);
@@ -190,4 +190,5 @@ const testAuth = async () => {
 };
 
 testAuth();
+
 

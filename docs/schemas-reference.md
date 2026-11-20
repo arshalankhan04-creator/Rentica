@@ -1,8 +1,8 @@
-# Valora — Mongoose Schema Reference
+﻿# Rentica — Mongoose Schema Reference
 
 These field shapes are the source of truth for models/User.js, models/Listing.js,
 and models/Inquiry.js. The ML-related fields on Listing must match the Node ↔ FastAPI
-API Contract in Valora_Team_Workflow.md section 8 exactly.
+API Contract in Rentica_Team_Workflow.md section 8 exactly.
 
 ## User
 - name: String, required
@@ -52,3 +52,5 @@ ML fields — populated later by FastAPI via Node, default null/empty until inte
 - seller: ObjectId ref 'User', required
 - messages: [{ sender: ObjectId ref 'User', text: String required, sentAt: Date default now }]
 - timestamps: true
+
+

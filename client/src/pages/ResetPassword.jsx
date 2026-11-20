@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
@@ -311,7 +311,7 @@ const ResetPassword = () => {
             className="text-2xl no-underline tracking-wide block"
             style={{ fontFamily: 'Anoxic, sans-serif', color: '#FFFFFF', fontWeight: 500 }}
           >
-            Valora
+            Rentica
           </Link>
         </div>
 
@@ -503,7 +503,7 @@ const ResetPassword = () => {
               className="text-2xl no-underline tracking-wide block"
               style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
             >
-              Valora
+              Rentica
             </Link>
           </div>
 
@@ -602,3 +602,4 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+

@@ -1,33 +1,61 @@
-# Valora
+# Rentica — Car Rental Marketplace
 
-Valora is a multi-service web application composed of a React frontend, Node/Express backend, and FastAPI machine learning service.
+Rentica is a full-stack car rental marketplace built with React, Node/Express, and MongoDB. It connects car owners with renters, providing a seamless booking experience with daily pricing, availability management, and direct owner-renter communication.
 
 ## Project Structure
 
 ```
-valora/
-├── client/          # React client application (Frontend)
-├── server/          # Node/Express backend server
-├── ml-service/      # FastAPI machine learning service
-├── docs/            # Shared documentation and design patterns
+rentica/
+├── client/          # React frontend application
+├── server/          # Node/Express backend API
+├── docs/            # Documentation and API specifications
 └── README.md        # This file
 ```
 
 ## Services Overview
 
 ### 1. Client (`client/`)
-A React-based user interface.
+A React-based user interface built with Vite, Tailwind CSS, and Framer Motion. Features include:
+- Browse rental listings by category, brand, location, and price
+- Book vehicles with daily pricing
+- Owner and renter dashboards
+- Wishlist and vehicle comparison
 
 ### 2. Server (`server/`)
-A Node/Express API server that handles business logic, authentication, and database integration.
+A Node/Express REST API that handles authentication, listing management, booking requests, and admin moderation.
 
-### 3. ML Service (`ml-service/`)
-A FastAPI-based machine learning service that handles predictions, model training, and analytical queries.
+## Getting Started
 
-Dataset:
-Download the Cardekho Used Car Dataset from Kaggle.
-Place the downloaded CSV in:
-ml-service/datasets/cars_details_merges.csv
+### Prerequisites
+- Node.js v18+
+- MongoDB 6+
 
-### 4. Docs (`docs/`)
-Centralized documentation folder for architecture, diagrams, design rules, and guidelines.
+### Server Setup
+```bash
+cd server
+cp .env.example .env
+# Edit .env with your MongoDB URI and secrets
+npm install
+node seed.js          # Optional: seed sample data
+npm run seed:admin    # Create admin user from .env credentials
+npm start
+```
+
+### Client Setup
+```bash
+cd client
+npm install
+npm run dev
+```
+
+## Key Features
+- Car rental listings with daily pricing (`pricePerDay`)
+- Availability date range per vehicle
+- Booking system with status tracking (pending → confirmed → completed)
+- Owner/renter role-based access
+- Admin moderation panel for listing approval
+- Image upload for vehicle listings
+- Email notifications for booking requests
+
+## API Endpoints
+See `docs/Rentica_Spec_APIs.md` for the full API reference.

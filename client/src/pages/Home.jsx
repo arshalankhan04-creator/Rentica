@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Select from '../components/Select';
@@ -13,15 +13,12 @@ const FEATURED_CARS = [
     brand: 'Audi',
     model: 'A6 Premium Plus',
     year: 2021,
-    price: 4500000,
-    priceMinText: '₹45.0L',
-    priceMaxText: '₹48.0L',
+    pricePerDay: 95,
     fuelType: 'Petrol',
     transmission: 'Automatic',
     mileage: '24,500 km',
     location: 'Bangalore',
-    trustScore: 92,
-    postedDate: 'Posted 2 days ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-slate-700 to-slate-900',
   },
@@ -30,15 +27,12 @@ const FEATURED_CARS = [
     brand: 'BMW',
     model: '5 Series 530d',
     year: 2022,
-    price: 5200000,
-    priceMinText: '₹52.0L',
-    priceMaxText: '₹55.5L',
+    pricePerDay: 120,
     fuelType: 'Diesel',
     transmission: 'Automatic',
     mileage: '8,200 km',
     location: 'Mumbai',
-    trustScore: 95,
-    postedDate: 'Posted 1 day ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-blue-700 to-blue-900',
   },
@@ -47,15 +41,12 @@ const FEATURED_CARS = [
     brand: 'Mercedes-Benz',
     model: 'C-Class C200',
     year: 2020,
-    price: 3800000,
-    priceMinText: '₹38.0L',
-    priceMaxText: '₹41.5L',
+    pricePerDay: 90,
     fuelType: 'Petrol',
     transmission: 'Automatic',
     mileage: '18,500 km',
     location: 'Delhi',
-    trustScore: 88,
-    postedDate: 'Posted 3 days ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-zinc-700 to-zinc-900',
   },
@@ -64,15 +55,12 @@ const FEATURED_CARS = [
     brand: 'Porsche',
     model: 'Cayenne Coupé',
     year: 2022,
-    price: 12000000,
-    priceMinText: '₹1.15Cr',
-    priceMaxText: '₹1.25Cr',
+    pricePerDay: 220,
     fuelType: 'Petrol',
     transmission: 'Automatic',
     mileage: '4,100 km',
     location: 'Mumbai',
-    trustScore: 97,
-    postedDate: 'Posted 12 hours ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-amber-700 to-amber-900',
   },
@@ -81,15 +69,12 @@ const FEATURED_CARS = [
     brand: 'Audi',
     model: 'Q7 Technology',
     year: 2021,
-    price: 7800000,
-    priceMinText: '₹78.0L',
-    priceMaxText: '₹82.0L',
+    pricePerDay: 150,
     fuelType: 'Diesel',
     transmission: 'Automatic',
     mileage: '12,400 km',
     location: 'Pune',
-    trustScore: 91,
-    postedDate: 'Posted 4 days ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-cyan-750 to-cyan-950',
   },
@@ -98,15 +83,12 @@ const FEATURED_CARS = [
     brand: 'BMW',
     model: 'M4 Competition',
     year: 2022,
-    price: 9800500,
-    priceMinText: '₹98.0L',
-    priceMaxText: '₹1.05Cr',
+    pricePerDay: 200,
     fuelType: 'Petrol',
     transmission: 'Automatic',
     mileage: '3,200 km',
     location: 'Bangalore',
-    trustScore: 94,
-    postedDate: 'Posted 5 days ago',
+    postedDate: 'Available now',
     image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80',
     gradient: 'from-emerald-700 to-emerald-950',
   }
@@ -202,20 +184,20 @@ const Home = () => {
           <div className="flex-1 text-left space-y-8 max-w-xl">
             <div className="space-y-4">
               <h1 className="text-display uppercase m-0">
-                FAIR BUYING. <br />
-                <span style={{ color: 'var(--color-primary)' }}>FAIR SELLING.</span>
+                RENT SMARTER. <br />
+                <span style={{ color: 'var(--color-primary)' }}>DRIVE BETTER.</span>
               </h1>
               <p className="text-body text-lg m-0 leading-relaxed max-w-lg">
-                Valora is the premium automotive marketplace designed to bring total transparency, trust, and ease to buying or selling your next vehicle.
+                Rentica is the premium car rental marketplace where you can discover, compare, and book vehicles from trusted owners — all in one place.
               </p>
             </div>
 
             <div className="flex flex-row items-center gap-4">
               <Button onClick={() => navigate('/browse')} variant="primary" pill size="lg" className="shadow-lg shadow-primary/25 font-bold">
-                Buy a Car
+                Rent a Car
               </Button>
               <Button onClick={() => navigate('/create-listing')} variant="outline" pill size="lg" className="font-bold">
-                Sell Yours
+                List Yours
               </Button>
             </div>
           </div>
@@ -224,7 +206,7 @@ const Home = () => {
           <div className="flex-1 w-full flex justify-center md:justify-end z-10">
             <img
               src="/hero-car.png"
-              alt="Valora Premium Sports Car"
+              alt="Rentica Premium Sports Car"
               className="w-full max-w-md md:max-w-2xl object-contain drop-shadow-[0_20px_50px_rgba(15,15,23,0.15)] md:-mr-12 select-none"
             />
           </div>
@@ -332,7 +314,7 @@ const Home = () => {
               WebkitTextStroke: '2px var(--color-border)'
             }}
           >
-            Valora
+            Rentica
           </h2>
         </div>
       </div>
@@ -392,10 +374,10 @@ const Home = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="text-left">
             <h2 className="text-h2 m-0">
-              Featured Premium Listings
+              Featured Premium Rentals
             </h2>
             <p className="text-body mt-2 m-0">
-              Explore our handpicked curation of highly-inspected luxury performance cars.
+              Explore our handpicked selection of premium rental vehicles available now.
             </p>
           </div>
           <Link to="/browse" className="text-sm font-bold text-primary hover:underline">
@@ -411,7 +393,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* The Valora Promise Section */}
+      {/* The Rentica Promise Section */}
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 w-full mb-20">
         <div className="bg-background rounded-card-xl p-8 md:p-16 text-left relative overflow-hidden border border-border/60 shadow-sm">
           {/* Subtle dotted background grid pattern in brand color */}
@@ -419,10 +401,10 @@ const Home = () => {
 
           <div className="relative z-10">
             <span className="text-primary text-label block">
-              The Valora Promise
+              The Rentica Promise
             </span>
             <h2 className="text-h1 mt-4 mb-12 leading-tight max-w-2xl">
-              Four checks. <span className="text-primary">Every car.</span> Before you call.
+              Four reasons. <span className="text-primary">Every rental.</span> Built for trust.
             </h2>
 
             {/* Promises Grid */}
@@ -430,23 +412,23 @@ const Home = () => {
               {[
                 {
                   num: '01',
-                  title: 'Fair Price',
-                  desc: 'Regression models trained on year, mileage, and brand to predict a fair price range and explain key value drivers.'
+                  title: 'Verified Owners',
+                  desc: 'Every car owner on Rentica is identity-verified. You know exactly who you are renting from before you book.'
                 },
                 {
                   num: '02',
-                  title: 'Trust Score',
-                  desc: 'A unified 0–100 score combining price fairness, fraud risk, condition match, and seller history.'
+                  title: 'Transparent Pricing',
+                  desc: 'Clear daily rates with no hidden fees. The price you see is the price you pay, per day.'
                 },
                 {
                   num: '03',
-                  title: 'Condition AI',
-                  desc: 'CNN transfer learning scans uploaded photos for visible dents, scratches, and damage to assess visual wear.'
+                  title: 'Flexible Booking',
+                  desc: 'Book for a day, a week, or a month. Our flexible rental model fits every trip and every budget.'
                 },
                 {
                   num: '04',
-                  title: 'Fraud Check',
-                  desc: 'Classification models train on anomaly signals to flag suspicious listings and duplicate ads before they go live.'
+                  title: 'Secure Payments',
+                  desc: 'All bookings and payments are handled through our secure platform, protecting both renter and owner.'
                 }
               ].map((item, idx) => (
                 <div key={idx} className="p-8 flex flex-col justify-between min-h-[220px]">
@@ -475,10 +457,10 @@ const Home = () => {
           How It Works
         </span>
         <h2 className="text-h1 mt-0 mb-4 leading-tight">
-          From search to signature, in <span className="text-primary">three quiet steps.</span>
+          From search to keys, in <span className="text-primary">three simple steps.</span>
         </h2>
         <p className="text-body text-sm md:text-base max-w-xl leading-relaxed mt-0 mb-12">
-          No cold calls, no dealer bidding wars. Just a straight line to the right car.
+          No calls, no agents, no hassle. Just find your car, book it, and drive.
         </p>
 
         {/* Cards container with connecting line */}
@@ -501,10 +483,10 @@ const Home = () => {
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
-                  Search Verified Listings
+                  Search Available Rentals
                 </h3>
                 <p className="text-textSecondary text-sm leading-relaxed m-0">
-                  Filter by brand, budget, year, or location. Every listing is pre-evaluated by Valora's pricing, condition, and fraud verification models.
+                  Filter by brand, budget, body type, or location. Every listing shows clear daily pricing and availability dates.
                 </p>
               </div>
               <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
@@ -526,10 +508,10 @@ const Home = () => {
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
-                  Analyze Trust Metrics
+                  Compare & Choose
                 </h3>
                 <p className="text-textSecondary text-sm leading-relaxed m-0">
-                  Deep-dive into any car's 0–100 Trust Score. Compare the predicted fair price range against the seller's price, and view CNN visual condition logs.
+                  Compare vehicles side by side. Check daily rates, fuel type, transmission, and owner details before you commit.
                 </p>
               </div>
               <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
@@ -551,14 +533,14 @@ const Home = () => {
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-textPrimary mb-2 mt-4">
-                  Direct Chat & Connect
+                  Book & Drive
                 </h3>
                 <p className="text-textSecondary text-sm leading-relaxed m-0">
-                  Message verified sellers directly through our secure chat system. Agree on a price, ask questions, or book an inspection with zero middleman markup.
+                  Send a booking request directly to the owner. Confirm dates, pay securely, and pick up your car — all through Rentica.
                 </p>
               </div>
               <Link to="/browse" className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 mt-6">
-                Contact sellers &rarr;
+                Contact owners &rarr;
               </Link>
             </div>
           </div>
@@ -582,10 +564,10 @@ const Home = () => {
                 </span>
               </div>
               <h2 className="text-h2 m-0">
-                Why People <span className="text-primary">Choose Us?</span>
+                Why People <span className="text-primary">Choose Rentica?</span>
               </h2>
               <p className="text-body text-sm leading-relaxed m-0">
-                Valora removes the guess-work and hidden fees of pre-owned vehicle buying by running every listing through our advanced machine learning and visual verification models.
+                Rentica makes car rentals simple, transparent, and trustworthy. No hidden costs, no surprise fees — just the right car at the right price.
               </p>
               <div className="pt-2">
                 <Link to="/browse">
@@ -615,7 +597,7 @@ const Home = () => {
                       Verified Listings
                     </h3>
                     <p className="text-textSecondary text-xs leading-relaxed m-0">
-                      Every vehicle is verified against national registry databases and regional logs before it ever goes public.
+                      Every car owner is identity-verified and their vehicle is confirmed before it appears on the platform.
                     </p>
                   </div>
                 </div>
@@ -635,7 +617,7 @@ const Home = () => {
                       Secure & Direct
                     </h3>
                     <p className="text-textSecondary text-xs leading-relaxed m-0">
-                      Communicate with sellers directly using our integrated real-time chat with no dealer commission or pushy markups.
+                      Communicate with owners directly using our integrated booking system with no agent commission or hidden markups.
                     </p>
                   </div>
                 </div>
@@ -652,10 +634,10 @@ const Home = () => {
                   </div>
                   <div className="space-y-1">
                     <h3 className="text-base font-semibold text-textPrimary m-0">
-                      AI Trust Score
+                      Transparent Rates
                     </h3>
                     <p className="text-textSecondary text-xs leading-relaxed m-0">
-                      A mathematical trust score between 0 and 100 generated from response times, inspection history, and fraud probability.
+                      Clear daily prices with no surprise charges. See exactly what you pay before you book.
                     </p>
                   </div>
                 </div>
@@ -696,10 +678,10 @@ const Home = () => {
           {/* Left Text */}
           <div className="w-full md:w-[48%] md:max-w-[340px] text-left">
             <h2 className="text-h2 m-0 mb-3">
-              Sell your car in minutes
+              List your car in minutes
             </h2>
             <p className="text-body text-sm m-0 leading-relaxed">
-              Reach over 2M buyers instantly. Get the best price for your vehicle.
+              Reach thousands of renters instantly. Earn daily rental income from your vehicle.
             </p>
           </div>
 
@@ -730,3 +712,4 @@ const Home = () => {
 };
 
 export default Home;
+

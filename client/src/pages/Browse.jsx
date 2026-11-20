@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
@@ -752,3 +752,4 @@ const Browse = () => {
 };
 
 export default Browse;
+

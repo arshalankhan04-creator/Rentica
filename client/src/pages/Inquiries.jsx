@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -30,10 +30,10 @@ const Inquiries = () => {
   useEffect(() => {
     if (!currentUserId) return;
     try {
-      const rawArchived = localStorage.getItem(`valora-archived-threads-${currentUserId}`);
+      const rawArchived = localStorage.getItem(`rentica-archived-threads-${currentUserId}`);
       if (rawArchived) setArchivedIds(JSON.parse(rawArchived));
       
-      const rawViewed = localStorage.getItem(`valora-last-viewed-${currentUserId}`);
+      const rawViewed = localStorage.getItem(`rentica-last-viewed-${currentUserId}`);
       if (rawViewed) setLastViewed(JSON.parse(rawViewed));
     } catch (err) {
       console.error('Error loading local thread states:', err);
@@ -48,7 +48,7 @@ const Inquiries = () => {
       setLoading(true);
       setError('');
       try {
-        const res = await api.get('/inquiries/mine');
+        const res = await api.get('/bookings/mine');
         setThreads(res.data);
       } catch (err) {
         console.error('Error fetching inquiries:', err);
@@ -76,11 +76,11 @@ const Inquiries = () => {
         setThread(res.data);
         
         // Update last viewed timestamp in local storage
-        const rawViewed = localStorage.getItem(`valora-last-viewed-${currentUserId}`);
+        const rawViewed = localStorage.getItem(`rentica-last-viewed-${currentUserId}`);
         const viewedMap = rawViewed ? JSON.parse(rawViewed) : {};
         const updated = { ...viewedMap, [id]: new Date().toISOString() };
         setLastViewed(updated);
-        localStorage.setItem(`valora-last-viewed-${currentUserId}`, JSON.stringify(updated));
+        localStorage.setItem(`rentica-last-viewed-${currentUserId}`, JSON.stringify(updated));
       } catch (err) {
         console.error('Error fetching thread details:', err);
       } finally {
@@ -101,7 +101,7 @@ const Inquiries = () => {
       // Update last viewed immediately to mark incoming messages as read
       const updated = { ...lastViewed, [id]: new Date().toISOString() };
       setLastViewed(updated);
-      localStorage.setItem(`valora-last-viewed-${currentUserId}`, JSON.stringify(updated));
+      localStorage.setItem(`rentica-last-viewed-${currentUserId}`, JSON.stringify(updated));
     } catch (err) {
       console.error('Error refetching messages:', err);
     }
@@ -129,7 +129,7 @@ const Inquiries = () => {
       await refetchMessagesOnly();
       
       // Update list of threads to bubble the current thread to the top and refresh snippet
-      const res = await api.get('/inquiries/mine');
+      const res = await api.get('/bookings/mine');
       setThreads(res.data);
     } catch (err) {
       console.error('Error sending reply:', err);
@@ -148,7 +148,7 @@ const Inquiries = () => {
       nextArchived = [...archivedIds, id.toString()];
     }
     setArchivedIds(nextArchived);
-    localStorage.setItem(`valora-archived-threads-${currentUserId}`, JSON.stringify(nextArchived));
+    localStorage.setItem(`rentica-archived-threads-${currentUserId}`, JSON.stringify(nextArchived));
   };
 
   if (authLoading) {
@@ -309,7 +309,7 @@ const Inquiries = () => {
     })
     .sort((a, b) => new Date(b.thread.updatedAt).getTime() - new Date(a.thread.updatedAt).getTime());
 
-  // Render tab pill matching Valora's design tokens with compact sizing fitting search bar width
+  // Render tab pill matching Rentica's design tokens with compact sizing fitting search bar width
   const renderTabPill = (tabId, label, count, iconSvg) => {
     const isActive = activeTab === tabId;
     return (
@@ -344,9 +344,9 @@ const Inquiries = () => {
     ? (thread.listing.images[0].startsWith('http') ? thread.listing.images[0] : `http://localhost:5000/${thread.listing.images[0]}`)
     : null;
   const activeListingCity = thread ? getListingCity(thread.listing) : 'Bengaluru';
-  const activeListingPrice = thread?.listing ? `₹${(thread.listing.price / 100000).toFixed(2)} L` : 'N/A';
+  const activeListingPrice = thread?.listing ? `${thread.listing.pricePerDay || thread.listing.price || "N/A"}/day` : "N/A";
   const activeListingKm = thread?.listing?.kmDriven ? `${thread.listing.kmDriven.toLocaleString()} km` : 'N/A km';
-  const activeTrustScore = thread?.listing?.trustScore !== null && thread?.listing?.trustScore !== undefined ? `Trust ${thread.listing.trustScore}` : 'Trust N/A';
+  const activeTrustScore = null;
 
   const isCurrentThreadArchived = id && archivedIds.includes(id.toString());
 
@@ -443,7 +443,7 @@ const Inquiries = () => {
                   const vehicleName = t.listing 
                     ? `${t.listing.brand} ${t.listing.model}` 
                     : 'Deleted Vehicle';
-                  const priceStr = t.listing ? ` · ₹${(t.listing.price / 100000).toFixed(2)} L` : '';
+                  const priceStr = t.listing ? ` Â· â‚¹${(t.listing.price / 100000).toFixed(2)} L` : '';
                   const snippet = lastMsg ? lastMsg.text : 'No messages yet';
                   const isActive = id && t._id.toString() === id.toString();
                   const dbImg = t.listing?.images?.[0];
@@ -556,11 +556,11 @@ const Inquiries = () => {
                         </Link>
                         <div className="flex flex-wrap items-center mt-1 leading-none text-[11px] text-gray-500 font-bold gap-x-2 gap-y-1">
                           <span className="text-primary font-extrabold">{activeListingPrice}</span>
-                          <span className="text-border select-none">·</span>
+                          <span className="text-border select-none">Â·</span>
                           <span>{activeListingKm}</span>
-                          <span className="text-border select-none">·</span>
+                          <span className="text-border select-none">Â·</span>
                           <span>{activeListingCity}</span>
-                          <span className="text-border select-none">·</span>
+                          <span className="text-border select-none">Â·</span>
                           
                           {/* Trust Score badge */}
                           <span className="px-2 py-0.5 rounded-full border border-successBorder bg-successLight text-success text-[10px] font-bold inline-flex items-center gap-1">
@@ -811,3 +811,6 @@ const Inquiries = () => {
 };
 
 export default Inquiries;
+
+
+

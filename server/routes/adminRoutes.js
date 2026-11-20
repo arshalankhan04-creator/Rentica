@@ -3,7 +3,6 @@ const router = express.Router();
 const {
   getAdminStats,
   getPendingListings,
-  getFlaggedListings,
   approveListing,
   rejectListing,
   getAllListings
@@ -20,9 +19,6 @@ router.get('/stats', getAdminStats);
 
 // GET /api/admin/pending
 router.get('/pending', getPendingListings);
-
-// GET /api/admin/flagged
-router.get('/flagged', getFlaggedListings);
 
 // GET /api/admin/listings
 router.get('/listings', getAllListings);

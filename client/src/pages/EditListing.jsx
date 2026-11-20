@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -24,7 +24,7 @@ const EditListing = () => {
   const [transmission, setTransmission] = useState('Manual');
   const [bodyType, setBodyType] = useState('SUV');
   const [location, setLocation] = useState('');
-  const [price, setPrice] = useState('');
+  const [pricePerDay, setPricePerDay] = useState('');
   const [description, setDescription] = useState('');
 
   // New Image States
@@ -62,7 +62,7 @@ const EditListing = () => {
       setTransmission(data.transmission);
       setBodyType(data.bodyType || 'SUV');
       setLocation(data.location || '');
-      setPrice(data.price);
+      setPricePerDay(data.pricePerDay || data.price);
       setDescription(data.description || '');
     } catch (err) {
       console.error('Fetch listing error:', err);
@@ -72,49 +72,7 @@ const EditListing = () => {
     }
   };
 
-  useEffect(() => {
-    fetchListing();
-  }, [id]);
-
-  useEffect(() => {
-    const hasVehicleDetails = brand.trim() && model.trim() && year && kmDriven !== '' && fuelType && transmission && user;
-    if (!hasVehicleDetails) {
-      setAiEstimate(null);
-      setAiError('');
-      setAiLoading(false);
-      return;
-    }
-
-    const currentYear = new Date().getFullYear();
-    const numericYear = Number(year);
-    const numericKm = Number(kmDriven);
-    if (numericYear < 1900 || numericYear > currentYear + 1 || numericKm < 0) {
-      return;
-    }
-
-    const timeoutId = setTimeout(async () => {
-      setAiLoading(true);
-      setAiError('');
-      try {
-        const res = await api.post('/ml/predict-price', {
-          brand: brand.trim(),
-          model: model.trim(),
-          year: numericYear,
-          kmDriven: numericKm,
-          fuelType,
-          transmission
-        });
-        setAiEstimate(res.data);
-      } catch (err) {
-        setAiEstimate(null);
-        setAiError(err.response?.data?.message || 'AI estimate unavailable');
-      } finally {
-        setAiLoading(false);
-      }
-    }, 600);
-
-    return () => clearTimeout(timeoutId);
-  }, [brand, model, year, kmDriven, fuelType, transmission, user]);
+  // ML price prediction removed
 
   // Cleanup object URLs to prevent memory leaks
   useEffect(() => {
@@ -144,14 +102,14 @@ const EditListing = () => {
     );
   }
 
-  // Helper to extract string representation of seller ID
-  const getSellerId = (seller) => {
-    if (!seller) return '';
-    if (typeof seller === 'object') return seller._id || '';
-    return seller;
+  // Helper to extract string representation of owner ID
+  const getSellerId = (owner) => {
+    if (!owner) return '';
+    if (typeof owner === 'object') return owner._id || '';
+    return owner;
   };
 
-  const sellerId = getSellerId(listing?.seller);
+  const sellerId = getSellerId(listing?.owner);
   const userId = user ? (user._id || user.id || '') : '';
   const isOwnListing = userId && sellerId && sellerId.toString() === userId.toString();
 
@@ -230,10 +188,10 @@ const EditListing = () => {
       tempErrors.kmDriven = 'Kilometers driven cannot be negative';
     }
 
-    if (!price) {
-      tempErrors.price = 'Price is required';
-    } else if (Number(price) <= 0) {
-      tempErrors.price = 'Price must be greater than 0';
+    if (!pricePerDay) {
+      tempErrors.pricePerDay = 'Price is required';
+    } else if (Number(pricePerDay) <= 0) {
+      tempErrors.pricePerDay = 'Price must be greater than 0';
     }
 
     setErrors(tempErrors);
@@ -364,7 +322,7 @@ const EditListing = () => {
         transmission,
         bodyType: bodyType.trim(),
         location: location.trim(),
-        price: Number(price),
+        pricePerDay: Number(pricePerDay),
         description: description.trim()
       });
       navigate(`/listings/${id}`);
@@ -825,7 +783,7 @@ const EditListing = () => {
                 <div className="bg-muted/30 border border-border rounded-2xl p-6 space-y-4">
                   <div>
                     <label htmlFor="price" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
-                      Your Asking Price (₹) *
+                      Price Per Day (\$) *
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-xs font-semibold text-textSecondary select-none">
@@ -834,32 +792,32 @@ const EditListing = () => {
                       <input
                         id="price"
                         type="number"
-                        placeholder="Enter your price"
-                        value={price}
+                        placeholder="Enter daily rental price"
+                        value={pricePerDay}
                         onChange={(e) => {
-                          setPrice(e.target.value);
-                          if (errors.price) setErrors(prev => ({ ...prev, price: '' }));
+                          setPricePerDay(e.target.value);
+                          if (errors.pricePerDay) setErrors(prev => ({ ...prev, pricePerDay: '' }));
                         }}
                         onBlur={() => {
-                          if (!price) {
-                            setErrors(prev => ({ ...prev, price: 'Price is required' }));
-                          } else if (Number(price) <= 0) {
-                            setErrors(prev => ({ ...prev, price: 'Price must be greater than 0' }));
+                          if (!pricePerDay) {
+                            setErrors(prev => ({ ...prev, pricePerDay: 'Price is required' }));
+                          } else if (Number(pricePerDay) <= 0) {
+                            setErrors(prev => ({ ...prev, pricePerDay: 'Price must be greater than 0' }));
                           }
                         }}
                         className={`w-full bg-surface border rounded-xl pl-8 pr-4 py-3 text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
-                          errors.price ? 'border-danger focus:ring-danger/30' : 'border-border'
+                          errors.pricePerDay ? 'border-danger focus:ring-danger/30' : 'border-border'
                         }`}
                         required
                       />
                     </div>
-                    {errors.price && (
+                    {errors.pricePerDay && (
                       <span className="text-[10px] font-bold text-danger mt-1.5 block">
-                        {errors.price}
+                        {errors.pricePerDay}
                       </span>
                     )}
                     <span className="text-[10px] font-semibold text-textSecondary mt-2 block select-none">
-                      ℹ Based on current market data, setting a price near the AI estimate increases sale speed by 40%.
+                      ℹ Based on current market data, setting a price near the AI estimate attracts more renters.
                     </span>
                   </div>
                 </div>
@@ -1015,3 +973,5 @@ const EditListing = () => {
 };
 
 export default EditListing;
+
+

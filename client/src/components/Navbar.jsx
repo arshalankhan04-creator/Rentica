@@ -21,12 +21,12 @@ const Navbar = () => {
       return;
     }
     try {
-      const res = await api.get('/inquiries/mine');
+      const res = await api.get('/bookings/mine');
       const threads = res.data || [];
 
       let rawViewed = null;
       try {
-        rawViewed = localStorage.getItem(`valora-last-viewed-${currentUserId}`);
+        rawViewed = localStorage.getItem(`rentica-last-viewed-${currentUserId}`);
       } catch (_) {}
       const lastViewed = rawViewed ? JSON.parse(rawViewed) : {};
 
@@ -97,14 +97,14 @@ const Navbar = () => {
             className="text-2xl no-underline tracking-wide"
             style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
           >
-            Valora
+            Rentica
           </Link>
         </div>
 
         {/* Center: Nav links (Visually & Mathematically Centered) */}
         <div className="hidden md:flex flex-1 items-center justify-center gap-8">
           <Link to="/browse" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
-            Buy
+            Rent
           </Link>
           <Link to="/compare" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
             Compare
@@ -115,14 +115,14 @@ const Navbar = () => {
               if (!user) {
                 e.preventDefault();
                 showAuthModal('login', () => navigate('/create-listing'), {
-                  title: 'Sell Your Car',
-                  description: 'Log in or sign up to register your vehicle and list it on Valora.'
+                  title: 'List Your Car',
+                  description: 'Log in or sign up to register your vehicle and list it on Rentica.'
                 });
               }
             }}
             className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm"
           >
-            Sell
+            List
           </Link>
           <Link to="/about" className="text-textSecondary hover:text-primary font-semibold no-underline transition-colors text-sm">
             About
@@ -136,17 +136,17 @@ const Navbar = () => {
             onClick={(e) => {
               if (!user) {
                 e.preventDefault();
-                showAuthModal('login', () => navigate('/inquiries'), {
-                  title: 'Messages & Inquiries',
-                  description: 'Log in to view your messages and chat with vehicle sellers.'
+                showAuthModal('login', () => navigate('/bookings'), {
+                  title: 'Messages & Bookings',
+                  description: 'Log in to view your bookings and chat with vehicle owners.'
                 });
               } else {
-                navigate('/inquiries');
+                navigate('/bookings');
               }
             }}
             className="relative flex items-center justify-center w-9 h-9 rounded-full bg-surface border border-border/70 text-textSecondary hover:text-primary hover:border-primary/40 hover:bg-background transition-all cursor-pointer focus:outline-none shadow-xs"
-            title="Messages & Inquiries"
-            aria-label="Messages & Inquiries"
+            title="Messages & Bookings"
+            aria-label="Messages & Bookings"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-1.049-.85 5.97 5.97 0 011.08-1.785A7.95 7.95 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />

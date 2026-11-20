@@ -52,7 +52,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/create-listing" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                  Sell Your Car
+                  List Your Car
                 </Link>
               </li>
               <li>
@@ -72,12 +72,12 @@ const Footer = () => {
           {/* Column 2 (4 cols): TRUST & INTELLIGENCE */}
           <div className="md:col-span-4 flex flex-col">
             <span className="text-[11px] font-bold uppercase tracking-wider text-textSecondary mb-4 select-none">
-              Trust & Intelligence
+              Rentica
             </span>
             <ul className="list-none p-0 m-0 space-y-3">
               <li>
                 <Link to="/about" className="text-xs font-semibold text-textSecondary hover:text-primary transition-colors duration-200 no-underline">
-                  About Valora AI
+                  About Rentica
                 </Link>
               </li>
             </ul>
@@ -89,7 +89,7 @@ const Footer = () => {
               Stay Connected
             </span>
             <p className="text-xs font-medium text-textSecondary leading-relaxed m-0 mb-3">
-              Get price drop alerts and newly verified vehicle listings via email.
+              Get availability updates and new rental listings via email.
             </p>
 
             <form onSubmit={handleSubscribe} className="flex items-center gap-2 max-w-md">
@@ -126,7 +126,7 @@ const Footer = () => {
             className="text-[6.5rem] sm:text-[10rem] md:text-[13rem] lg:text-[16rem] uppercase m-0 leading-none text-center"
             style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500, letterSpacing: '0.05em' }}
           >
-            Valora
+            Rentica
           </div>
         </div>
       </div>

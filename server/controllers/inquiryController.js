@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const Inquiry = require('../models/Inquiry');
 const Listing = require('../models/Listing');
 const sendEmail = require('../utils/sendEmail');
@@ -60,8 +60,8 @@ const createInquiry = async (req, res, next) => {
         const buyerName = req.user.name || 'A buyer';
         await sendEmail({
           to: listing.seller.email,
-          subject: `Valora - New Inquiry on your ${listing.brand} ${listing.model}`,
-          text: `Hello ${listing.seller.name},\n\nYou have received a new inquiry from ${buyerName} regarding your vehicle listing: ${listing.brand} ${listing.model}.\n\nMessage:\n"${text}"\n\nPlease log in to the Valora app to reply to this message.\n\nBest regards,\nThe Valora Team`
+          subject: `Rentica - New Inquiry on your ${listing.brand} ${listing.model}`,
+          text: `Hello ${listing.seller.name},\n\nYou have received a new inquiry from ${buyerName} regarding your vehicle listing: ${listing.brand} ${listing.model}.\n\nMessage:\n"${text}"\n\nPlease log in to the Rentica app to reply to this message.\n\nBest regards,\nThe Rentica Team`
         });
         console.log(`Inquiry notification email sent to ${listing.seller.email} successfully.`);
       } catch (err) {
@@ -186,3 +186,4 @@ module.exports = {
   getInquiryById,
   addMessageToInquiry
 };
+

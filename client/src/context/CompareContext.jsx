@@ -1,10 +1,10 @@
-import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
+﻿import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
 import CompareToast from '../components/CompareToast';
 
 const CompareContext = createContext(null);
 
-const LS_SLOTS   = 'valora_compare_slots';
-const LS_HISTORY = 'valora_compare_history';
+const LS_SLOTS   = 'rentica_compare_slots';
+const LS_HISTORY = 'rentica_compare_history';
 export const MAX_COMPARE = 3;
 const MAX_HISTORY = 10;
 
@@ -199,3 +199,4 @@ export const CompareProvider = ({ children }) => {
 };
 
 export const useCompare = () => useContext(CompareContext);
+

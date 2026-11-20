@@ -1,11 +1,11 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 
 const testUploads = async () => {
   const authUrl = 'http://localhost:5000/api/auth';
   const listingsUrl = 'http://localhost:5000/api/listings';
 
-  const sellerEmail = `seller_uploads_${Date.now()}@valora.com`;
+  const sellerEmail = `seller_uploads_${Date.now()}@rentica.com`;
   const password = 'securepassword123';
   let sellerToken = '';
   let listingId = '';
@@ -344,4 +344,5 @@ const testUploads = async () => {
 };
 
 testUploads();
+
 

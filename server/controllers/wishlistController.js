@@ -90,7 +90,7 @@ const getWishlist = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).populate({
       path: 'savedListings',
-      populate: { path: 'seller', select: 'name' }
+      populate: { path: 'owner', select: 'name' }
     });
 
     if (!user) {

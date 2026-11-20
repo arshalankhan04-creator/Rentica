@@ -1,7 +1,7 @@
 {
-  "name": "valora-server",
+  "name": "rentica-server",
   "version": "1.0.0",
-  "description": "Node/Express backend server for Valora",
+  "description": "Rentica Car Rental Marketplace API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

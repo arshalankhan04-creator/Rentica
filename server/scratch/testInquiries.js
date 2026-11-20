@@ -1,11 +1,11 @@
-const testInquiries = async () => {
+﻿const testInquiries = async () => {
   const authUrl = 'http://localhost:5000/api/auth';
   const listingsUrl = 'http://localhost:5000/api/listings';
   const inquiriesUrl = 'http://localhost:5000/api/inquiries';
 
-  const sellerAEmail = `seller_a_${Date.now()}@valora.com`;
-  const sellerBEmail = `seller_b_${Date.now()}@valora.com`;
-  const buyerEmail = `buyer_${Date.now()}@valora.com`;
+  const sellerAEmail = `seller_a_${Date.now()}@rentica.com`;
+  const sellerBEmail = `seller_b_${Date.now()}@rentica.com`;
+  const buyerEmail = `buyer_${Date.now()}@rentica.com`;
   const password = 'securepassword123';
 
   let sellerAToken, sellerBToken, buyerToken;
@@ -305,3 +305,4 @@ const testInquiries = async () => {
 };
 
 testInquiries();
+

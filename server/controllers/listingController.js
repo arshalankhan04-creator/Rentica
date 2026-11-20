@@ -21,7 +21,7 @@ const deletePhysicalFiles = (files) => {
 
 // @desc    Create a new listing
 // @route   POST /api/listings
-// @access  Private (Seller only)
+// @access  Private (Owner only)
 const createListing = async (req, res, next) => {
   const uploadedFiles = req.files ? req.files.map(file => `uploads/${file.filename}`) : [];
   try {
@@ -34,12 +34,14 @@ const createListing = async (req, res, next) => {
       transmission,
       bodyType,
       location,
-      price,
+      pricePerDay,
+      availableFrom,
+      availableTo,
       description
     } = req.body;
 
     // Validate required fields
-    if (!brand || !model || !year || !kmDriven || !fuelType || !transmission || !bodyType || !location || price === undefined) {
+    if (!brand || !model || !year || !kmDriven || !fuelType || !transmission || !bodyType || !location || pricePerDay === undefined) {
       deletePhysicalFiles(uploadedFiles);
       return res.status(400).json({ message: 'Please provide all required fields' });
     }
@@ -62,12 +64,12 @@ const createListing = async (req, res, next) => {
 
     const numYear = Number(year);
     const numKm = Number(kmDriven);
-    const numPrice = Number(price);
+    const numPricePerDay = Number(pricePerDay);
 
     const initialStatus = 'pending_review';
 
-    const listing = await Listing.create({
-      seller: req.user.id,
+    const listingData = {
+      owner: req.user.id,
       brand,
       model,
       year: numYear,
@@ -76,13 +78,18 @@ const createListing = async (req, res, next) => {
       transmission,
       bodyType,
       location,
-      price: numPrice,
+      pricePerDay: numPricePerDay,
       description,
       images: uploadedFiles,
       status: initialStatus
-    });
+    };
 
-    // Trigger email notification if listing is sent to Awaiting Review queue
+    if (availableFrom) listingData.availableFrom = new Date(availableFrom);
+    if (availableTo) listingData.availableTo = new Date(availableTo);
+
+    const listing = await Listing.create(listingData);
+
+    // Trigger email notification
     if (initialStatus === 'pending_review' && req.user && req.user.email) {
       sendUnderReviewEmail(req.user.email, req.user.name, `${brand} ${model}`, []);
     }
@@ -135,23 +142,15 @@ const getListings = async (req, res, next) => {
       }
     }
     
-    // Price range filtering
+    // Price per day range filtering
     if (req.query.minPrice || req.query.maxPrice) {
-      queryObj.price = {};
+      queryObj.pricePerDay = {};
       if (req.query.minPrice) {
-        queryObj.price.$gte = Number(req.query.minPrice);
+        queryObj.pricePerDay.$gte = Number(req.query.minPrice);
       }
       if (req.query.maxPrice) {
-        queryObj.price.$lte = Number(req.query.maxPrice);
+        queryObj.pricePerDay.$lte = Number(req.query.maxPrice);
       }
-    }
-
-    // Trust Score and Risk Flag filtering
-    if (req.query.minTrustScore) {
-      queryObj.trustScore = { $gte: Number(req.query.minTrustScore) };
-    }
-    if (req.query.riskFlag) {
-      queryObj.riskFlag = req.query.riskFlag;
     }
 
     // By default, public GET listings should show active listings
@@ -162,11 +161,9 @@ const getListings = async (req, res, next) => {
     // Sorting
     if (req.query.sort) {
       if (req.query.sort === 'price') {
-        query = query.sort({ price: 1, createdAt: -1 });
+        query = query.sort({ pricePerDay: 1, createdAt: -1 });
       } else if (req.query.sort === '-price') {
-        query = query.sort({ price: -1, createdAt: -1 });
-      } else if (req.query.sort === 'trustScore') {
-        query = query.sort({ trustScore: -1, createdAt: -1 });
+        query = query.sort({ pricePerDay: -1, createdAt: -1 });
       } else if (req.query.sort === 'createdAt') {
         query = query.sort({ createdAt: 1 });
       } else {
@@ -177,7 +174,7 @@ const getListings = async (req, res, next) => {
       query = query.sort({ createdAt: -1 });
     }
 
-    const listings = await query.populate('seller', 'name');
+    const listings = await query.populate('owner', 'name');
     res.json(listings);
   } catch (error) {
     next(error);
@@ -196,21 +193,21 @@ const getListingById = async (req, res, next) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    const listing = await Listing.findById(id).populate('seller', 'name');
+    const listing = await Listing.findById(id).populate('owner', 'name');
 
     if (!listing) {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
     const listingObj = listing.toObject();
-    if (listingObj.seller && listingObj.seller._id) {
-      const sellerId = listingObj.seller._id;
-      const [listedCount, soldCount] = await Promise.all([
-        Listing.countDocuments({ seller: sellerId }),
-        Listing.countDocuments({ seller: sellerId, status: 'sold' })
+    if (listingObj.owner && listingObj.owner._id) {
+      const ownerId = listingObj.owner._id;
+      const [listedCount, rentedCount] = await Promise.all([
+        Listing.countDocuments({ owner: ownerId }),
+        Listing.countDocuments({ owner: ownerId, status: 'rented' })
       ]);
-      listingObj.seller.listedCount = listedCount;
-      listingObj.seller.soldCount = soldCount;
+      listingObj.owner.listedCount = listedCount;
+      listingObj.owner.rentedCount = rentedCount;
     }
 
     res.json(listingObj);
@@ -238,7 +235,7 @@ const updateListing = async (req, res, next) => {
     }
 
     // Ownership check
-    if (listing.seller.toString() !== req.user.id) {
+    if (listing.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this listing' });
     }
 
@@ -251,20 +248,12 @@ const updateListing = async (req, res, next) => {
       transmission,
       bodyType,
       location,
-      price,
+      pricePerDay,
+      availableFrom,
+      availableTo,
       description,
       status
     } = req.body;
-
-    const shouldRefreshML = [
-      'brand',
-      'model',
-      'year',
-      'kmDriven',
-      'fuelType',
-      'transmission',
-      'price'
-    ].some((field) => req.body[field] !== undefined);
 
     // Update fields if provided
     if (brand !== undefined) listing.brand = brand;
@@ -290,26 +279,15 @@ const updateListing = async (req, res, next) => {
       listing.bodyType = bodyType;
     }
     if (location) listing.location = location;
-    if (price !== undefined) listing.price = Number(price);
+    if (pricePerDay !== undefined) listing.pricePerDay = Number(pricePerDay);
+    if (availableFrom !== undefined) listing.availableFrom = availableFrom ? new Date(availableFrom) : null;
+    if (availableTo !== undefined) listing.availableTo = availableTo ? new Date(availableTo) : null;
     if (description !== undefined) listing.description = description;
     if (status) {
-      if (!['active', 'pending_review', 'sold', 'rejected'].includes(status)) {
+      if (!['active', 'pending_review', 'rented', 'rejected'].includes(status)) {
         return res.status(400).json({ message: 'Invalid status value' });
       }
       listing.status = status;
-    }
-
-    if (shouldRefreshML) {
-      const mlFields = await getMLFieldsForListing({
-        brand: listing.brand,
-        model: listing.model,
-        year: listing.year,
-        kmDriven: listing.kmDriven,
-        fuelType: listing.fuelType,
-        transmission: listing.transmission,
-        price: listing.price
-      });
-      Object.assign(listing, mlFields);
     }
 
     const updatedListing = await listing.save();
@@ -338,7 +316,7 @@ const deleteListing = async (req, res, next) => {
     }
 
     // Ownership check
-    if (listing.seller.toString() !== req.user.id) {
+    if (listing.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this listing' });
     }
 
@@ -352,12 +330,12 @@ const deleteListing = async (req, res, next) => {
   }
 };
 
-// @desc    Get logged-in seller's listings
+// @desc    Get logged-in owner's listings
 // @route   GET /api/listings/mine
-// @access  Private (Seller only)
+// @access  Private (Owner only)
 const getMyListings = async (req, res, next) => {
   try {
-    const listings = await Listing.find({ seller: req.user.id }).sort({ createdAt: -1 });
+    const listings = await Listing.find({ owner: req.user.id }).sort({ createdAt: -1 });
     res.json(listings);
   } catch (error) {
     next(error);
@@ -385,7 +363,7 @@ const addListingImages = async (req, res, next) => {
     }
 
     // Ownership check
-    if (listing.seller.toString() !== req.user.id) {
+    if (listing.owner.toString() !== req.user.id) {
       deletePhysicalFiles(uploadedFiles);
       return res.status(403).json({ message: 'Not authorized to update this listing' });
     }
@@ -427,7 +405,7 @@ const deleteListingImage = async (req, res, next) => {
     }
 
     // Ownership check
-    if (listing.seller.toString() !== req.user.id) {
+    if (listing.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to modify this listing' });
     }
 

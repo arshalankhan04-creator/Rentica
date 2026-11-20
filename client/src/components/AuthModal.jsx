@@ -19,8 +19,8 @@ const AuthModal = ({ mode: initialMode, onClose, onSuccess }) => {
   // Dynamic headers based on action or mode
   const defaultTitle = mode === 'login' ? 'Welcome Back' : 'Create an Account';
   const defaultDesc = mode === 'login' 
-    ? 'Sign in to access your dashboard and message sellers' 
-    : 'Register to list vehicles, manage inquiries, and track favorites';
+    ? 'Sign in to access your dashboard and message owners' 
+    : 'Register to list vehicles, manage bookings, and track favorites';
 
   const displayTitle = authModalCustomContent?.title || defaultTitle;
   const displayDesc = authModalCustomContent?.description || defaultDesc;
@@ -89,7 +89,7 @@ const AuthModal = ({ mode: initialMode, onClose, onSuccess }) => {
             className="text-2xl tracking-wide select-none"
             style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-primary)', fontWeight: 500 }}
           >
-            Valora
+            Rentica
           </span>
           <h3 className="text-lg font-bold text-textPrimary m-0 mt-2 select-none">
             {displayTitle}

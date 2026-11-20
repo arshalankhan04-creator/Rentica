@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+﻿const crypto = require('crypto');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
@@ -144,7 +144,7 @@ const forgotPassword = async (req, res, next) => {
     try {
       await sendEmail({
         to: user.email,
-        subject: 'Valora - Password Reset Request',
+        subject: 'Rentica - Password Reset Request',
         text: message
       });
 
@@ -216,8 +216,8 @@ const subscribeAlerts = async (req, res, next) => {
     if (sendEmailFn) {
       await sendEmailFn({
         to: email,
-        subject: '[Valora] Price Drop & Verified Vehicle Alerts Activated',
-        text: `Hi,\n\nThank you for subscribing to Valora price drop alerts! You will now receive instant email notifications whenever prices drop on verified cars.\n\nBest regards,\nValora Team`
+        subject: '[Rentica] New Rental Alerts Activated',
+        text: `Hi,\n\nThank you for subscribing to Rentica rental alerts! You will now receive instant email notifications whenever new rental vehicles are listed near you.\n\nBest regards,\nRentica Team`
       });
     }
 
@@ -235,3 +235,4 @@ module.exports = {
   resetPassword,
   subscribeAlerts
 };
+

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const User = require('../models/User');
@@ -10,7 +10,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/valora';
+    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/rentica';
     console.log('Connecting to MongoDB...');
     await mongoose.connect(mongoUri);
     console.log('MongoDB Connected.');
@@ -27,7 +27,7 @@ const seedDatabase = async () => {
     const usersData = [
       {
         name: 'Arsalaan Khan',
-        email: 'seller@valora.com',
+        email: 'seller@rentica.com',
         password: '123',
         role: 'user',
         phone: '+919876543210',
@@ -36,7 +36,7 @@ const seedDatabase = async () => {
       },
       {
         name: 'Rahul Sharma',
-        email: 'rahul.sharma@valora.com',
+        email: 'rahul.sharma@rentica.com',
         password: '123',
         role: 'user',
         phone: '+919811223344',
@@ -45,7 +45,7 @@ const seedDatabase = async () => {
       },
       {
         name: 'Priya Patel',
-        email: 'priya.patel@valora.com',
+        email: 'priya.patel@rentica.com',
         password: '123',
         role: 'user',
         phone: '+919822334455',
@@ -54,7 +54,7 @@ const seedDatabase = async () => {
       },
       {
         name: 'Vikramaditya Singh',
-        email: 'vikram.singh@valora.com',
+        email: 'vikram.singh@rentica.com',
         password: '123',
         role: 'user',
         phone: '+919833445566',
@@ -63,7 +63,7 @@ const seedDatabase = async () => {
       },
       {
         name: 'Ananya Iyer',
-        email: 'ananya.iyer@valora.com',
+        email: 'ananya.iyer@rentica.com',
         password: '123',
         role: 'user',
         phone: '+919844556677',
@@ -71,8 +71,8 @@ const seedDatabase = async () => {
         pastDealsCount: 18
       },
       {
-        name: 'Valora Admin',
-        email: 'admin@valora.com',
+        name: 'rentica Admin',
+        email: 'admin@rentica.com',
         password: '123',
         role: 'admin',
         phone: '+919999999999',
@@ -93,7 +93,7 @@ const seedDatabase = async () => {
     // Uses real dataset images from data1 (healthy_car_X.jpg and damaged_car_X.jpg)
     const rawListings = [
       {
-        sellerEmail: 'seller@valora.com',
+        sellerEmail: 'seller@rentica.com',
         brand: 'Mercedes-Benz',
         model: 'E-Class E200',
         year: 2021,
@@ -108,7 +108,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'rahul.sharma@valora.com',
+        sellerEmail: 'rahul.sharma@rentica.com',
         brand: 'Hyundai',
         model: 'i20 Asta',
         year: 2020,
@@ -123,7 +123,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'priya.patel@valora.com',
+        sellerEmail: 'priya.patel@rentica.com',
         brand: 'Audi',
         model: 'A4 35 TDI',
         year: 2019,
@@ -138,7 +138,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'vikram.singh@valora.com',
+        sellerEmail: 'vikram.singh@rentica.com',
         brand: 'BMW',
         model: '3 Series 320d',
         year: 2018,
@@ -153,7 +153,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'ananya.iyer@valora.com',
+        sellerEmail: 'ananya.iyer@rentica.com',
         brand: 'Toyota',
         model: 'Fortuner 4x4',
         year: 2022,
@@ -168,7 +168,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'rahul.sharma@valora.com',
+        sellerEmail: 'rahul.sharma@rentica.com',
         brand: 'Honda',
         model: 'City V',
         year: 2022,
@@ -183,7 +183,7 @@ const seedDatabase = async () => {
         status: 'pending_review' // Auto-flagged high risk
       },
       {
-        sellerEmail: 'priya.patel@valora.com',
+        sellerEmail: 'priya.patel@rentica.com',
         brand: 'Maruti Suzuki',
         model: 'Swift ZXi',
         year: 2023,
@@ -198,7 +198,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'vikram.singh@valora.com',
+        sellerEmail: 'vikram.singh@rentica.com',
         brand: 'Mahindra',
         model: 'Thar CRDe 4x4',
         year: 2017,
@@ -213,7 +213,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'ananya.iyer@valora.com',
+        sellerEmail: 'ananya.iyer@rentica.com',
         brand: 'Kia',
         model: 'Seltos GTX Plus',
         year: 2021,
@@ -228,7 +228,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'seller@valora.com',
+        sellerEmail: 'seller@rentica.com',
         brand: 'Toyota',
         model: 'Innova Crysta 2.4 Z',
         year: 2016,
@@ -243,7 +243,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'rahul.sharma@valora.com',
+        sellerEmail: 'rahul.sharma@rentica.com',
         brand: 'Tata',
         model: 'Nexon EV Max',
         year: 2023,
@@ -258,7 +258,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'vikram.singh@valora.com',
+        sellerEmail: 'vikram.singh@rentica.com',
         brand: 'Ford',
         model: 'Mustang GT 5.0 V8',
         year: 2019,
@@ -273,7 +273,7 @@ const seedDatabase = async () => {
         status: 'active'
       },
       {
-        sellerEmail: 'priya.patel@valora.com',
+        sellerEmail: 'priya.patel@rentica.com',
         brand: 'Volkswagen',
         model: 'Polo GT TSI',
         year: 2020,
@@ -289,7 +289,7 @@ const seedDatabase = async () => {
         rejectionReason: 'Invalid vehicle registration document provided during moderation review.'
       },
       {
-        sellerEmail: 'ananya.iyer@valora.com',
+        sellerEmail: 'ananya.iyer@rentica.com',
         brand: 'Hyundai',
         model: 'Creta SX(O)',
         year: 2021,
@@ -362,3 +362,4 @@ const seedDatabase = async () => {
 };
 
 seedDatabase();
+

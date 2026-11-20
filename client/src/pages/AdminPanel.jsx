@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -16,7 +16,7 @@ const AdminPanel = () => {
     activeListings: 0,
     totalUsers: 0,
     awaitingReview: 0,
-    flaggedRisk: 0
+    
   });
 
   const [listings, setListings] = useState([]);
@@ -44,7 +44,7 @@ const AdminPanel = () => {
     setError('');
     try {
       let endpoint = '/admin/pending';
-      if (activeTab === 'flagged') endpoint = '/admin/flagged';
+      // Flagged tab removed
       if (activeTab === 'all') endpoint = '/admin/listings';
 
       const res = await api.get(`${endpoint}?page=${page}&limit=${LIMIT}`);
@@ -164,7 +164,7 @@ const AdminPanel = () => {
     switch (status) {
       case 'active':
         return <Badge variant="success">Active</Badge>;
-      case 'sold':
+      case 'rented':
         return <Badge variant="primary">Sold</Badge>;
       case 'rejected':
         return <Badge variant="danger">Rejected</Badge>;
@@ -191,7 +191,7 @@ const AdminPanel = () => {
               </Badge>
             </div>
             <p className="text-xs md:text-sm font-medium text-textSecondary mt-1.5 m-0 max-w-2xl">
-              Moderate vehicle listings, review flagged risk content, and manage vehicle status across Valora.
+              Moderate vehicle listings, review pending listings, and manage vehicle status across Rentica.
             </p>
           </div>
 
@@ -477,7 +477,7 @@ const AdminPanel = () => {
                                     </Button>
                                   </Link>
 
-                                  {listing.status !== 'active' && listing.status !== 'sold' && (
+                                  {listing.status !== 'active' && listing.status !== 'rented' && (
                                     <Button
                                       variant="primary"
                                       size="sm"
@@ -488,7 +488,7 @@ const AdminPanel = () => {
                                     </Button>
                                   )}
 
-                                  {listing.status !== 'rejected' && listing.status !== 'sold' && (
+                                  {listing.status !== 'rejected' && listing.status !== 'rented' && (
                                     <Button
                                       variant="danger"
                                       size="sm"
@@ -550,4 +550,7 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+
+
+
 

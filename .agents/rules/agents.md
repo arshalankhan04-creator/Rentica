@@ -1,17 +1,17 @@
----
+﻿---
 trigger: always_on
 ---
 
-Valora
+Rentica
 
 I am Team Member A. I own ONLY the MERN stack: React, Node/Express, MongoDB.
 Never write Django/Python code — that's my teammate's responsibility.
 
-Stack: Node.js, Express, MongoDB (local, mongodb://localhost:27017/valora_anti),
+Stack: Node.js, Express, MongoDB (local, mongodb://localhost:27017/Rentica_anti),
 Mongoose, JWT + bcrypt auth, Multer for local image uploads (no Cloudinary yet).
 
-Before generating backend code, read docs/Valora_Final_Spec_APIs.md and
-docs/Valora_Team_Workflow.md, especially the Node ↔ Django API Contract
+Before generating backend code, read docs/Rentica_Final_Spec_APIs.md and
+docs/Rentica_Team_Workflow.md, especially the Node ↔ Django API Contract
 (workflow doc, section 8). Match field names and response shapes exactly,
 even for fields we can't populate yet (leave them null/default).
 
@@ -96,3 +96,4 @@ refresh a browser after a change — I will check results myself in my
 own already-open tab. Just make the edit and stop.
 
 Rules Followed: Future pages and features from Lovable will be adapted natively into our existing MERN stack, component library, architecture, and Tailwind CSS design tokens — without pulling in external libraries or unneeded dependencies.
+

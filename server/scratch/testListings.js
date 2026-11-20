@@ -1,9 +1,9 @@
-const testListings = async () => {
+﻿const testListings = async () => {
   const authUrl = 'http://localhost:5000/api/auth';
   const listingsUrl = 'http://localhost:5000/api/listings';
 
-  const sellerEmail = `seller_${Date.now()}@valora.com`;
-  const buyerEmail = `buyer_${Date.now()}@valora.com`;
+  const sellerEmail = `seller_${Date.now()}@rentica.com`;
+  const buyerEmail = `buyer_${Date.now()}@rentica.com`;
   const password = 'securepassword123';
 
   let sellerToken = '';
@@ -370,3 +370,4 @@ const testListings = async () => {
 };
 
 testListings();
+

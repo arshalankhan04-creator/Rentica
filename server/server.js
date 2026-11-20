@@ -9,7 +9,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listingRoutes');
-const inquiryRoutes = require('./routes/inquiryRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 
@@ -28,7 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
-app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 
@@ -37,12 +37,12 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'UP',
     timestamp: new Date(),
-    service: 'Valora Backend Server'
+    service: 'Rentica Backend Server'
   });
 });
 
 app.get('/', (req, res) => {
-  res.send('Valora API is running.');
+  res.send('Rentica API is running.');
 });
 
 // Error Handler Middleware

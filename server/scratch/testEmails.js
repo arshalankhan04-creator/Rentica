@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const User = require('../models/User');
@@ -11,7 +11,7 @@ const testEmails = async () => {
   const inquiriesUrl = 'http://localhost:5000/api/inquiries';
 
   const sellerEmail = process.env.EMAIL_USER;
-  const buyerEmail = `buyer_email_${Date.now()}@valora.com`;
+  const buyerEmail = `buyer_email_${Date.now()}@rentica.com`;
   const password = 'securepassword123';
 
   let sellerToken, buyerToken;
@@ -28,7 +28,7 @@ const testEmails = async () => {
   // Setup: Database cleanup and Users/Listings
   try {
     // Connect directly to DB to clean up any user with this email so registration succeeds
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/valora');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/rentica');
     await User.deleteMany({ email: sellerEmail.toLowerCase() });
     await mongoose.connection.close();
     console.log('Database cleaned up for target seller email.');
@@ -46,7 +46,7 @@ const testEmails = async () => {
     res = await fetch(`${authUrl}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Valora Buyer', email: buyerEmail, password, role: 'buyer' })
+      body: JSON.stringify({ name: 'rentica Buyer', email: buyerEmail, password, role: 'buyer' })
     });
     data = await res.json();
     buyerToken = data.token;
@@ -98,3 +98,4 @@ const testEmails = async () => {
 };
 
 testEmails();
+

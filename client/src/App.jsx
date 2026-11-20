@@ -44,6 +44,8 @@ const AppLayout = () => {
         <Route path="/edit-listing/:id" element={<EditListing />} />
         <Route path="/inquiries" element={<Inquiries />} />
         <Route path="/inquiries/:id" element={<Inquiries />} />
+        <Route path="/bookings" element={<Inquiries />} />
+        <Route path="/bookings/:id" element={<Inquiries />} />
         <Route path="/my-listings" element={<MyListings />} />
         <Route path="/admin" element={<AdminPanel />} />
         

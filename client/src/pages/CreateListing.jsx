@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -18,7 +18,7 @@ const CreateListing = () => {
   const [transmission, setTransmission] = useState('Manual');
   const [bodyType, setBodyType] = useState('SUV');
   const [location, setLocation] = useState('');
-  const [price, setPrice] = useState('');
+  const [pricePerDay, setPricePerDay] = useState('');
   const [description, setDescription] = useState('');
 
   // Image Upload States
@@ -31,56 +31,10 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [validationError, setValidationError] = useState('');
-  const [aiEstimate, setAiEstimate] = useState(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState('');
+  // AI estimate removed for Rentica
 
   // Revoke preview URLs on unmount
-  useEffect(() => {
-    return () => {
-      previews.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [previews]);
-
-  useEffect(() => {
-    const hasVehicleDetails = brand.trim() && model.trim() && year && kmDriven !== '' && fuelType && transmission;
-    if (!hasVehicleDetails || !user) {
-      setAiEstimate(null);
-      setAiError('');
-      setAiLoading(false);
-      return;
-    }
-
-    const currentYear = new Date().getFullYear();
-    const numericYear = Number(year);
-    const numericKm = Number(kmDriven);
-    if (numericYear < 1900 || numericYear > currentYear + 1 || numericKm < 0) {
-      return;
-    }
-
-    const timeoutId = setTimeout(async () => {
-      setAiLoading(true);
-      setAiError('');
-      try {
-        const res = await api.post('/ml/predict-price', {
-          brand: brand.trim(),
-          model: model.trim(),
-          year: numericYear,
-          kmDriven: numericKm,
-          fuelType,
-          transmission
-        });
-        setAiEstimate(res.data);
-      } catch (err) {
-        setAiEstimate(null);
-        setAiError(err.response?.data?.message || 'AI estimate unavailable');
-      } finally {
-        setAiLoading(false);
-      }
-    }, 600);
-
-    return () => clearTimeout(timeoutId);
-  }, [brand, model, year, kmDriven, fuelType, transmission, user]);
+  // ML price prediction removed
 
   const formatPrice = (value) => {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return '--';
@@ -93,7 +47,7 @@ const CreateListing = () => {
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  // Protect route: Allow only logged-in sellers
+  // Protect route: Allow only logged-in users
   if (authLoading) {
     return (
       <div className="w-full bg-background min-h-screen py-16 flex flex-col items-center justify-center font-sans">
@@ -150,10 +104,10 @@ const CreateListing = () => {
       tempErrors.kmDriven = 'Kilometers driven cannot be negative';
     }
 
-    if (!price) {
-      tempErrors.price = 'Price is required';
-    } else if (Number(price) <= 0) {
-      tempErrors.price = 'Price must be greater than 0';
+    if (!pricePerDay) {
+      tempErrors.pricePerDay = 'Price is required';
+    } else if (Number(pricePerDay) <= 0) {
+      tempErrors.pricePerDay = 'Price must be greater than 0';
     }
 
     setErrors(tempErrors);
@@ -249,7 +203,7 @@ const CreateListing = () => {
     formData.append('transmission', transmission);
     formData.append('bodyType', bodyType.trim());
     formData.append('location', location.trim());
-    formData.append('price', price);
+    formData.append('pricePerDay', price);
     formData.append('description', description.trim());
 
     // Append images
@@ -283,7 +237,7 @@ const CreateListing = () => {
             List Your Car
           </h1>
           <p className="text-body text-sm m-0 mt-1.5 select-none leading-relaxed">
-            Enter details to get an instant AI valuation and list your vehicle on Valora.
+            Enter details to get an instant AI valuation and list your vehicle on Rentica.
           </p>
         </div>
 
@@ -654,7 +608,7 @@ const CreateListing = () => {
                   {/* Price */}
                   <div>
                     <label htmlFor="price" className="block text-[10px] font-semibold tracking-wider text-textSecondary mb-2 uppercase">
-                      Asking Price (₹) *
+                      Price Per Day (\$) *
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-4 text-xs font-semibold text-textSecondary select-none">
@@ -664,31 +618,31 @@ const CreateListing = () => {
                         id="price"
                         type="number"
                         placeholder="e.g. 4500000"
-                        value={price}
+                        value={pricePerDay}
                         onChange={(e) => {
-                          setPrice(e.target.value);
-                          if (errors.price) setErrors(prev => ({ ...prev, price: '' }));
+                          setPricePerDay(e.target.value);
+                          if (errors.pricePerDay) setErrors(prev => ({ ...prev, pricePerDay: '' }));
                         }}
                         onBlur={() => {
-                          if (!price) {
-                            setErrors(prev => ({ ...prev, price: 'Price is required' }));
-                          } else if (Number(price) <= 0) {
-                            setErrors(prev => ({ ...prev, price: 'Price must be greater than 0' }));
+                          if (!pricePerDay) {
+                            setErrors(prev => ({ ...prev, pricePerDay: 'Price is required' }));
+                          } else if (Number(pricePerDay) <= 0) {
+                            setErrors(prev => ({ ...prev, pricePerDay: 'Price must be greater than 0' }));
                           }
                         }}
                         className={`w-full bg-surface border rounded-xl pl-8 pr-4 py-3 text-xs font-semibold text-textPrimary placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/45 focus:border-primary hover:border-muted-foreground/35 transition-all ${
-                          errors.price ? 'border-danger focus:ring-danger/30' : 'border-border'
+                          errors.pricePerDay ? 'border-danger focus:ring-danger/30' : 'border-border'
                         }`}
                         required
                       />
                     </div>
-                    {errors.price && (
+                    {errors.pricePerDay && (
                       <span className="text-[10px] font-bold text-danger mt-1.5 block">
-                        {errors.price}
+                        {errors.pricePerDay}
                       </span>
                     )}
                     <span className="text-[10px] font-semibold text-textSecondary mt-2 block select-none">
-                      ℹ Based on current market data, setting a price near the AI estimate increases sale speed by 40%.
+                      ℹ Based on current market data, setting a price near the AI estimate attracts more renters.
                     </span>
                   </div>
                 </div>
@@ -731,7 +685,7 @@ const CreateListing = () => {
               <div className="bg-surface border border-border rounded-card-lg p-6 shadow-sm text-left space-y-5">
                 <div>
                   <h3 className="text-card-title m-0">
-                    Live AI Price Guidance
+                    Pricing Guidance
                   </h3>
                   {year && kmDriven ? (
                     <div className="mt-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-700">
@@ -839,3 +793,5 @@ const CreateListing = () => {
 };
 
 export default CreateListing;
+
+

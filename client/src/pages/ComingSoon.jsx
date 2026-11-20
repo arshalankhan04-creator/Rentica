@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 
@@ -20,7 +20,7 @@ const ComingSoon = () => {
         {formattedTitle} Coming Soon
       </h2>
       <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-        We are building the {formattedTitle.toLowerCase()} feature to connect seamlessly with Valora's trust and valuation engine. Check back soon!
+        We are building the {formattedTitle.toLowerCase()} feature to connect seamlessly with Rentica's trust and valuation engine. Check back soon!
       </p>
       <Link to="/" className="no-underline">
         <Button variant="primary" className="py-2.5 px-6 font-bold bg-primary rounded-xl shadow-md text-white border-none">
@@ -32,3 +32,4 @@ const ComingSoon = () => {
 };
 
 export default ComingSoon;
+

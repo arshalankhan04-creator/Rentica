@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 
@@ -43,11 +43,11 @@ const About = () => {
             Transparancy & Trust in Used Car Trading
           </h1>
           <p className="text-lg text-textSecondary leading-relaxed">
-            Valora eliminates market asymmetry by combining automated Machine Learning price valuation, computer vision damage detection, and multi-factor seller trust scoring into a seamless marketplace experience.
+            Rentica makes car rental transparent, simple, and trustworthy — connecting verified owners with renters who want a better experience.
           </p>
         </div>
 
-        {/* Mission Card Grid */}
+        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-8 rounded-2xl bg-surface border border-border/70 space-y-3 text-left">
             <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xl">
@@ -55,7 +55,7 @@ const About = () => {
             </div>
             <h3 className="text-xl font-bold text-textPrimary">Fair Market Pricing</h3>
             <p className="text-sm text-textSecondary leading-relaxed">
-              No more guessing game or overpriced listings. Every car listed on Valora is instantly benchmarked against true market price distributions.
+              Every car listed on Rentica has verified daily pricing and owner details so renters always know what they are getting.
             </p>
           </div>
 
@@ -134,3 +134,4 @@ const About = () => {
 };
 
 export default About;
+

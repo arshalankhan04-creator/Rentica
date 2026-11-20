@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -306,7 +306,7 @@ const Register = () => {
             className="text-2xl no-underline tracking-wide block"
             style={{ fontFamily: 'Anoxic, sans-serif', color: '#FFFFFF', fontWeight: 500 }}
           >
-            Valora
+            Rentica
           </Link>
         </div>
 
@@ -498,13 +498,13 @@ const Register = () => {
               className="text-2xl no-underline tracking-wide block"
               style={{ fontFamily: 'Anoxic, sans-serif', color: 'var(--color-textPrimary)', fontWeight: 500 }}
             >
-              Valora
+              Rentica
             </Link>
           </div>
 
           <div className="mb-6 select-none">
             <h1 className="text-3xl font-bold text-textPrimary tracking-tight mb-1.5">Create Account</h1>
-            <p className="text-textSecondary text-xs font-medium">Join Valora's verified auto marketplace</p>
+            <p className="text-textSecondary text-xs font-medium">Join Rentica's verified auto marketplace</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -629,3 +629,4 @@ const Register = () => {
 };
 
 export default Register;
+

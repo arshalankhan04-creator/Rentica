@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ListingSchema = new mongoose.Schema({
-  seller: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
@@ -41,9 +41,15 @@ const ListingSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a location']
   },
-  price: {
+  pricePerDay: {
     type: Number,
-    required: [true, 'Please add a price']
+    required: [true, 'Please add a price per day']
+  },
+  availableFrom: {
+    type: Date
+  },
+  availableTo: {
+    type: Date
   },
   description: {
     type: String
@@ -52,79 +58,29 @@ const ListingSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  
-  // ML Fields - default null/empty
-  conditionScore: {
-    type: Number,
-    default: null
+  status: {
+    type: String,
+    enum: ['active', 'pending_review', 'rented', 'rejected'],
+    default: 'pending_review'
   },
-  detectedDamages: [
-    {
-      part: { type: String },
-      damageType: { type: String },
-      confidence: { type: Number }
-    }
-  ],
-  predictedPriceMin: {
-    type: Number,
-    default: null
-  },
-  predictedPriceMax: {
-    type: Number,
-    default: null
-  },
-  confidenceLevel: {
+  rejectionReason: {
     type: String,
     default: null
   },
-  featureImportance: {
-    type: mongoose.Schema.Types.Mixed,
+  reviewedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     default: null
   },
-  riskFlag: {
-    type: String,
-    enum: ['Low', 'Medium', 'High', null],
+  reviewedAt: {
+    type: Date,
     default: null
-  },
-  fraudProbability: {
-    type: Number,
-    default: null
-  },
-  fraudReasons: [{
-    type: String
-  }],
-  trustScore: {
-    type: Number,
-    default: null
-  },
-  trustBreakdown: {
-    type: mongoose.Schema.Types.Mixed,
-    default: null
-  },
-  
-    status: {
-      type: String,
-      enum: ['active', 'pending_review', 'sold', 'rejected'],
-      default: 'pending_review'
-    },
-    rejectionReason: {
-      type: String,
-      default: null
-    },
-    reviewedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: null
-    },
-    reviewedAt: {
-      type: Date,
-      default: null
-    }
-  }, {
+  }
+}, {
   timestamps: true
 });
 
 // Index for search/filtering
-ListingSchema.index({ brand: 1, year: 1, price: 1 });
+ListingSchema.index({ brand: 1, year: 1, pricePerDay: 1 });
 
 module.exports = mongoose.model('Listing', ListingSchema);

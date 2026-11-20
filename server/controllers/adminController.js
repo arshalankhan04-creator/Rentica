@@ -3,7 +3,7 @@ const Listing = require('../models/Listing');
 const User = require('../models/User');
 const { sendListingApprovedEmail, sendListingRejectedEmail } = require('../utils/sendEmail');
 
-// @desc    Get Admin Metrics Stats (Active listings, total users, awaiting review, flagged risk)
+// @desc    Get Admin Metrics Stats (Active listings, total users, awaiting review)
 // @route   GET /api/admin/stats
 // @access  Private (Admin only)
 const getAdminStats = async (req, res, next) => {
@@ -11,13 +11,11 @@ const getAdminStats = async (req, res, next) => {
     const activeListings = await Listing.countDocuments({ status: 'active' });
     const totalUsers = await User.countDocuments({});
     const awaitingReview = await Listing.countDocuments({ status: 'pending_review' });
-    const flaggedRisk = await Listing.countDocuments({ riskFlag: { $in: ['High', 'Medium'] } });
 
     res.json({
       activeListings,
       totalUsers,
-      awaitingReview,
-      flaggedRisk
+      awaitingReview
     });
   } catch (error) {
     next(error);
@@ -34,30 +32,7 @@ const getPendingListings = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const listings = await Listing.find({ status: 'pending_review' })
-      .populate('seller', 'name email')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    res.json(listings);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get flagged listings queue (riskFlag is High or Medium)
-// @route   GET /api/admin/flagged
-// @access  Private (Admin only)
-const getFlaggedListings = async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-
-    const listings = await Listing.find({
-      riskFlag: { $in: ['High', 'Medium'] }
-    })
-      .populate('seller', 'name email')
+      .populate('owner', 'name email')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -80,7 +55,7 @@ const approveListing = async (req, res, next) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    const listing = await Listing.findById(id).populate('seller', 'name email');
+    const listing = await Listing.findById(id).populate('owner', 'name email');
     if (!listing) {
       return res.status(404).json({ message: 'Listing not found' });
     }
@@ -88,8 +63,8 @@ const approveListing = async (req, res, next) => {
     if (listing.status === 'active') {
       return res.status(400).json({ message: 'Listing is already active' });
     }
-    if (listing.status === 'sold') {
-      return res.status(400).json({ message: 'Cannot approve a sold listing' });
+    if (listing.status === 'rented') {
+      return res.status(400).json({ message: 'Cannot approve a rented listing' });
     }
 
     listing.status = 'active';
@@ -99,8 +74,8 @@ const approveListing = async (req, res, next) => {
     await listing.save();
 
     // Trigger email notification
-    if (listing.seller && listing.seller.email) {
-      sendListingApprovedEmail(listing.seller.email, listing.seller.name, `${listing.brand} ${listing.model}`);
+    if (listing.owner && listing.owner.email) {
+      sendListingApprovedEmail(listing.owner.email, listing.owner.name, `${listing.brand} ${listing.model}`);
     }
 
     res.json(listing);
@@ -121,7 +96,7 @@ const rejectListing = async (req, res, next) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    const listing = await Listing.findById(id).populate('seller', 'name email');
+    const listing = await Listing.findById(id).populate('owner', 'name email');
     if (!listing) {
       return res.status(404).json({ message: 'Listing not found' });
     }
@@ -129,8 +104,8 @@ const rejectListing = async (req, res, next) => {
     if (listing.status === 'rejected') {
       return res.status(400).json({ message: 'Listing is already rejected' });
     }
-    if (listing.status === 'sold') {
-      return res.status(400).json({ message: 'Cannot reject a sold listing' });
+    if (listing.status === 'rented') {
+      return res.status(400).json({ message: 'Cannot reject a rented listing' });
     }
 
     const { reason } = req.body;
@@ -141,8 +116,8 @@ const rejectListing = async (req, res, next) => {
     await listing.save();
 
     // Trigger email notification
-    if (listing.seller && listing.seller.email) {
-      sendListingRejectedEmail(listing.seller.email, listing.seller.name, `${listing.brand} ${listing.model}`, reason);
+    if (listing.owner && listing.owner.email) {
+      sendListingRejectedEmail(listing.owner.email, listing.owner.name, `${listing.brand} ${listing.model}`, reason);
     }
 
     res.json(listing);
@@ -161,7 +136,7 @@ const getAllListings = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const listings = await Listing.find({})
-      .populate('seller', 'name email')
+      .populate('owner', 'name email')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -175,7 +150,6 @@ const getAllListings = async (req, res, next) => {
 module.exports = {
   getAdminStats,
   getPendingListings,
-  getFlaggedListings,
   approveListing,
   rejectListing,
   getAllListings
