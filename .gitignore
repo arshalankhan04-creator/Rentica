@@ -12,3 +12,9 @@ node_modules/
 # Reference repo
 lovable-ref/
 
+# Dev/internal
+server/scratch/
+.agents/
+reference image/
+.worktrees/
+
